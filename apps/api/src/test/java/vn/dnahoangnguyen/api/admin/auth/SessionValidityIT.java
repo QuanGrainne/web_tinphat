@@ -157,4 +157,34 @@ class SessionValidityIT extends IntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors[0].field").value("newPassword"));
     }
+
+    @Test
+    void passwordChangeRefusesWhatBcryptCannotHold() throws Exception {
+        AppUser user = TestAuth.createUser(users, encoder, "valid-toolong", PASSWORD, Role.MANAGER);
+        MockHttpSession session = signedIn(user, "10.30.0.11");
+
+        // 80 bytes of ASCII, and 30 accented characters that are 90 bytes
+        for (String tooLong : new String[] {"p".repeat(80), "ệ".repeat(30)}) {
+            mvc.perform(post("/api/admin/me/password")
+                            .session(session)
+                            .with(TestAuth.xsrf(AdminLogin.XSRF))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"currentPassword\":\"" + PASSWORD + "\",\"newPassword\":\"" + tooLong + "\"}"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                    .andExpect(jsonPath("$.errors[0].field").value("newPassword"))
+                    .andExpect(jsonPath("$.errors[0].message").isNotEmpty());
+        }
+        // nothing changed: the old password still works
+        AdminLogin.attempt(mvc, "valid-toolong", PASSWORD, "10.30.0.12").andExpect(status().isOk());
+
+        String atTheLimit = "p".repeat(72);
+        mvc.perform(post("/api/admin/me/password")
+                        .session(session)
+                        .with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"currentPassword\":\"" + PASSWORD + "\",\"newPassword\":\"" + atTheLimit + "\"}"))
+                .andExpect(status().isNoContent());
+        AdminLogin.attempt(mvc, "valid-toolong", atTheLimit, "10.30.0.13").andExpect(status().isOk());
+    }
 }
