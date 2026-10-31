@@ -39,13 +39,15 @@ Goal: ship spec A1-A16, A19-A21 and B1-B9 (`docs/feature-spec.md`) minus section
 | Phase | Name | Effort | Depends on | Status |
 |---|---|---|---|---|
 | 1 | [Spec and wireframe alignment](./phase-01-spec-and-wireframe-alignment.md) | 0.3 | - | Done (owner review pending) |
-| 2 | [Foundation](./phase-02-foundation.md) | 1.75-2.25 | - | Pending |
-| 3 | [Catalogue domain and admin core](./phase-03-catalogue-domain-and-admin-core.md) | 3.5-4.5 | 1, 2 | Pending |
-| 4 | [KiotViet Excel import](./phase-04-kiotviet-excel-import.md) | 1.25-1.75 | 3, 6 + real export (not launch-blocking) | Pending |
-| 5 | [Storefront](./phase-05-storefront.md) | 2.25-2.75 | 3 | Pending |
-| 6 | [Quote and order](./phase-06-quote-and-order.md) | 4-5.25 | 5 | Pending |
-| 7 | [Content and settings](./phase-07-content-and-settings.md) | 1.0-1.25 | 5, 6 | Pending |
-| 8 | [Hardening and deploy](./phase-08-hardening-and-deploy.md) | 1.5-2 | 1-3, 5-7 | Pending |
+| 2 | [Foundation](./phase-02-foundation.md) | 1.75-2.25 | - | MVP slice done 2026-10-31 (CI workflow and spike notes cut) |
+| 3 | [Catalogue domain and admin core](./phase-03-catalogue-domain-and-admin-core.md) | 3.5-4.5 | 1, 2 | MVP slice done 2026-10-31 (images, slug history, bulk ops, attribute sets cut) |
+| 4 | [KiotViet Excel import](./phase-04-kiotviet-excel-import.md) | 1.25-1.75 | 3, 6 + real export (not launch-blocking) | Not started (cut from the MVP) |
+| 5 | [Storefront](./phase-05-storefront.md) | 2.25-2.75 | 3 | MVP slice done 2026-10-31 (e2e suite beyond the walkthrough, Lighthouse, slug redirects cut) |
+| 6 | [Quote and order](./phase-06-quote-and-order.md) | 4-5.25 | 5 | MVP slice done 2026-10-31 (Turnstile, exports, price list, contact form, reissue, reconcile job cut) |
+| 7 | [Content and settings](./phase-07-content-and-settings.md) | 1.0-1.25 | 5, 6 | Partly done 2026-10-31 (bank settings + 3 static pages; news, pages CMS, home blocks, discount-tier editor cut) |
+| 8 | [Hardening and deploy](./phase-08-hardening-and-deploy.md) | 1.5-2 | 1-3, 5-7 | Partly done 2026-10-31 (Docker stack, runbook, backup script; Cloudflare, R2, monitoring, deploy.sh, restore drill not done) |
+
+**MVP build 2026-10-31:** a runnable slice of phases 2, 3, 5, 6, 7, 8 exists on `main` (Docker Compose: db, api, web, caddy, mailpit). Scope, cuts and ownership: [mvp-scope.md](./mvp-scope.md). What works, how to run it, test results and open owner decisions: `docs/mvp-status.md`. Phase 4 (KiotViet import) is not started. Phases marked "MVP slice done" still carry their full acceptance criteria for go-live (owner review, real images, bank app QR check, SePay link, production hosting).
 
 Total: **~15.5-20 person-weeks** (sum 15.55-20.05); launch path without phase 4: ~14.3-18.3; calendar ~4-5 months solo. History: red team 16-20, owner decisions A-C -> 15-19, S1 no change, S2 +1.0-1.25 (P6 SePay webhook, ~6 person-days per research estimate [U]; excludes SePay account setup and bank linking, which are owner time), **S3 -0.25 (P7 users screen deferred, D2)**. **Owner turnaround (deliverables below) is calendar time outside this estimate.** Payload estimate was 10-12; the gap is the hand-built admin.
 
