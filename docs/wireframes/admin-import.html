@@ -72,7 +72,7 @@
             <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SV10C1.5Kg- 4L- Loại 1 (SV1510)</td><td>Giấy vệ sinh Sen Vàng cao cấp Loại 1</td><td>Sen Vàng</td><td class="r num">58.000</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
             <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SV10C1.4Kg-4L (SV1410) G</td><td>Giấy vệ sinh Sen Vàng SV1410</td><td>Sen Vàng</td><td class="r num">49.000</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
             <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SV12C1.5Kg-4L- Classic Fresh (SV1512)</td><td>Giấy vệ sinh cao cấp Sen Vàng</td><td>Sen Vàng</td><td class="r num">58.000</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
-            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SV300-3L-Gói</td><td>Giấy ăn Sen Vàng 300 tờ 3 lớp 175x120 <span class="badge b-warn">Kích thước chưa nêu đơn vị</span></td><td>Sen Vàng</td><td class="r num">3.229</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SV300-3L-Gói</td><td>Giấy ăn Sen Vàng 300 tờ 3 lớp 175x120</td><td>Sen Vàng</td><td class="r num">3.229</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
             <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SVR300-3L-3M-Gói</td><td>Giấy ăn Sen Vàng 300 tờ 3 lớp 3 màu</td><td>Sen Vàng</td><td class="r num">3.229</td><td class="r">3</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
 
             <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">EL0514-Gói</td><td>Khăn Napkin Phong Lan</td><td>Phong Lan</td><td class="r num">25.000</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
@@ -94,32 +94,15 @@
 <div class="dlg center" id="step1" role="dialog" aria-modal="true" aria-labelledby="t1" style="width:880px">
   <div class="dlg-h"><h2 id="t1" style="font-size:16px">Nhập hàng hóa từ file KiotViet <span class="muted" style="font-size:13px;font-weight:400">(Tải về file mẫu: <a href="#">Excel file</a>)</span> <span class="i i-info" style="color:var(--muted)"></span></h2><button class="x" aria-label="Đóng"><span class="i i-x" style="width:18px;height:18px"></span></button></div>
   <div class="dlg-b" style="padding-top:14px">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px">
-      <div>
-        <div class="fb" style="padding-top:0"><h3 style="font-weight:500"><span>Xử lý <b><i>mã hàng đã có</i></b> trên web?</span></h3>
-          <label class="radio"><input type="radio" name="a" checked> Cập nhật giá và quy đổi theo file</label>
-          <label class="radio"><input type="radio" name="a"> Chỉ thêm mã mới, không đổi mã cũ</label></div>
-        <hr style="border:0;border-top:1px solid var(--line-s);margin:6px 0 0">
-        <div class="fb"><h3 style="font-weight:500">Mã mới trong file?</h3>
-          <label class="radio"><input type="radio" name="b" checked> Đưa vào "Cần bổ sung" (ẩn trên web)</label>
-          <label class="radio"><input type="radio" name="b"> Bỏ qua mã mới</label></div>
-        <hr style="border:0;border-top:1px solid var(--line-s);margin:6px 0 0">
-        <div class="fb"><h3 style="font-weight:500">Nhóm hàng KiotViet sang danh mục web</h3>
-          <label class="radio"><input type="radio" name="c" checked> Dùng bảng ánh xạ đã lưu <a href="#" style="margin-left:6px">Xem bảng (6 nhóm)</a></label>
-          <label class="radio"><input type="radio" name="c"> Gán sau</label></div>
-      </div>
-      <div>
-        <div class="fb" style="padding-top:0"><h3 style="font-weight:500"><span>Mã <b><i>ngừng kinh doanh</i></b> ở KiotViet?</span></h3>
-          <label class="radio"><input type="radio" name="d" checked> Tự ẩn trên web</label>
-          <label class="radio"><input type="radio" name="d"> Giữ nguyên trên web</label></div>
-        <hr style="border:0;border-top:1px solid var(--line-s);margin:6px 0 0">
-        <div class="fb"><h3 style="font-weight:500"><span>Mã <b><i>nhập tay</i></b> khác giá KiotViet?</span></h3>
-          <label class="radio"><input type="radio" name="e" checked> Báo lệch để tôi chọn bên đúng</label>
-          <label class="radio"><input type="radio" name="e"> Ưu tiên giá KiotViet</label>
-          <label class="radio"><input type="radio" name="e"> Giữ giá nhập tay</label></div>
-        <hr style="border:0;border-top:1px solid var(--line-s);margin:6px 0 0">
-        <div class="fb"><h3 style="font-weight:500">Không bao giờ nhập từ file</h3><p class="muted" style="font-size:12.5px;line-height:1.5">Ảnh, mô tả, thương hiệu, SEO và danh mục web. Không có tồn kho, giá vốn, điểm.</p></div>
-      </div>
+    <div class="fb" style="padding-top:0"><h3 style="font-weight:600">Quy tắc nhập</h3>
+      <table class="utbl" style="margin-top:6px"><tbody>
+        <tr><td style="width:300px">Mã hàng đã có trên web</td><td>Cập nhật giá và quy đổi theo file</td></tr>
+        <tr><td>Mã mới trong file</td><td>Vào "Cần bổ sung", ẩn trên web</td></tr>
+        <tr><td>Mã ngừng kinh doanh ở KiotViet</td><td>Tự ẩn trên web, giữ URL</td></tr>
+        <tr><td>Mã nhập tay khác giá KiotViet</td><td>Hỏi từng dòng ở bước xem trước</td></tr>
+        <tr><td>Nhóm hàng KiotViet sang danh mục web</td><td>Theo bảng ánh xạ đã lưu <a href="#" style="margin-left:6px">Xem bảng (6 nhóm)</a></td></tr>
+        <tr><td>Không bao giờ nhập từ file</td><td>Ảnh, mô tả, thương hiệu, SEO, danh mục web, tồn kho, giá vốn, điểm</td></tr>
+      </tbody></table>
     </div>
   </div>
   <div style="padding:12px 24px 0;border-top:1px solid var(--line-s);background:#F9FAFB;display:flex;justify-content:space-between;align-items:center;gap:12px;flex:none">

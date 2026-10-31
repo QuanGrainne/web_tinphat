@@ -8,7 +8,7 @@
 </head>
 <body>
 <div class="util"><div class="wrap">
-  <a href="#">Tra cứu đơn</a>
+  <a href="store-order.html">Tra cứu đơn</a>
   <a class="hot" href="tel:0366985679"><i class="i i-phone"></i>Hotline: 0366 985 679</a>
 </div></div>
 <header class="hd">
@@ -22,7 +22,7 @@
     </form>
     <nav class="hd-act" aria-label="Tiện ích">
       <a class="act act-q" href="store-quote.html"><span class="act-ico"><i class="i i-doc"></i></span><span class="act-t"><b>Báo giá</b><small>3 sản phẩm</small></span></a>
-      <a class="act act-o" href="#"><span class="act-ico"><i class="i i-box"></i></span><span class="act-t"><b>Kiểm tra đơn</b><small>Đơn của bạn</small></span></a>
+      <a class="act act-o" href="store-order.html"><span class="act-ico"><i class="i i-box"></i></span><span class="act-t"><b>Tra cứu đơn</b><small>Đơn của bạn</small></span></a>
       <a class="act act-c" href="store-checkout.html" aria-label="Giỏ hàng"><span class="act-ico"><i class="i i-cart"></i><em>2</em></span><span class="act-t"><b>Giỏ hàng</b><small>2 sản phẩm</small></span></a>
     </nav>
   </div>
@@ -54,8 +54,8 @@
       <div class="step"><button type="button" id="minus" aria-label="Giảm"><i class="i i-minus"></i></button><input id="qty" type="number" value="1" min="1" inputmode="numeric" aria-label="Số lượng"><button type="button" id="plus" aria-label="Tăng"><i class="i i-plus"></i></button></div>
       <div class="sum" aria-live="polite"><small id="packs">1 gói</small><b id="total">8.570đ</b></div>
     </div>
-    <div class="acts in-page"><a class="btn btn-out" href="store-quote.html">Thêm báo giá</a><a class="btn btn-pri" href="store-checkout.html">Thêm vào giỏ</a></div>
-    <span class="lbl-s">Tất cả quy cách</span>
+    <div class="acts in-page"><a class="btn btn-out b-quote" href="store-quote.html">Thêm báo giá</a><a class="btn btn-pri b-cart" href="store-checkout.html">Thêm vào giỏ</a></div>
+    <span class="lbl-s lbl-all">Tất cả quy cách</span>
     <div class="qrows" id="qrows"><div class="qhead"><span>Đơn vị</span><span>Quy đổi</span><span>Mã hàng</span><span style="text-align:right">Giá</span></div></div>
   </div>
 </div>
@@ -116,31 +116,41 @@
   <div class="ft-b">© 2026 DNA Hoàng Nguyên · Giá đã gồm VAT</div>
 </footer>
 <a class="fab" href="tel:0366985679" aria-label="Liên hệ"><i class="i i-chat"></i>Liên hệ</a>
-<div class="sticky pd-sticky"><a class="btn btn-out" href="store-quote.html">Thêm báo giá</a><a class="btn btn-pri" href="store-checkout.html">Thêm vào giỏ</a></div>
+<div class="sticky pd-sticky"><a class="btn btn-out b-quote" href="store-quote.html">Thêm báo giá</a><a class="btn btn-pri b-cart" href="store-checkout.html">Thêm vào giỏ</a></div>
 <script>
 (function(){
+  // unit = [name, packs per unit, code, price, priceHidden]
   var D={
     gt:{name:'Giấy ăn rút Sen Vàng khăn giấy lụa Gấu trúc',base:'gói',def:0,u:[['Gói',1,'SV320-3L-Gói',8570],['Dây',5,'SV320-3L-Dây 5G',42850],['Thùng',50,'SV320-3L-Thùng 50G',428500]]},
-    sv6c:{name:'Giấy Vệ sinh Sen Vàng 6 cuộn- SV6C Bathroom Tissue',base:'gói',def:1,u:[['Gói',1,'SV6C Bathroom Tissue',31000],['Cây',12,'SP000019',364750]]}
+    sv6c:{name:'Giấy Vệ sinh Sen Vàng 6 cuộn- SV6C Bathroom Tissue',base:'gói',def:1,u:[['Gói',1,'SV6C Bathroom Tissue',31000],['Cây',12,'SP000019',364750]]},
+    sv465:{name:'Giấy khăn giấy rút cao cấp gấu trúc Sen Vàng',base:'gói',def:0,u:[['Gói',1,'SV465-4L- Gói',5330],['Dây',8,'SV465-4L- G8',42640,1],['Thùng',80,'SV465-4L- T80',440000,1]]}
   };
   var P, sel, qty=1;
-  function init(){var h=location.hash.slice(1); P=h==='sv6c'?D.sv6c:D.gt; sel=h==='thung'?2:P.def; qty=1}
+  function init(){var h=location.hash.slice(1); P=D[h==='thung'?'gt':h]||D.gt; sel=h==='thung'?2:P.def; qty=1}
   function $(i){return document.getElementById(i)}
   function m(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'.')+'đ'}
+  function each(list,fn){Array.prototype.forEach.call(list,fn)}
+  function saving(u,b){
+    if(u===b||u[4])return '';
+    var pct=(b[3]*u[1]-u[3])/(b[3]*u[1])*100, r=Math.round(pct*10)/10;
+    if(r<0)return '';
+    return r===0?'Bằng giá mua lẻ':'Tiết kiệm '+r.toFixed(1).replace('.',',')+'%';
+  }
   function render(){
-    var u=P.u[sel], b=P.u[0], low=u[0].toLowerCase();
+    var u=P.u[sel], b=P.u[0], low=u[0].toLowerCase(), hid=!!u[4];
     $('name').textContent=P.name; $('bcname').textContent=P.name; document.title=P.name+' | DNA Hoàng Nguyên';
-    $('code').textContent=u[2]; $('price').textContent=m(u[3]); $('per').textContent='/ '+low;
-    var full=b[3]*u[1], pct=(full-u[3])/full*100, s=$('save');
-    if(sel>0&&pct>0&&pct.toFixed(1)!=='0.0'){s.hidden=false;s.textContent='Tiết kiệm '+pct.toFixed(1).replace('.',',')+'%'}else{s.hidden=true}
-    $('note').innerHTML=sel>0?'1 '+low+' = <b>'+u[1]+' '+P.base+'</b> · '+m(Math.round(u[3]/u[1]))+' / '+P.base:'&nbsp;';
-    $('packs').textContent=(qty*u[1])+' '+P.base; $('total').textContent=m(qty*u[3]); $('qty').value=qty;
+    $('code').textContent=u[2]; $('price').textContent=hid?'Liên hệ':m(u[3]); $('per').textContent=hid?'':'/ '+low;
+    var s=$('save'), t=saving(u,b); s.hidden=!t; s.textContent=t;
+    $('note').innerHTML=sel>0&&!hid?'1 '+low+' = <b>'+u[1]+' '+P.base+'</b> · '+m(Math.round(u[3]/u[1]))+' / '+P.base:'&nbsp;';
+    $('packs').textContent=hid?qty+' '+low:(qty*u[1])+' '+P.base; $('total').textContent=hid?'Liên hệ':m(qty*u[3]); $('qty').value=qty;
+    each(document.querySelectorAll('.b-cart'),function(a){a.hidden=hid});
+    each(document.querySelectorAll('.b-quote'),function(a){a.classList.toggle('btn-pri',hid);a.classList.toggle('btn-out',!hid)});
     var el=$('units'); el.style.setProperty('--n',P.u.length); el.innerHTML='';
     P.u.forEach(function(x,i){var bt=document.createElement('button');bt.type='button';bt.className='unit';bt.setAttribute('role','radio');bt.setAttribute('aria-checked',i===sel);
-      bt.innerHTML='<b>'+x[0]+'</b><span>'+x[1]+' '+P.base+'</span><em>'+m(x[3])+'</em>';bt.onclick=function(){sel=i;render()};el.appendChild(bt)});
-    var q=$('qrows'); Array.prototype.slice.call(q.querySelectorAll('.qrow')).forEach(function(n){n.remove()});
+      bt.innerHTML='<b>'+x[0]+'</b><span>'+(x[4]?'&nbsp;':x[1]+' '+P.base)+'</span><em>'+(x[4]?'Liên hệ':m(x[3]))+'</em>';bt.onclick=function(){sel=i;render()};el.appendChild(bt)});
+    var q=$('qrows'); each(q.querySelectorAll('.qrow'),function(n){n.remove()});
     P.u.forEach(function(x,i){var r=document.createElement('div');r.className='qrow'+(i===sel?' on':'');
-      r.innerHTML='<span class="uq"><b>'+x[0]+'</b> <span class="q">'+'= '+x[1]+' '+P.base+'</span></span><span class="c mono">'+x[2]+'</span><span class="p">'+m(x[3])+'</span>';
+      r.innerHTML='<span class="uq"><b>'+x[0]+'</b> <span class="q">'+(x[4]?'':'= '+x[1]+' '+P.base)+'</span></span><span class="c mono">'+x[2]+'</span><span class="p">'+(x[4]?'Liên hệ':m(x[3]))+'</span>';
       r.onclick=function(){sel=i;render()};q.appendChild(r)});
   }
   $('minus').onclick=function(){qty=Math.max(1,qty-1);render()};

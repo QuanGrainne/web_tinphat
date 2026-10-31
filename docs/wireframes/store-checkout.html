@@ -8,7 +8,7 @@
 </head>
 <body>
 <div class="util"><div class="wrap">
-  <a href="#">Tra cứu đơn</a>
+  <a href="store-order.html">Tra cứu đơn</a>
   <a class="hot" href="tel:0366985679"><i class="i i-phone"></i>Hotline: 0366 985 679</a>
 </div></div>
 <header class="hd">
@@ -22,7 +22,7 @@
     </form>
     <nav class="hd-act" aria-label="Tiện ích">
       <a class="act act-q" href="store-quote.html"><span class="act-ico"><i class="i i-doc"></i></span><span class="act-t"><b>Báo giá</b><small>3 sản phẩm</small></span></a>
-      <a class="act act-o" href="#"><span class="act-ico"><i class="i i-box"></i></span><span class="act-t"><b>Kiểm tra đơn</b><small>Đơn của bạn</small></span></a>
+      <a class="act act-o" href="store-order.html"><span class="act-ico"><i class="i i-box"></i></span><span class="act-t"><b>Tra cứu đơn</b><small>Đơn của bạn</small></span></a>
       <a class="act act-c" href="store-checkout.html" aria-label="Giỏ hàng"><span class="act-ico"><i class="i i-cart"></i><em>2</em></span><span class="act-t"><b>Giỏ hàng</b><small>2 sản phẩm</small></span></a>
     </nav>
   </div>
@@ -74,23 +74,13 @@
       <label class="pay-o"><input type="radio" name="pay" value="cod">Thanh toán khi nhận hàng (COD)</label>
       <label class="pay-o"><input type="radio" name="pay" value="bank" checked>Chuyển khoản</label>
     </div>
-    <div class="bank show" id="bank">
-      <div class="bank-in">
-        <div class="qrph" aria-label="Mã QR"><i class="i i-qr"></i></div>
-        <dl class="kv">
-          <dt>Ngân hàng</dt><dd>Tên ngân hàng</dd>
-          <dt>Số tài khoản</dt><dd class="mono">0000 000 000</dd>
-          <dt>Chủ tài khoản</dt><dd>CÔNG TY TNHH DNA HOÀNG NGUYÊN</dd>
-          <dt>Nội dung</dt><dd class="code">DH00045</dd>
-        </dl>
-      </div>
-    </div>
+    <div class="bank show" id="bank"><i class="i i-qr" style="margin-right:8px"></i>Mã đơn và mã QR chuyển khoản hiển thị sau khi đặt hàng</div>
   </section>
   <aside>
     <div class="box">
       <div class="sum-r big"><span>Tổng</span><b>1.152.680đ</b></div>
       <div class="sum-r"><small>Giá đã gồm VAT</small></div>
-      <a class="btn btn-pri btn-lg btn-block only-d" href="#" style="margin-top:8px">Đặt hàng</a>
+      <a class="btn btn-pri btn-lg btn-block only-d" href="store-order.html" style="margin-top:8px">Đặt hàng</a>
     </div>
   </aside>
 </div>
@@ -105,7 +95,7 @@
   <div class="ft-b">© 2026 DNA Hoàng Nguyên · Giá đã gồm VAT</div>
 </footer>
 <a class="fab" href="tel:0366985679" aria-label="Liên hệ"><i class="i i-chat"></i>Liên hệ</a>
-<div class="sticky"><div class="tot"><small>Tổng</small><b>1.152.680đ</b></div><a class="btn btn-pri" href="#">Đặt hàng</a></div>
+<div class="sticky"><div class="tot"><small>Tổng</small><b>1.152.680đ</b></div><a class="btn btn-pri" href="store-order.html">Đặt hàng</a></div>
 <script>
 (function(){
   var b=document.getElementById('bank');

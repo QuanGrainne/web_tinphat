@@ -1,7 +1,7 @@
 ---
 phase: 1
 title: "Spec and wireframe alignment"
-status: pending
+status: in-progress
 priority: P1
 effort: "0.3 pw (estimate)"
 dependencies: []
@@ -83,10 +83,10 @@ Delete:
 
 ## Success Criteria
 
-- [ ] C1-C15 resolved; grep checks above return zero hits.
-- [ ] `feature-spec.md` A10/A21/B3/B6/B8/B9/C/D and the new confirmation page match plan.md decisions (incl. owner decisions A-C, W1, W2, D1, D2).
-- [ ] `index.html` marks `admin-dashboard.html` as deferred (not built in phase 1 scope).
-- [ ] `docs/wireframes-v1-pdf-style/` gone; no dangling links.
+- [x] C1-C15 resolved; grep checks above return zero hits.
+- [x] `feature-spec.md` A10/A21/B3/B6/B8/B9/C/D and the new confirmation page match plan.md decisions (incl. owner decisions A-C, W1, W2, D1, D2).
+- [x] `index.html` marks `admin-dashboard.html` as deferred (not built in phase 1 scope).
+- [x] `docs/wireframes-v1-pdf-style/` gone; no dangling links.
 - [ ] Owner skims the diff and confirms (15 min review).
 
 ## Risk Assessment

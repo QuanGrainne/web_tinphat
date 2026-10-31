@@ -30,7 +30,7 @@ Nguồn đã xem: `kiotviet-style-notes.md` và ảnh trong `Downloads/omts-srs-
 | Thành phần | Cách làm trong wireframe | Nguồn KiotViet |
 |---|---|---|
 | Thanh tiện ích trắng | Chữ "DNA" + bell (chấm đỏ), gear, avatar, "Hỗ trợ" | `KV/retail-hang-hoa/danh-sach-hang-hoa/02.png` |
-| Menu xanh toàn chiều rộng | Tổng quan / Hàng hóa / Báo giá & đơn hàng / Nội dung / Đồng bộ KiotViet / Cài đặt; nút trắng bên phải "Xem website" (thay "Bán hàng") | cùng ảnh |
+| Menu xanh toàn chiều rộng | Hàng hóa / Báo giá & đơn hàng / Nội dung / Đồng bộ KiotViet / Cài đặt (5 mục, không có Tổng quan: hoãn); nút trắng bên phải "Xem website" (thay "Bán hàng") | cùng ảnh |
 | Đầu trang danh sách | Tiêu đề, ô tìm có icon lọc, `+ Tạo mới` (viền xanh), `Import file`, `Xuất file`, icon cột, gear, `?` | `.../danh-sach-hang-hoa/05.png`, `retail-khach-hang/khach-hang/03.png` |
 | Cột lọc trái | Khối có tiêu đề đậm, link "Tạo mới" nền xanh nhạt, ô chọn, radio "Toàn thời gian / Tùy chỉnh", pill Tất cả/Có/Không | `.../danh-sach-hang-hoa/03.png`, `10.png` |
 | Bảng | Checkbox + sao + ảnh nhỏ, hàng tổng đậm, hover `#E8F1FF`, chân "Hiển thị 15 dòng" + phân trang | `.../danh-sach-hang-hoa/05.png` |
@@ -40,7 +40,7 @@ Nguồn đã xem: `kiotviet-style-notes.md` và ảnh trong `Downloads/omts-srs-
 | Link "Tạo mới" cạnh Nhóm hàng / Thương hiệu | Mở dialog nhỏ chồng lên modal | `.../danh-sach-hang-hoa/07.png`, `10.png` |
 | Xác nhận xóa | "X đang gắn với N mã hàng. Bạn có chắc chắn muốn xóa ... với tất cả N mã hàng?" + `Bỏ qua` / `Đồng ý`, chồng trên dialog Sửa thương hiệu | `.../danh-sach-hang-hoa/10.png` |
 | Dialog Import | Hai cột câu hỏi radio, "Chọn file dữ liệu", chip tên file có ✕, nút hành động | `.../danh-sach-hang-hoa/32.png` |
-| Dashboard | Thẻ kết quả hôm nay (3 chỉ số), biểu đồ cột + tab Theo ngày/giờ/thứ + chọn "Tháng này", cột phải: việc cần làm (icon cam, số xanh) + "Hoạt động gần đây" | `KV/retail-bao-cao/tong-quan/02.png` |
+| Dashboard (hoãn, không làm ở giai đoạn 1; wireframe giữ để tham khảo) | Thẻ kết quả hôm nay (3 chỉ số), biểu đồ cột + tab Theo ngày/giờ/thứ + chọn "Tháng này", cột phải: việc cần làm (icon cam, số xanh) + "Hoạt động gần đây" | `KV/retail-bao-cao/tong-quan/02.png` |
 | Form trang đầy đủ, bảng tổng bên phải | Dùng cho khung chi tiết đơn (cột trái mặt hàng, cột phải tổng tiền, hai nút cuối) | `KV/retail-giao-dich/nhap-hang/05.png` |
 | Hàng nhãn / mô tả / điều khiển | Dùng khi làm màn Cài đặt (nhãn đậm, mô tả xám, điều khiển bên phải) | `KV/retail-thiet-lap/thiet-lap-cua-hang/03.png` |
 | Bong bóng trợ giúp | Góc dưới phải, nền xanh `#0066DD`, chữ "Hỗ trợ" | mọi ảnh KV |
@@ -51,7 +51,7 @@ Nguồn đã xem: `kiotviet-style-notes.md` và ảnh trong `Downloads/omts-srs-
 - Bảng danh sách: một dòng = một **dòng sản phẩm** (32); cột "Quy cách" đếm mã (69). Mã cơ bản hiện ở cột đầu; các mã còn lại ở dòng mở rộng.
 - Modal sản phẩm có 3 tab Thông tin / Mô tả / SEO. Thẻ **"Quy cách & giá"** là thẻ gập mở sẵn, gồm bảng: Đơn vị, Quy đổi (gói), Mã hàng, Giá đã gồm VAT, Đơn giá/gói (tự tính), Giá khuyến mại + từ/đến ngày, Nguồn giá (Nhập tay | Từ KiotViet), Hiển thị giá (Hiện giá | Liên hệ), công tắc Hiện/ẩn.
 - **Cảnh báo lệch giá** nằm ngay dưới bảng (hộp vàng): "Giá Thùng lệch +3,2% so với 80 × giá Gói và khác giá KiotViet", kèm hai lựa chọn "dùng giá KiotViet" / "giữ giá nhập tay". Ô lệch viền cam, dòng phụ cam. Ngưỡng cấu hình ở Cài đặt (gợi ý 2%).
-- Cờ "Cần xác nhận quy cách" lấy từ ghi chú catalogue (SV465: dây 8 hay 10 gói; 175x120 chưa rõ đơn vị). Hiện badge vàng ở danh sách và nhãn cho khách ở storefront.
+- Cờ **"Cần xác nhận quy cách"** theo từng quy cách, chỉ admin thấy (badge vàng ở danh sách và bảng quy cách) kèm ghi chú nội bộ của sản phẩm. Chỉ hai quy cách SV465 (Thùng `SV465-4L- T80`, Dây 8 `SV465-4L- G8`) mang cờ này; storefront hiện chúng là "Liên hệ", không nhãn, không ghi chú. Khăn 175x120 hiện giá in sẵn, không cờ.
 - **Import có bước 2 "Xem trước thay đổi"** (KiotViet không có): 5 ô số (mã mới, đổi giá, ngừng kinh doanh, lệch giá, không đổi), bảng diff có checkbox từng dòng, dòng lệch có radio chọn bên đúng, nút `Áp dụng N thay đổi`. Hết bước 2 mới ghi dữ liệu.
 - Luồng trạng thái hiển thị bằng thanh bước (chấm tròn): Báo giá Mới > Đã báo giá > Chốt/Hủy; Đơn Chờ xác nhận > Đã xác nhận > (Đã nhận tiền nếu chuyển khoản) > Đã nhập KiotViet > Đang giao > Hoàn tất. Phí giao do nhân viên nhập tay khi xác nhận.
 - Dữ liệu minh họa luôn có nhãn vàng "Dữ liệu minh họa" hoặc ghi chú wireframe. Mã hàng, tên hàng, đơn vị, giá lấy đúng catalogue.
@@ -69,7 +69,7 @@ Nguồn đã xem: `kiotviet-style-notes.md` và ảnh trong `Downloads/omts-srs-
 | Mẫu lấy | Cách làm ở DNA | Nguồn |
 |---|---|---|
 | Thanh tối trên cùng: hotline (nút nổi), tra cứu đơn | `.util`: "Tra cứu đơn" + nút xanh "Hotline: 0366 985 679". Ẩn trên mobile | `REF/home-d-0.png` |
-| Header: logo, nút DANH MỤC, ô tìm, 3 icon Báo giá / Kiểm tra đơn / Giỏ hàng kèm số | Giữ nguyên thứ tự; nút tìm xanh thay nút vàng; icon tròn viền xám, dòng phụ "3 sản phẩm" | `REF/home-d-0.png`, `REF/brand-d-top.png` |
+| Header: logo, nút DANH MỤC, ô tìm, 3 icon Báo giá / Tra cứu đơn / Giỏ hàng kèm số | Giữ nguyên thứ tự; nút tìm xanh thay nút vàng; icon tròn viền xám, dòng phụ "3 sản phẩm" | `REF/home-d-0.png`, `REF/brand-d-top.png` |
 | Hàng menu + nút nổi bật bên phải | Thanh xanh `#0041C5` như admin; nút trắng "Đại lý & Mua sỉ" (thay nút đỏ) | `REF/home-d-0.png` |
 | Banner tràn chiều ngang | Banner xanh phẳng: 1 tiêu đề, 1 dòng, 1 nút, chấm trượt. Không ảnh | `REF/home-d-0.png`, `REF/mobile-composite.png` (ô 1) |
 | Hàng "Thương hiệu pin": ô ảnh lớn + nhãn ngắn | "Nhóm hàng" (6 ô) và "Thương hiệu" (5 ô). Desktop một hàng; mobile lưới 3 cột | `REF/home-d-0.png`, `REF/mobile-composite.png` (ô 1) |
@@ -79,11 +79,11 @@ Nguồn đã xem: `kiotviet-style-notes.md` và ảnh trong `Downloads/omts-srs-
 | Mobile trang hãng: 2 nút "Lọc sản phẩm" / "Sắp xếp" mở ngăn kéo, lưới 2 cột | Giữ; ngăn kéo là bottom sheet (CSS `:target`, mở bằng `#filter`, `#sort`) | `REF/mobile-composite.png` (ô 2), `REF/brand-m-top.png` |
 | Trang sản phẩm: gallery trái, thông tin phải; mã hàng; giá lớn; "Giá đã gồm VAT"; ô Số lượng; 2 nút | Giữ; thêm ô chọn đơn vị ngay dưới giá. Bố cục desktop dựa trên mô tả ở `reference-site-analysis.md` mục 3 (chưa chụp lại bản desktop) | `REF/prod-m-top.png`, `REF/mobile-composite.png` (ô 3) |
 | Mobile sản phẩm: ảnh vuông trên cùng, thanh CTA dính đáy | Thanh dính 2 nút "Thêm báo giá" / "Thêm vào giỏ", thay dock ở trang này | `REF/prod-m-top.png` |
-| Dock đáy 4 nút: Danh mục, Trang chủ, Theo dõi đơn, Báo giá (nút đang chọn tô màu, có số) | Giữ nguyên 4 nút và thứ tự; chọn = xanh `#0070F4` | `REF/mobile-composite.png` (hàng dưới) |
+| Dock đáy 4 nút: Danh mục, Trang chủ, Tra cứu đơn, Báo giá (nút đang chọn tô màu, có số) | Giữ nguyên 4 nút và thứ tự; chọn = xanh `#0070F4` | `REF/mobile-composite.png` (hàng dưới) |
 | Trang Báo giá: danh sách sản phẩm + khung "Sản phẩm cần báo giá" và form bên phải | Danh sách dòng bên trái + khung tổng và form bên phải (sticky) | `REF/quote-d-top.png` |
 | Bong bóng "Liên hệ" nổi góc phải | Chỉ desktop, tròn xanh. Mobile bỏ (ở mobile của ref nó đè lên thẻ) | `REF/home-d-0.png`, `REF/mobile-composite.png` |
 
-**Không lấy:** đồng hồ đếm ngược và thanh "Ưu đãi", nhãn Sale đỏ và giá gạch, khung khuyến mãi theo giá trị đơn, tab mô tả dài, đoạn văn SEO, ảnh sản phẩm, màu đỏ / vàng / đen của họ.
+**Không lấy:** đồng hồ đếm ngược và thanh "Ưu đãi", khung khuyến mãi theo giá trị đơn, tab mô tả dài, đoạn văn SEO, ảnh sản phẩm, màu đỏ / vàng / đen của họ. Nhãn Sale và giá gạch chỉ xuất hiện khi quy cách đang có giá khuyến mại còn hạn (A20); không dùng làm trang trí.
 
 ### 2.2 Phong cách = token KiotViet
 
@@ -106,27 +106,27 @@ Dùng lại `admin.css`: nav `#0041C5`, primary `#0070F4` (hover `#005BC4`), ch�
 
 - Không đoạn giải thích, không khối "cách đặt hàng", không câu quảng bá, không ghi chú wireframe trong trang (ghi chú chỉ nằm ở `index.html`).
 - Tiêu đề khối 1-3 từ: Nhóm hàng, Thương hiệu, Giấy Sen Vàng, Cùng nhóm.
-- Thẻ sản phẩm chỉ có: tên, giá, nút (desktop thêm chip đơn vị; nhãn vàng "Cần xác nhận quy cách" khi có cờ).
-- Dải tin cậy: tối đa một dải mỏng 3 mục ("Giá đã gồm VAT", "Giao toàn quốc", "Hotline 0366 985 679").
-- Không phí giao, không số tồn, không bậc giảm giá trên web. Giá công khai.
+- Thẻ sản phẩm chỉ có: tên, giá, nút (desktop thêm chip đơn vị). Quy cách để "Liên hệ" hiện chữ "Liên hệ" thay giá, không thêm nhãn.
+- Dải tin cậy: một dải mỏng 2 mục ("Giá đã gồm VAT", "Hotline 0366 985 679"). Khu vực giao hàng chưa chốt nên không nêu phạm vi giao hàng.
+- Không phí giao, không số tồn, không thanh tiến độ giảm giá trên web. Giá công khai (trừ quy cách "Liên hệ").
 
 ### 2.4 Chọn đơn vị (Gói / Dây / Thùng)
 
 - **Thẻ:** "Từ 8.570đ / gói" (giá của đơn vị nhỏ nhất); sản phẩm một đơn vị bỏ chữ "Từ". Nút "Chọn mua" dẫn tới trang sản phẩm.
 - **Trang sản phẩm:** ba ô lớn (Gói / Dây / Thùng), mỗi ô có tên đơn vị, quy đổi ("50 gói") và giá. Số ô bằng số quy cách thật (SV6C chỉ có Gói và Cây). Ô đang chọn viền xanh 2px nền `#E8F1FF`.
 - **Ô đang chọn quyết định:** giá lớn và hậu tố đơn vị, mã hàng (font mono, nguyên văn), một dòng nhỏ "1 thùng = 50 gói · 8.570đ / gói" (chỉ khi không phải đơn vị nhỏ nhất; đơn giá/gói tự tính), thành tiền và tổng số gói theo số lượng (stepper).
-- **Huy hiệu "Tiết kiệm x,x%":** `(giá gói × quy đổi − giá quy cách) / (giá gói × quy đổi)`; chỉ hiện khi > 0 và làm tròn không về 0,0; không bao giờ hiện "0%". Ví dụ SV6C Cây: 364.750đ so với 12 × 31.000đ = 372.000đ, tiết kiệm 1,9%. Gấu trúc Dây / Thùng bằng đơn giá gói nên không có huy hiệu.
-- **Bảng "Tất cả quy cách":** desktop 4 cột (Đơn vị, Quy đổi, Mã hàng, Giá); mobile mỗi quy cách là hàng xếp dọc (đơn vị + quy đổi bên trái, giá bên phải, mã hàng dòng dưới). Bấm hàng cũng chọn quy cách. Không cuộn ngang.
+- **Huy hiệu tiết kiệm:** `(giá gói × quy đổi − giá quy cách) / (giá gói × quy đổi)`, chỉ cho quy cách không phải đơn vị cơ bản. Lớn hơn 0 và làm tròn không về 0,0: "Tiết kiệm x,x%"; làm tròn về 0,0: "Bằng giá mua lẻ"; âm (đắt hơn mua lẻ): không hiện gì; không bao giờ hiện "0%". Ví dụ SV6C Cây: 364.750đ so với 12 × 31.000đ = 372.000đ, tiết kiệm 1,9%. Gấu trúc Dây / Thùng bằng đơn giá gói nên hiện "Bằng giá mua lẻ".
+- **Bảng "Tất cả quy cách":** chỉ hiện từ 960px (desktop), 4 cột (Đơn vị, Quy đổi, Mã hàng, Giá). Dưới 960px ẩn cả bảng lẫn nhãn vì ba ô chọn đơn vị đã đủ thông tin; bấm hàng cũng chọn quy cách.
 - **Hai nút:** "Thêm báo giá" (viền xanh) và "Thêm vào giỏ" (xanh đặc). Giỏ báo giá và giỏ hàng là hai giỏ riêng, cả hai đều có số đếm ở header.
-- Xem trạng thái trong wireframe bằng `#thung` và `#sv6c`.
+- Xem trạng thái trong wireframe bằng `#thung`, `#sv6c` và `#sv465` (quy cách "Liên hệ").
 
 ### 2.5 Quy tắc mobile
 
-- Từ 390px. Header: logo giữa, giỏ hàng bên phải (số đếm đỏ), ô tìm xuống dòng dưới; Danh mục / Báo giá / Kiểm tra đơn chuyển xuống dock.
-- Dock đáy 60px: Danh mục, Trang chủ, Theo dõi đơn, Báo giá (số đếm). Trang sản phẩm và giỏ hàng thay dock bằng thanh CTA dính (không chồng hai thanh).
+- Từ 390px. Header: logo giữa, giỏ hàng bên phải (số đếm đỏ), ô tìm xuống dòng dưới; Danh mục / Báo giá / Tra cứu đơn chuyển xuống dock.
+- Dock đáy 60px: Danh mục, Trang chủ, Tra cứu đơn, Báo giá (số đếm). Trang sản phẩm và giỏ hàng thay dock bằng thanh CTA dính (không chồng hai thanh).
 - Lưới sản phẩm **2 cột** (khớp A15 và ref); nhóm hàng 3 cột. Thẻ chỉ có tên, giá, nút nên không bị cắt chữ; chip đơn vị chỉ có trên desktop.
 - Lọc và sắp xếp là hai nút; mỗi nút mở bottom sheet (lọc cao 88%, chân có "Xóa lọc" + "Xem N sản phẩm").
-- Vùng bấm ≥ 44px. Không cuộn ngang: đã đo `scrollWidth == clientWidth` ở 390px cho cả 5 màn.
+- Vùng bấm ≥ 44px. Không cuộn ngang: đã đo `scrollWidth == clientWidth` ở 390px cho cả 6 màn storefront.
 - Giá nằm trong màn đầu của trang sản phẩm (ảnh 4:3, thumbnail nhỏ).
 
 ---
@@ -141,8 +141,8 @@ Dùng lại `admin.css`: nav `#0041C5`, primary `#0070F4` (hover `#005BC4`), ch�
 
 **Mã hàng:** hiển thị nguyên văn như dữ liệu (ví dụ `SP000019`, `SV465-4L- Gói`, `SVRĐ1280t 6G`), font mono, cho phép chép, không tự chuẩn hóa hay đổi dấu cách. Tìm kiếm phải khớp cả khi gõ thiếu dấu.
 
-**Dữ liệu chưa chắc:** hiển thị nhãn vàng "Cần xác nhận ..." thay vì giấu; admin thấy ghi chú nội bộ.
+**Dữ liệu chưa chắc:** quy cách chưa xác nhận hiện "Liên hệ" cho khách; chỉ admin thấy nhãn vàng "Cần xác nhận quy cách" và ghi chú nội bộ.
 
 **Trợ năng (tối thiểu WCAG 2.1 AA):** tương phản chữ thân ≥ 4,5:1; focus nhìn thấy được (viền xanh 2px, ô nhập có thêm quầng xanh); mọi nút icon có `aria-label`; trạng thái không chỉ bằng màu (huy hiệu luôn kèm chữ); thứ tự tab theo thứ tự đọc; `prefers-reduced-motion` tắt chuyển động; `lang="vi"`; điều khiển dùng phần tử thật (button, radio, select) để bàn phím và trình đọc màn hình hoạt động; vùng giá dùng `aria-live="polite"` khi đổi quy cách.
 
-**Hiệu năng:** một họ font (Inter), tự host tập con latin + vietnamese, `font-display: swap`; ảnh WebP, kích thước khai báo sẵn để không nhảy bố cục.
+**Hiệu năng:** một họ font (Inter), tự host tập con latin + vietnamese, `font-display: swap`; ảnh JPEG (PNG nếu có nền trong suốt), 3 cỡ, kích thước khai báo sẵn để không nhảy bố cục.

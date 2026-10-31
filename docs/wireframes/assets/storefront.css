@@ -19,6 +19,7 @@ img{max-width:100%}
 .muted{color:var(--muted)} .mono{font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .only-d{display:none!important}
+[hidden]{display:none!important}
 
 /* icons (CSS masks, same technique as admin.css) */
 .i{display:inline-block;width:18px;height:18px;flex:none;vertical-align:-4px;background:currentColor;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}
@@ -110,7 +111,7 @@ img{max-width:100%}
 
 /* trust strip */
 .trust{background:#fff;border-bottom:1px solid var(--line-s)}
-.trust .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding-top:8px;padding-bottom:8px}
+.trust .wrap{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;padding-top:8px;padding-bottom:8px}
 .trust span{display:flex;align-items:center;justify-content:center;gap:6px;text-align:center;font-size:12px;font-weight:500;line-height:1.3}
 .trust .i{display:none;color:var(--pri)}
 
@@ -268,7 +269,8 @@ textarea.in{height:76px;padding:10px 12px;resize:vertical}
 .acts .btn{flex:1;height:48px;font-size:15px}
 .pd-sticky{display:flex}
 .acts.in-page{display:none}
-.qrows{border:1px solid var(--line-s);border-radius:var(--r)}
+.lbl-all{display:none}
+.qrows{display:none;border:1px solid var(--line-s);border-radius:var(--r)}
 .qrow{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 12px;border-bottom:1px solid var(--line-s);cursor:pointer;background:#fff}
 .qrow:last-child{border-bottom:0}
 .qrow:hover{background:var(--sel)}
@@ -314,6 +316,33 @@ textarea.in{height:76px;padding:10px 12px;resize:vertical}
 .kv dt{color:var(--muted)} .kv dd{margin:0;font-weight:600;overflow-wrap:anywhere}
 .kv dd.code{color:var(--pri);font-size:16px}
 .row2{display:grid;gap:12px}
+
+/* ---------- order page ---------- */
+.ord-h{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin-bottom:14px}
+.ord-h h1{font:700 20px/1.2 Inter}
+.stt{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:12px;font:600 12.5px Inter}
+.stt-wait{background:var(--warn-bg);color:var(--warn)}
+.stt-conf{background:var(--sel);color:var(--nav)}
+.stt-paid{background:var(--ok-bg);color:#15803D}
+.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin:0 0 16px;padding:0;list-style:none;counter-reset:s}
+.steps li{position:relative;padding-top:28px;text-align:center;font-size:11.5px;line-height:1.25;color:var(--muted)}
+.steps li::before{content:counter(s);counter-increment:s;position:absolute;top:0;left:50%;transform:translateX(-50%);width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:#fff;font:600 11.5px/20px Inter;color:var(--muted)}
+.steps li::after{content:"";position:absolute;top:10px;left:calc(50% + 16px);right:calc(-50% + 16px);height:2px;background:var(--line-s)}
+.steps li:last-child::after{display:none}
+.steps li.done::before{background:var(--pri);border-color:var(--pri);color:#fff}
+.steps li.done::after{background:var(--pri)}
+.steps li.now::before{border:2px solid var(--pri);color:var(--pri);line-height:18px}
+.steps li.now{color:var(--text);font-weight:600}
+.paybox{padding:12px;border:1px dashed var(--pri);border-radius:var(--r);background:#fff}
+.paybox.ok{border:1px solid #86EFAC;background:var(--ok-bg);color:#15803D;font-weight:600}
+.paybox.ok .i{margin-right:6px}
+.paybox .qrph{margin-bottom:0}
+.oi{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center;padding:12px;border-bottom:1px solid var(--line-s)}
+.oi:last-child{border-bottom:0}
+.oi b{display:block;font:600 13.5px/1.35 Inter}
+.oi span{display:block;font-size:12.5px;color:var(--muted)}
+.oi .t{font:700 15px Inter;color:var(--text)}
+.ord-note{margin-top:6px;font-size:12.5px;color:var(--muted)}
 
 /* ================= desktop ================= */
 @media (min-width:960px){
@@ -414,6 +443,8 @@ textarea.in{height:76px;padding:10px 12px;resize:vertical}
   .unit{min-height:84px}
   .acts.in-page{display:flex}
   .pd-sticky{display:none}
+  .lbl-all{display:block}
+  .qrows{display:block}
   .qhead{display:grid}
   .qrow,.qhead{grid-template-columns:110px 1fr 1.6fr 140px}
   .qhead{padding:8px 12px;background:var(--page);font:600 12.5px Inter;color:var(--muted);border-bottom:1px solid var(--line-s)}

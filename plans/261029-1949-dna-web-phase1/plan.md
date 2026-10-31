@@ -1,7 +1,7 @@
 ---
 title: "DNA web phase 1"
 description: "Catalogue + quote/order web for DNA Hoang Nguyen: Next.js 16 + Spring Boot 4.1 + Postgres 18, KiotViet Excel sync, SePay bank webhook, VPS deploy"
-status: pending
+status: in-progress
 priority: P1
 effort: "15.5-20 person-weeks (estimate)"
 branch: "main"
@@ -38,7 +38,7 @@ Goal: ship spec A1-A16, A19-A21 and B1-B9 (`docs/feature-spec.md`) minus section
 
 | Phase | Name | Effort | Depends on | Status |
 |---|---|---|---|---|
-| 1 | [Spec and wireframe alignment](./phase-01-spec-and-wireframe-alignment.md) | 0.3 | - | Pending |
+| 1 | [Spec and wireframe alignment](./phase-01-spec-and-wireframe-alignment.md) | 0.3 | - | Done (owner review pending) |
 | 2 | [Foundation](./phase-02-foundation.md) | 1.75-2.25 | - | Pending |
 | 3 | [Catalogue domain and admin core](./phase-03-catalogue-domain-and-admin-core.md) | 3.5-4.5 | 1, 2 | Pending |
 | 4 | [KiotViet Excel import](./phase-04-kiotviet-excel-import.md) | 1.25-1.75 | 3, 6 + real export (not launch-blocking) | Pending |

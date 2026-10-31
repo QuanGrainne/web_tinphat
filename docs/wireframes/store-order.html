@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Đơn hàng | DNA Hoàng Nguyên</title>
+<link rel="stylesheet" href="assets/storefront.css">
+</head>
+<body>
+<div class="util"><div class="wrap">
+  <a href="store-order.html">Tra cứu đơn</a>
+  <a class="hot" href="tel:0366985679"><i class="i i-phone"></i>Hotline: 0366 985 679</a>
+</div></div>
+<header class="hd">
+  <div class="wrap hd-in">
+    <a class="logo" href="store-home.html" aria-label="DNA Hoàng Nguyên"><b>DNA</b><span>Hoàng Nguyên</span></a>
+    <button class="catbtn" type="button"><i class="i i-menu"></i>Danh mục</button>
+    <form class="srch" role="search" onsubmit="return false">
+      <label class="sr" for="q">Tìm sản phẩm</label>
+      <input id="q" type="search" placeholder="Nhập tên sản phẩm hoặc mã hàng...">
+      <button type="submit" aria-label="Tìm"><i class="i i-search"></i></button>
+    </form>
+    <nav class="hd-act" aria-label="Tiện ích">
+      <a class="act act-q" href="store-quote.html"><span class="act-ico"><i class="i i-doc"></i></span><span class="act-t"><b>Báo giá</b><small>3 sản phẩm</small></span></a>
+      <a class="act act-o" href="store-order.html"><span class="act-ico"><i class="i i-box"></i></span><span class="act-t"><b>Tra cứu đơn</b><small>Đơn của bạn</small></span></a>
+      <a class="act act-c" href="store-checkout.html" aria-label="Giỏ hàng"><span class="act-ico"><i class="i i-cart"></i><em>2</em></span><span class="act-t"><b>Giỏ hàng</b><small>2 sản phẩm</small></span></a>
+    </nav>
+  </div>
+  <nav class="mnav" aria-label="Menu chính"><div class="wrap">
+    <a href="store-home.html">Trang chủ</a>
+    <a href="store-listing.html">Sản phẩm<i class="i i-down" style="width:12px;height:12px"></i></a>
+    <a href="#">Bảng giá</a>
+    <a href="#">Tin tức</a>
+    <a href="#">Liên hệ</a>
+    <a class="cta" href="store-quote.html">Đại lý &amp; Mua sỉ</a>
+  </div></nav>
+</header>
+<main class="wrap">
+<nav class="bc" aria-label="Breadcrumb"><a href="store-home.html">Trang chủ</a><i class="i i-right"></i><b>Tra cứu đơn</b></nav>
+<div class="cart">
+  <section>
+    <div class="ord-h"><h1>Đơn <span class="mono" style="font-size:18px">DNA7K2M9Q</span></h1><span class="stt" id="stt"></span></div>
+    <ol class="steps" id="steps"><li>Chờ xác nhận</li><li>Đã xác nhận</li><li>Đã nhận tiền</li><li>Đang giao</li><li>Hoàn tất</li></ol>
+
+    <h2 class="box-t" style="margin-top:4px">Chuyển khoản</h2>
+    <div class="paybox" data-for="wait">
+      <dl class="kv">
+        <dt>Ngân hàng</dt><dd>Tên ngân hàng</dd>
+        <dt>Số tài khoản</dt><dd class="mono">0000 000 000</dd>
+        <dt>Chủ tài khoản</dt><dd>CÔNG TY TNHH DNA HOÀNG NGUYÊN</dd>
+        <dt>Nội dung</dt><dd class="code">DNA7K2M9Q</dd>
+      </dl>
+    </div>
+    <div class="paybox" data-for="conf">
+      <div class="bank-in">
+        <div class="qrph" aria-label="Mã QR chuyển khoản"><i class="i i-qr"></i></div>
+        <dl class="kv">
+          <dt>Số tiền</dt><dd class="code">1.182.680đ</dd>
+          <dt>Nội dung</dt><dd class="code">DNA7K2M9Q</dd>
+          <dt>Ngân hàng</dt><dd>Tên ngân hàng</dd>
+          <dt>Số tài khoản</dt><dd class="mono">0000 000 000</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="paybox ok" data-for="paid"><i class="i i-check"></i>Đã nhận 1.182.680đ</div>
+
+    <h2 class="box-t">Sản phẩm</h2>
+    <div class="lines">
+      <div class="oi"><div><b>Giấy ăn rút Sen Vàng khăn giấy lụa Gấu trúc</b><span>Thùng · 50 gói × 2</span></div><div class="t">857.000đ</div></div>
+      <div class="oi"><div><b>Pin tiểu Con Thỏ R6P 2AA</b><span>Hộp × 5</span></div><div class="t">295.680đ</div></div>
+    </div>
+
+    <h2 class="box-t">Thông tin nhận hàng</h2>
+    <div class="box">
+      <dl class="kv">
+        <dt>Họ tên</dt><dd>Cửa hàng Minh Châu</dd>
+        <dt>Điện thoại</dt><dd>0912 345 678</dd>
+        <dt>Địa chỉ</dt><dd>(minh họa) Phú Thọ</dd>
+        <dt>Thanh toán</dt><dd>Chuyển khoản</dd>
+      </dl>
+    </div>
+  </section>
+  <aside>
+    <div class="box">
+      <div class="sum-r"><span>Tiền hàng</span><b>1.152.680đ</b></div>
+      <div class="sum-r" data-for="conf paid"><span>Phí giao</span><b>30.000đ</b></div>
+      <div class="sum-r big"><span id="tl">Tạm tính</span><b id="tv">1.152.680đ</b></div>
+      <div class="sum-r"><small>Giá đã gồm VAT</small></div>
+      <p class="ord-note" data-for="wait">Nhân viên xác nhận tồn kho, phí giao và tổng tiền</p>
+    </div>
+    <div class="box" style="margin-top:12px">
+      <h2>Tra cứu đơn</h2>
+      <form class="f" onsubmit="return false">
+        <label class="fl"><span>Mã đơn</span><input class="in mono" placeholder="DNA7K2M9Q" autocomplete="off"></label>
+        <label class="fl"><span>Số điện thoại</span><input class="in" type="tel" inputmode="tel" autocomplete="tel"></label>
+        <button class="btn btn-pri btn-block" type="submit">Tra cứu</button>
+      </form>
+    </div>
+  </aside>
+</div>
+</main>
+<footer class="ft">
+  <div class="wrap">
+    <div><a class="logo" href="store-home.html"><b>DNA</b><span>Hoàng Nguyên</span></a><p style="margin-top:8px">CÔNG TY TNHH DNA HOÀNG NGUYÊN<br>Mã số doanh nghiệp: 5400533724</p></div>
+    <div><h3>Địa chỉ</h3><p>Trụ sở: Số nhà 41, tổ 1, phường Hòa Bình, tỉnh Phú Thọ<br>Kho: Đường Võ Thị Sáu, tổ 12, phường Thống Nhất, tỉnh Phú Thọ</p></div>
+    <div><h3>Liên hệ</h3><p><a href="tel:0366985679">0366 985 679</a><br>congtydnahoangnguyen@gmail.com</p></div>
+    <div><h3>Hỗ trợ</h3><ul><li><a href="#">Đổi trả</a></li><li><a href="#">Vận chuyển</a></li><li><a href="#">Thanh toán</a></li><li><a href="#">Bảo mật</a></li></ul></div>
+  </div>
+  <div class="ft-b">© 2026 DNA Hoàng Nguyên · Giá đã gồm VAT</div>
+</footer>
+<a class="fab" href="tel:0366985679" aria-label="Liên hệ"><i class="i i-chat"></i>Liên hệ</a>
+<nav class="dock" aria-label="Điều hướng nhanh">
+  <a href="store-listing.html"><i class="i i-grid"></i>Danh mục</a>
+  <a href="store-home.html"><i class="i i-home"></i>Trang chủ</a>
+  <a href="store-order.html" class="on"><i class="i i-box"></i>Tra cứu đơn</a>
+  <a href="store-quote.html"><i class="i i-doc"></i>Báo giá<em>3</em></a>
+</nav>
+<script>
+(function(){
+  var S={wait:['Chờ xác nhận','stt-wait',0,'Tạm tính','1.152.680đ'],conf:['Đã xác nhận','stt-conf',1,'Tổng','1.182.680đ'],paid:['Đã nhận tiền','stt-paid',2,'Tổng','1.182.680đ']};
+  function $(i){return document.getElementById(i)}
+  function apply(){
+    var h=location.hash.slice(1), k=h==='confirmed'?'conf':h==='paid'?'paid':'wait', v=S[k];
+    Array.prototype.forEach.call(document.querySelectorAll('[data-for]'),function(e){e.hidden=e.dataset.for.split(' ').indexOf(k)<0});
+    $('stt').textContent=v[0]; $('stt').className='stt '+v[1];
+    Array.prototype.forEach.call($('steps').children,function(li,i){li.className=i<v[2]?'done':i===v[2]?'now':''});
+    $('tl').textContent=v[3]; $('tv').textContent=v[4];
+  }
+  apply(); addEventListener('hashchange',apply);
+})();
+</script>
+</body>
+</html>
