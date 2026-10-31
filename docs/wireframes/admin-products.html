@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hàng hóa | Quản trị DNA (wireframe)</title>
+<link rel="stylesheet" href="assets/admin.css">
+<style>td.code{max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}</style>
+</head>
+<body>
+<div class="ubar">
+  <a class="brand" href="admin-dashboard.html"><b>DNA</b><span>Quản trị website Hoàng Nguyên</span></a>
+  <div class="uright">
+    <span class="u"><span class="i i-help"></span>Hỗ trợ</span>
+    <span class="u bell"><span class="i i-bell" style="width:18px;height:18px"></span><em>3</em></span>
+    <span class="u"><span class="i i-gear" style="width:18px;height:18px"></span></span>
+    <span class="avatar"><span class="i i-user"></span></span>
+  </div>
+</div>
+<div class="mbar">
+  <nav aria-label="Menu chính">
+    <a href="admin-dashboard.html">Tổng quan</a>
+    <a href="admin-products.html" class="on" aria-current="page">Hàng hóa</a>
+    <a href="admin-quotes.html">Báo giá &amp; đơn hàng</a>
+    <a href="#">Nội dung</a>
+    <a href="admin-import.html">Đồng bộ KiotViet</a>
+    <a href="#">Cài đặt</a>
+  </nav>
+  <a class="go" href="store-home.html"><span class="i i-globe" style="width:18px;height:18px"></span>Xem website</a>
+</div>
+
+<div class="page">
+  <div class="ptitle">
+    <h1>Hàng hóa</h1>
+    <div class="search"><span class="i i-search"></span><input type="text" placeholder="Theo mã, tên hàng" aria-label="Tìm hàng hóa"><span class="i i-sliders"></span></div>
+    <div class="tools">
+      <a class="btn btn-out" href="admin-product-edit.html"><span class="i i-plus"></span>Tạo mới<span class="i i-down" style="width:12px;height:12px"></span></a>
+      <a class="btn" href="admin-import.html"><span class="i i-import"></span>Import file</a>
+      <button class="btn"><span class="i i-export"></span>Xuất file</button>
+      <button class="btn btn-ico" aria-label="Chọn cột"><span class="i i-list"></span></button>
+      <button class="btn btn-ico" aria-label="Thiết lập"><span class="i i-gear"></span></button>
+      <button class="btn btn-ico" aria-label="Trợ giúp"><span class="i i-help"></span></button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="fcol" aria-label="Bộ lọc">
+      <div class="fb"><h3>Nhóm hàng <a href="#">Tạo mới</a></h3><select class="sel" aria-label="Nhóm hàng"><option>Chọn nhóm hàng</option><option>Giấy ăn &amp; giấy vệ sinh (12)</option><option>Khăn ướt &amp; khăn lau (4)</option><option>Pin than kẽm (10)</option><option>Pin kiềm Alkaline (2)</option><option>Pin Lithium (3)</option><option>Đồ dùng sáng tạo (1)</option></select></div>
+      <div class="fb"><h3>Thương hiệu <a href="#">Tạo mới</a></h3><select class="sel" aria-label="Thương hiệu"><option>Chọn thương hiệu</option><option>Sen Vàng</option><option>Phong Lan</option><option>Pin Con Thỏ</option><option>GP</option><option>DNA</option></select></div>
+      <div class="fb"><h3>Hiển thị trên web</h3><div class="pills"><button class="pill on">Tất cả</button><button class="pill">Có</button><button class="pill">Không</button></div></div>
+      <div class="fb"><h3>Cần bổ sung</h3><div class="pills"><button class="pill on">Tất cả</button><button class="pill">Có</button><button class="pill">Không</button></div>
+        <p class="muted" style="font-size:12px;margin-top:6px">Thiếu ảnh, nhóm hàng hoặc quy cách có giá.</p></div>
+      <div class="fb"><h3>Nguồn dữ liệu giá</h3><div class="pills"><button class="pill on">Tất cả</button><button class="pill">Nhập tay</button><button class="pill">Từ KiotViet</button></div></div>
+      <div class="fb"><h3>Trạng thái hàng hóa</h3><select class="sel" aria-label="Trạng thái hàng hóa"><option>Hàng đang kinh doanh</option><option>Ngừng kinh doanh</option><option>Tất cả</option></select></div>
+      <div class="fb"><h3>Cập nhật giá</h3>
+        <label class="radio"><input type="radio" name="t" checked> Toàn thời gian</label>
+        <label class="radio"><input type="radio" name="t"> Tùy chỉnh</label>
+        <div style="position:relative"><input class="in" placeholder="dd/mm/yyyy" aria-label="Khoảng thời gian"><span class="i i-cal" style="position:absolute;right:10px;top:9px;color:var(--muted)"></span></div></div>
+    </aside>
+
+    <section>
+      <div class="tblwrap">
+        <table class="tbl names">
+          <thead><tr><th class="ck"><input class="chk" type="checkbox" aria-label="Chọn tất cả"></th><th class="st"><span class="i i-star" style="color:#6B7280"></span></th><th></th><th>Mã hàng (đơn vị cơ bản)</th><th>Tên hàng</th><th>Thương hiệu</th><th class="r">Giá đơn vị cơ bản</th><th class="r">Quy cách</th><th>Hiển thị web</th><th>Nguồn giá</th></tr></thead>
+          <tbody>
+            <tr class="tot"><td></td><td></td><td></td><td></td><td>32 dòng sản phẩm</td><td></td><td></td><td class="r">69</td><td>30 hiện</td><td></td></tr>
+
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SV6C Bathroom Tissue</td><td>Giấy Vệ sinh Sen Vàng 6 cuộn- SV6C Bathroom Tissue</td><td>Sen Vàng</td><td class="r num">31.000</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SV465-4L- Gói</td><td>Giấy khăn giấy rút cao cấp gấu trúc Sen Vàng <span class="badge b-warn">Cần xác nhận quy cách</span></td><td>Sen Vàng</td><td class="r num">5.330</td><td class="r">3</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SVRĐ1280t</td><td>Giấy rút đáy Sen Vàng</td><td>Sen Vàng</td><td class="r num">21.000</td><td class="r">3</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SV12C1.4Kg 4L(SV1412) G</td><td>Giấy vệ sinh Sen Vàng 12C4L</td><td>Sen Vàng</td><td class="r num">54.000</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SV10C1.5Kg- 4L- Loại 1 (SV1510)</td><td>Giấy vệ sinh Sen Vàng cao cấp Loại 1</td><td>Sen Vàng</td><td class="r num">58.000</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SV10C1.4Kg-4L (SV1410) G</td><td>Giấy vệ sinh Sen Vàng SV1410</td><td>Sen Vàng</td><td class="r num">49.000</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SV12C1.5Kg-4L- Classic Fresh (SV1512)</td><td>Giấy vệ sinh cao cấp Sen Vàng</td><td>Sen Vàng</td><td class="r num">58.000</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SV300-3L-Gói</td><td>Giấy ăn Sen Vàng 300 tờ 3 lớp 175x120 <span class="badge b-warn">Kích thước chưa nêu đơn vị</span></td><td>Sen Vàng</td><td class="r num">3.229</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SVR300-3L-3M-Gói</td><td>Giấy ăn Sen Vàng 300 tờ 3 lớp 3 màu</td><td>Sen Vàng</td><td class="r num">3.229</td><td class="r">3</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
+
+            <tr class="row open"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SV320-3L-Gói</td><td class="b" style="color:var(--pri)">Giấy ăn rút Sen Vàng khăn giấy lụa Gấu trúc</td><td>Sen Vàng</td><td class="r num">8.570</td><td class="r">3</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
+            <tr class="expand"><td colspan="10">
+              <div class="exp">
+                <div class="exp-t"><a class="on" href="#">Thông tin</a><a href="#">Mô tả</a><a href="#">Lịch sử giá</a></div>
+                <div class="exp-b">
+                  <div class="kv">
+                    <div><span>Nhóm hàng</span><span>Giấy ăn &amp; giấy vệ sinh</span></div>
+                    <div><span>Thương hiệu</span><span>Sen Vàng</span></div>
+                    <div><span>Số lớp</span><span>3 lớp</span></div>
+                    <div><span>Hiển thị trên web</span><span><span class="badge b-ok">Hiện</span></span></div>
+                    <div><span>Cập nhật giá lần cuối</span><span>26/10/2026</span></div>
+                    <div><span>Đường dẫn (slug)</span><span class="mono">giay-an-rut-sen-vang-gau-truc</span></div>
+                  </div>
+                  <table class="utbl" style="margin-top:12px">
+                    <thead><tr><th>Đơn vị</th><th>Quy đổi</th><th>Mã hàng</th><th class="r">Giá đã gồm VAT</th><th class="r">Đơn giá/gói</th><th>Nguồn</th><th>Hiển thị giá</th></tr></thead>
+                    <tbody>
+                      <tr><td>Gói</td><td>Đơn vị cơ bản</td><td class="mono">SV320-3L-Gói</td><td class="r num">8.570</td><td class="r num">8.570</td><td>Từ KiotViet</td><td>Hiện giá</td></tr>
+                      <tr><td>Dây</td><td>5 gói</td><td class="mono">SV320-3L-Dây 5G</td><td class="r num">42.850</td><td class="r num">8.570</td><td>Từ KiotViet</td><td>Hiện giá</td></tr>
+                      <tr><td>Thùng</td><td>50 gói</td><td class="mono">SV320-3L-Thùng 50G</td><td class="r num">428.500</td><td class="r num">8.570</td><td>Từ KiotViet</td><td>Hiện giá</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="exp-f">
+                  <button class="btn btn-danger"><span class="i i-trash"></span>Ngừng kinh doanh</button>
+                  <button class="btn"><span class="i i-copy"></span>Sao chép</button>
+                  <a class="btn" href="store-product.html"><span class="i i-export"></span>Xem trên web</a>
+                  <a class="btn btn-pri" href="admin-product-edit.html"><span class="i i-edit"></span>Chỉnh sửa</a>
+                </div>
+              </div>
+            </td></tr>
+
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">EL0514-Gói</td><td>Khăn Napkin Phong Lan</td><td>Phong Lan</td><td class="r num">25.000</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">SVR HQ17 (SVR17)</td><td>Khăn giấy Rút Cao Cấp Hương Quế</td><td>Sen Vàng</td><td class="r num">28.000</td><td class="r">2</td><td><span class="badge b-ok">Hiện</span></td><td>Từ KiotViet</td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">Pin Con Thỏ Đại - R20S - Hộp</td><td>Pin Con Thỏ Đại - R20S</td><td>Pin Con Thỏ</td><td class="r num">53.223</td><td class="r">2</td><td><span class="badge b-grey">Ẩn (thiếu ảnh)</span></td><td>Từ KiotViet</td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="th"><span class="thumb"><span class="i i-image"></span></span></td><td class="code mono">GP1604S-2S1 - Hộp</td><td>Pin 9V- Vuông - GP1604S-2S1 - Hộp</td><td>GP</td><td class="r num">94.440</td><td class="r">1</td><td><span class="badge b-grey">Ẩn (thiếu ảnh)</span></td><td>Từ KiotViet</td></tr>
+          </tbody>
+        </table>
+        <div class="tfoot"><span>Hiển thị <select class="sel" aria-label="Số dòng"><option>15 dòng</option><option>30 dòng</option></select></span><div class="pager"><span>‹</span><span class="on">1</span><span>2</span><span>3</span><span>›</span></div></div>
+      </div>
+      <p class="wf-note">Wireframe: số dòng, trạng thái hiển thị và nguồn giá là dữ liệu minh họa; tên hàng, mã hàng và giá lấy đúng từ danh mục. Bấm dòng để mở rộng, giống KiotViet.</p>
+    </section>
+  </div>
+</div>
+<div class="help"><span class="i i-chat"></span>Hỗ trợ</div>
+</body>
+</html>

@@ -1,0 +1,93 @@
+/* DNA Hoàng Nguyên - admin wireframe styles (dense, table-based). Loads after dna.css tokens. */
+body.adm{font-size:14px;line-height:1.45;background:var(--bg);padding-bottom:0;overflow-x:auto}
+.shell{display:grid;grid-template-columns:224px minmax(0,1fr);min-height:100vh}
+.side{background:var(--navy-900);color:#b9cde0;position:sticky;top:0;height:100vh;overflow:auto;padding:12px 0}
+.side .logo{padding:6px 16px 16px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:8px}
+.side .logo img{width:34px;height:34px}.side .logo .wm{color:#fff;font-size:14px}.side .logo .wm small{color:#8fb0cd;font-size:10px}
+.side h5{margin:14px 16px 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#7f9fbd;font-weight:600}
+.side a{display:flex;align-items:center;gap:10px;padding:8px 16px;font-size:13.5px;border-left:3px solid transparent}
+.side a:hover{background:rgba(255,255,255,.06);color:#fff}
+.side a.on{background:rgba(92,203,240,.14);color:#fff;border-left-color:var(--gold-500);font-weight:600}
+.side a .cnt{position:static;margin-left:auto;background:var(--gold-500);color:var(--navy-900)}
+.side .user{margin:16px;padding:10px;border:1px solid rgba(255,255,255,.14);border-radius:8px;font-size:12px}
+.side .user b{color:#fff;display:block}
+.main{min-width:0}
+.atop{background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 24px;min-height:52px;position:sticky;top:0;z-index:20}
+.atop .crumb{padding:0;font-size:13px}
+.atop .sp{margin-left:auto;display:flex;gap:8px;align-items:center}
+.page{padding:20px 24px 96px}
+.ph-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+.ph-row h1{font-size:22px}.ph-row p{color:var(--muted);margin-top:2px;font-size:13px}
+.adm .btn{min-height:32px;padding:0 12px;font-size:13px;border-radius:5px}
+.adm .btn-lg{min-height:36px;padding:0 16px}
+.adm .card{border-radius:8px}
+.adm .card .ch{padding:10px 16px;background:#fff;border-radius:8px 8px 0 0}
+.adm .card .ch h3{font-size:14px;font-family:var(--font-head)}
+.adm .card .cb{padding:16px}
+.adm .card+.card{margin-top:16px}
+.edit{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;align-items:start}
+.rail{position:sticky;top:68px;display:grid;gap:12px}
+.rail .card+.card{margin-top:0}
+.f3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 16px}.f2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 16px}
+.adm .fld{gap:4px}.adm .fld label{font-size:12px;color:var(--ink-2)}
+.adm .fld input,.adm .fld select,.adm .fld textarea{min-height:32px;font-size:13px;border-radius:5px;padding:0 10px;border-width:1px}
+.adm .fld textarea{padding:8px 10px;min-height:76px}
+.adm .fld .hint{font-size:11.5px}
+.span2{grid-column:span 2}.span3{grid-column:1/-1}
+.inl{display:flex;gap:6px}.inl>*{min-width:0}.inl .btn{flex:none}
+.dz{border:1.5px dashed var(--navy-700);border-radius:8px;background:var(--navy-50);display:grid;place-items:center;text-align:center;color:var(--navy-800);font-size:12.5px;padding:18px}
+.imgs{display:flex;gap:10px;flex-wrap:wrap}.imgs .im{width:84px;height:84px;border:1px solid var(--line);border-radius:6px;overflow:hidden;position:relative;background:#fff}
+.imgs .im.main::after{content:"Ảnh chính";position:absolute;left:0;right:0;bottom:0;background:var(--navy-900);color:#fff;font-size:10px;text-align:center;padding:1px 0}
+.imgs .add{display:grid;place-items:center;border:1.5px dashed var(--navy-700);color:var(--navy-700);font-size:24px;background:var(--navy-50)}
+/* dense data table */
+.dt{width:100%;border-collapse:collapse;font-size:13px}
+.dt th{background:#f1f5f9;color:var(--ink-2);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600;padding:7px 8px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+.dt td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.dt tr:hover td{background:#fafcfe}
+.dt .r{text-align:right}.dt .c{text-align:center}
+.dt input,.dt select{height:30px;border:1px solid var(--line);border-radius:5px;padding:0 8px;background:#fff;font-size:13px;width:100%}
+.dt input.mono{font-family:ui-monospace,Consolas,monospace;font-size:12px}
+.dt input.rt{text-align:right;font-variant-numeric:tabular-nums}
+.dt tr.warn td{background:var(--gold-100)}
+.dt tr.dead td{background:var(--red-100)}
+.dt .sub{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+.dt .eq{font-size:11.5px;color:var(--navy-700);font-weight:600;display:block;margin-top:2px}
+.warnline{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--gold-700);background:var(--gold-100);border:1px solid var(--gold-500);border-radius:5px;padding:6px 10px;margin-top:6px}
+.warnline.err{background:var(--red-100);border-color:var(--red-600);color:var(--red-600)}
+.sw{position:relative;display:inline-block;width:36px;height:20px;vertical-align:middle}
+.sw input{opacity:0;position:absolute;inset:0;margin:0;cursor:pointer;z-index:1;width:100%;height:100%}
+.sw i{position:absolute;inset:0;background:#b8c6d3;border-radius:10px;transition:background .15s}
+.sw i::after{content:"";position:absolute;left:2px;top:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .15s}
+.sw input:checked+i{background:var(--green-700)}.sw input:checked+i::after{transform:translateX(16px)}
+.sw input:focus-visible+i{outline:3px solid var(--sky-400);outline-offset:2px}
+.src{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap}
+.src.kv{background:var(--sky-100);color:var(--navy-800)}.src.hand{background:var(--gold-100);color:var(--gold-700)}
+.chk{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:13px}
+.chk li{display:flex;gap:8px;align-items:flex-start}
+.chk .ok{color:var(--green-700);font-weight:700}.chk .no{color:var(--red-600);font-weight:700}
+.hist{font-size:12.5px;width:100%;border-collapse:collapse}.hist td{padding:5px 8px;border-bottom:1px solid var(--line)}
+.actbar{position:fixed;left:224px;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 24px;display:flex;gap:10px;align-items:center;z-index:25;box-shadow:0 -4px 16px rgba(1,39,69,.08)}
+.actbar .sp{margin-left:auto;display:flex;gap:8px;align-items:center}
+.actbar .msg{color:var(--muted);font-size:12.5px}
+/* sync */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 14px;border-left:4px solid var(--line)}
+.kpi b{display:block;font-family:var(--font-head);font-size:26px;line-height:1.1;color:var(--navy-900)}
+.kpi span{font-size:12px;color:var(--ink-2)}
+.kpi.new{border-left-color:var(--sky-400)}.kpi.chg{border-left-color:var(--gold-500)}.kpi.dead{border-left-color:var(--red-600)}.kpi.mis{border-left-color:var(--gold-700)}.kpi.same{border-left-color:var(--green-700)}
+.up{display:flex;align-items:center;gap:16px;padding:12px 16px;border:1px solid var(--line);border-radius:8px;background:#fff;flex-wrap:wrap}
+.up .file{display:flex;align-items:center;gap:10px;font-weight:600}
+.up .meta{color:var(--muted);font-size:12.5px;margin-left:auto}
+.diff-old{color:var(--muted);text-decoration:line-through}.diff-new{font-weight:700;color:var(--navy-900)}
+.pct.up-p{color:var(--red-600)}.pct.dn-p{color:var(--green-700)}.pct{font-weight:600;font-size:12px}
+.sect-h{display:flex;align-items:center;gap:10px}
+.sect-h .badge{height:20px}
+.radio2{display:flex;gap:10px;font-size:12.5px;white-space:nowrap}.radio2 label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.mapgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 16px}
+.mapgrid div{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.mapgrid select{height:28px;border:1px solid var(--line);border-radius:5px;font-size:12.5px;flex:1;min-width:0}
+.mapgrid .unm select{border-color:var(--gold-600);background:var(--gold-100)}
+.adm .anno{margin:0 0 12px}
+@media (max-width:1100px){.shell{grid-template-columns:1fr}.side{position:static;height:auto}.actbar{left:0}.edit{grid-template-columns:1fr}.rail{position:static}}
+.dt .code{white-space:nowrap}
+.src{box-shadow:inset 0 0 0 1px rgba(1,39,69,.14)}

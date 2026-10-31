@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tổng quan | Quản trị DNA (wireframe)</title>
+<link rel="stylesheet" href="assets/admin.css">
+<style>
+.chart{background:repeating-linear-gradient(to top,transparent 0,transparent 39px,var(--line-s) 39px,var(--line-s) 40px)}
+.yl{position:absolute;left:-34px;font-size:11.5px;color:var(--muted);width:28px;text-align:right}
+.legend{display:flex;gap:16px;justify-content:center;margin-top:10px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:6px}
+.qa{display:grid;grid-template-columns:1fr 1fr;text-align:center}
+.qa a{display:block;padding:14px 8px;color:var(--pri);font-weight:500}
+.qa small{display:block;color:var(--muted);font-weight:400;font-size:11.5px}
+.hbar{grid-template-columns:230px 1fr 34px}.hbar span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sel.s{width:auto;height:28px;font-size:12.5px;padding-left:10px}
+</style>
+</head>
+<body>
+<div class="ubar">
+  <a class="brand" href="admin-dashboard.html"><b>DNA</b><span>Quản trị website Hoàng Nguyên</span></a>
+  <div class="uright">
+    <span class="u"><span class="i i-help"></span>Hỗ trợ</span>
+    <span class="u bell"><span class="i i-bell" style="width:18px;height:18px"></span><em>3</em></span>
+    <span class="u"><span class="i i-gear" style="width:18px;height:18px"></span></span>
+    <span class="avatar"><span class="i i-user"></span></span>
+  </div>
+</div>
+<div class="mbar">
+  <nav aria-label="Menu chính">
+    <a href="admin-dashboard.html" class="on" aria-current="page">Tổng quan</a>
+    <a href="admin-products.html">Hàng hóa</a>
+    <a href="admin-quotes.html">Báo giá &amp; đơn hàng</a>
+    <a href="#">Nội dung</a>
+    <a href="admin-import.html">Đồng bộ KiotViet</a>
+    <a href="#">Cài đặt</a>
+  </nav>
+  <a class="go" href="store-home.html"><span class="i i-globe" style="width:18px;height:18px"></span>Xem website</a>
+</div>
+
+<div class="page">
+  <div class="grid2">
+    <div style="display:grid;gap:12px;min-width:0">
+      <section class="card" aria-labelledby="kq">
+        <h2 id="kq" style="margin-bottom:14px">Yêu cầu mới hôm nay <span class="demo">Dữ liệu minh họa</span></h2>
+        <div class="stats">
+          <div class="stat"><span class="ico"><span class="i i-cal"></span></span><div><small>Báo giá mới</small><strong>5</strong><small>2 chưa có người phụ trách</small></div></div>
+          <div class="stat"><span class="ico" style="background:#FFEDD5;color:#EA580C"><span class="i i-check"></span></span><div><small>Đơn hàng mới</small><strong>3</strong><small>2 COD · 1 chuyển khoản</small></div></div>
+          <div class="stat"><span class="ico" style="background:#FEE2E2;color:#DC2626"><span class="i i-import"></span></span><div><small>Chờ nhập vào KiotViet</small><strong>2</strong><small>Đơn đã xác nhận</small></div></div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="bd">
+        <div style="display:flex;justify-content:space-between;align-items:center"><h2 id="bd">Báo giá và đơn hàng <span style="background:var(--sel);color:var(--pri);padding:3px 8px;border-radius:4px;font-size:14px;margin-left:6px">38 yêu cầu</span></h2>
+          <select class="sel s" aria-label="Khoảng thời gian"><option>Tháng này</option><option>Hôm nay</option><option>Tuần này</option></select></div>
+        <div class="tabs-s"><a class="on" href="#">Theo ngày</a><a href="#">Theo giờ</a><a href="#">Theo thứ</a></div>
+        <div style="position:relative">
+          <div class="chart" style="margin-left:36px">
+            <span class="yl" style="bottom:36px;left:-40px">2</span><span class="yl" style="bottom:76px;left:-40px">4</span><span class="yl" style="bottom:116px;left:-40px">6</span><span class="yl" style="bottom:156px;left:-40px">8</span><span class="yl" style="bottom:196px;left:-40px">10</span>
+            <div class="col"><div class="bar b2" style="height:20px"></div><div class="bar" style="height:60px"></div></div>
+            <div class="col"><div class="bar b2" style="height:40px"></div><div class="bar" style="height:100px"></div></div>
+            <div class="col"><div class="bar" style="height:40px"></div></div>
+            <div class="col"><div class="bar b2" style="height:60px"></div><div class="bar" style="height:120px"></div></div>
+            <div class="col"><div class="bar b2" style="height:20px"></div><div class="bar" style="height:80px"></div></div>
+            <div class="col"><div class="bar b2" style="height:40px"></div><div class="bar" style="height:140px"></div></div>
+            <div class="col"><div class="bar b2" style="height:60px"></div><div class="bar" style="height:100px"></div></div>
+          </div>
+          <div class="xl" style="margin-left:36px"><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span></div>
+        </div>
+        <div class="legend"><span><i style="background:var(--nav)"></i>Báo giá</span><span><i style="background:var(--pri)"></i>Đơn hàng</span></div>
+      </section>
+
+      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:12px">
+        <section class="card" aria-labelledby="top1">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h2 id="top1">Top mã được thêm vào báo giá</h2><select class="sel s" aria-label="Thời gian"><option>Tháng này</option></select></div>
+          <div class="hbar"><span>SV320-3L-Thùng 50G</span><i style="width:100%"></i><span class="r num">14</span></div>
+          <div class="hbar"><span>SV12C1.4Kg 4L(SV1412) C</span><i style="width:78%"></i><span class="r num">11</span></div>
+          <div class="hbar"><span>Pin tiểu Con Thỏ R6P 2AA - Thùng</span><i style="width:64%"></i><span class="r num">9</span></div>
+          <div class="hbar"><span>GP15A Super ALKALINE - 2AA - Hộp</span><i style="width:50%"></i><span class="r num">7</span></div>
+          <div class="hbar"><span>SV465-4L- T80</span><i style="width:36%"></i><span class="r num">5</span></div>
+        </section>
+        <section class="card" aria-labelledby="top2">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h2 id="top2">Hàng cần bổ sung</h2><a href="admin-products.html">Xem tất cả</a></div>
+          <table class="tbl" style="width:100%"><tbody>
+            <tr><td class="mono">SP000041</td><td>Mã mới từ KiotViet</td><td><span class="badge b-warn">Thiếu ảnh</span></td></tr>
+            <tr><td class="mono">SP000042</td><td>Mã mới từ KiotViet</td><td><span class="badge b-warn">Thiếu nhóm hàng</span></td></tr>
+            <tr><td class="mono">GP1604S-2S1 - Hộp</td><td>Pin 9V- Vuông</td><td><span class="badge b-warn">Thiếu ảnh</span></td></tr>
+            <tr><td class="mono">Pin Con Thỏ Đại - R20S - Hộp</td><td>Pin Con Thỏ Đại - R20S</td><td><span class="badge b-warn">Thiếu ảnh</span></td></tr>
+          </tbody></table>
+        </section>
+      </div>
+    </div>
+
+    <aside style="display:grid;gap:12px">
+      <div class="card" style="padding:4px 8px"><div class="qa"><a href="admin-import.html"><span class="i i-import" style="width:22px;height:22px"></span><br>Import từ KiotViet<small>Cập nhật 26/10/2026 08:30</small></a><a href="admin-products.html"><span class="i i-plus" style="width:22px;height:22px"></span><br>Tạo hàng hóa<small>Nhập tay</small></a></div></div>
+
+      <section class="card" aria-labelledby="td" style="padding-bottom:6px">
+        <h2 id="td" style="margin-bottom:4px">Việc cần làm</h2>
+        <div class="todo"><span class="ic"><span class="i i-warn" style="width:20px;height:20px"></span></span><div>Có <b style="color:var(--pri)">2 báo giá</b> mới chưa có người phụ trách.</div></div>
+        <div class="todo"><span class="ic"><span class="i i-warn" style="width:20px;height:20px"></span></span><div>Có <b style="color:var(--pri)">3 mã mới</b> từ KiotViet cần bổ sung ảnh và nhóm hàng.</div></div>
+        <div class="todo"><span class="ic"><span class="i i-warn" style="width:20px;height:20px"></span></span><div>Có <b style="color:var(--pri)">1 mã lệch giá</b> giữa nhập tay và KiotViet, cần chọn bên đúng.</div></div>
+        <div class="todo"><span class="ic blue"><span class="i i-info" style="width:20px;height:20px"></span></span><div><b style="color:var(--pri)">2 đơn</b> đã xác nhận, chưa đánh dấu "Đã nhập KiotViet".</div></div>
+      </section>
+
+      <section class="card" aria-labelledby="hd">
+        <h2 id="hd">Hoạt động gần đây</h2>
+        <ul class="feed">
+          <li><span class="dot"><span class="i i-cal"></span></span><div><a href="admin-quotes.html">Nguyễn Văn An</a> vừa gửi <b>yêu cầu báo giá</b> trị giá 3.050.348đ<small>12 phút trước</small></div></li>
+          <li><span class="dot"><span class="i i-check"></span></span><div><a href="admin-quotes.html">Cửa hàng Minh Châu</a> vừa <b>đặt hàng</b> (chuyển khoản) trị giá 1.064.448đ<small>41 phút trước</small></div></li>
+          <li><span class="dot"><span class="i i-edit"></span></span><div>Quản lý vừa <b>cập nhật giá</b> 3 mã hàng<small>2 giờ trước</small></div></li>
+          <li><span class="dot"><span class="i i-import"></span></span><div>Quản lý vừa <b>import file KiotViet</b>: 3 mã mới, 2 đổi giá<small>hôm qua</small></div></li>
+        </ul>
+      </section>
+    </aside>
+  </div>
+  <p class="wf-note">Wireframe: số liệu, tên khách và thời gian là dữ liệu minh họa. Mã hàng và tên sản phẩm lấy từ danh mục. Không có doanh thu, tồn kho hay giá vốn vì web không quản lý các phần này.</p>
+</div>
+<div class="help"><span class="i i-chat"></span>Hỗ trợ</div>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wireframe DNA Hoàng Nguyên | Mục lục</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="dna.css">
+<style>
+ .idx{padding:40px 0 64px}.idx h1{font-size:34px}.idx .lead{color:var(--ink-2);margin:8px 0 28px;max-width:720px}
+ .scr{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:#fff;transition:box-shadow .15s}
+ .scr:hover{box-shadow:var(--sh-2)}
+ .scr .shot{aspect-ratio:16/10;background:var(--bg);border-bottom:1px solid var(--line);overflow:hidden}
+ .scr .shot img{width:100%;height:100%;object-fit:cover;object-position:top}
+ .scr .bd{padding:14px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+ .scr h3{font-size:17px}.scr p{font-size:14px;color:var(--ink-2)}
+ .scr .lk{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap;padding-top:6px}
+ .grp{margin:32px 0 14px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-700)}
+ .pal{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.pal span{display:flex;align-items:center;gap:8px;font-size:13px}.pal i{width:22px;height:22px;border-radius:50%;border:1px solid var(--line)}
+ @media(max-width:767px){.idx{padding:24px 0 40px}.idx h1{font-size:26px}.grid.g3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="container idx">
+  <a class="logo" href="index.html" style="margin-bottom:20px"><img src="assets/logo.png" alt="Logo DNA Hoàng Nguyên"><span class="wm">DNA Hoàng Nguyên<small>Wireframe web</small></span></a>
+  <h1>Wireframe web DNA Hoàng Nguyên</h1>
+  <p class="lead">6 màn hình giai đoạn 1, dữ liệu thật từ catalogue 2026 (giá đã gồm VAT, áp dụng từ 26/10/2026). Giao diện tiếng Việt, mobile-first. Quy tắc thiết kế: <code>docs/design-guidelines.md</code>.</p>
+  <div class="pal"><span><i style="background:#012745"></i>Navy #012745</span><span><i style="background:#5ccbf0"></i>Sky #5CCBF0</span><span><i style="background:#c6a04a"></i>Gold #C6A04A</span><span><i style="background:#ed1c24"></i>Red #ED1C24</span></div>
+
+  <h2 class="grp">Khách hàng (storefront)</h2>
+  <div class="grid g3">
+    <article class="scr"><a class="shot" href="home.html"><img src="screenshots/home-desktop.png" alt="Xem trước trang chủ"></a><div class="bd"><h3>a. Trang chủ</h3><p>Hero, nhóm hàng, thương hiệu, sản phẩm theo nhóm, tin tức. Desktop + mobile (responsive).</p><div class="lk"><a class="btn btn-primary btn-sm" href="home.html">Mở</a><a class="btn btn-ghost btn-sm" href="screenshots/home-mobile.png">Ảnh mobile</a></div></div></article>
+    <article class="scr"><a class="shot" href="listing.html"><img src="screenshots/listing-desktop.png" alt="Xem trước trang nhóm hàng"></a><div class="bd"><h3>b. Trang nhóm hàng</h3><p>Pin than kẽm: lọc theo thương hiệu, cỡ pin, đơn vị bán; sắp xếp. Mobile dùng ngăn kéo lọc.</p><div class="lk"><a class="btn btn-primary btn-sm" href="listing.html">Mở</a><a class="btn btn-ghost btn-sm" href="screenshots/listing-mobile.png">Ảnh mobile</a></div></div></article>
+    <article class="scr"><a class="shot" href="product.html"><img src="screenshots/product-desktop.png" alt="Xem trước trang sản phẩm"></a><div class="bd"><h3>c. Chi tiết sản phẩm</h3><p>Chọn Gói/Dây/Thùng: đổi giá, mã, quy đổi, đơn giá/gói, tiết kiệm %. CTA dính đáy trên mobile.</p><div class="lk"><a class="btn btn-primary btn-sm" href="product.html">Mở</a><a class="btn btn-ghost btn-sm" href="product.html#sv6c">Mẫu có tiết kiệm</a><a class="btn btn-ghost btn-sm" href="screenshots/product-mobile.png">Ảnh mobile</a></div></div></article>
+    <article class="scr"><a class="shot" href="cart-quote.html"><img src="screenshots/cart-quote-desktop.png" alt="Xem trước giỏ báo giá"></a><div class="bd"><h3>d. Giỏ báo giá</h3><p>Danh sách mã + số lượng, form thông tin khách, tạm tính đã gồm VAT, gửi yêu cầu.</p><div class="lk"><a class="btn btn-primary btn-sm" href="cart-quote.html">Mở</a><a class="btn btn-ghost btn-sm" href="screenshots/cart-quote-mobile.png">Ảnh mobile</a></div></div></article>
+  </div>
+
+  <h2 class="grp">Quản trị (/admin)</h2>
+  <div class="grid g3">
+    <article class="scr"><a class="shot" href="admin-product-edit.html"><img src="screenshots/admin-product-edit-desktop.png" alt="Xem trước form sản phẩm"></a><div class="bd"><h3>e. Sửa sản phẩm</h3><p>Form một trang + bảng quy cách (quy đổi, mã hàng, giá, khuyến mại, nguồn, hiện/ẩn), cảnh báo lệch giá.</p><div class="lk"><a class="btn btn-primary btn-sm" href="admin-product-edit.html">Mở</a></div></div></article>
+    <article class="scr"><a class="shot" href="admin-sync-preview.html"><img src="screenshots/admin-sync-preview-desktop.png" alt="Xem trước đồng bộ Excel"></a><div class="bd"><h3>f. Đồng bộ Excel KiotViet</h3><p>Xem trước khác biệt: mã mới, đổi giá, ngừng kinh doanh, mã lệch; ánh xạ nhóm; áp dụng.</p><div class="lk"><a class="btn btn-primary btn-sm" href="admin-sync-preview.html">Mở</a></div></div></article>
+  </div>
+</main>
+</body>
+</html>

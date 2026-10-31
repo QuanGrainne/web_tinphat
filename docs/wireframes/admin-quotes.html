@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Báo giá &amp; đơn hàng | Quản trị DNA (wireframe)</title>
+<link rel="stylesheet" href="assets/admin.css">
+<style>
+.tbl tr.expand[hidden]{display:none}
+.exp .cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 32px}
+.exp h4{margin:0 0 6px;font:600 13px Inter}
+.hd{display:flex;align-items:center;gap:12px;padding:14px 16px 4px}
+.hd b{font-size:16px}
+.items{width:100%;border-collapse:collapse;margin-top:10px}
+.items th{background:var(--thead);font:600 12px Inter;padding:0 8px;height:32px;text-align:left}
+.items td{padding:6px 8px;border-bottom:1px solid var(--line-s);height:36px;white-space:normal}
+.items th.r,.items td.r{text-align:right}
+.bottom{display:grid;grid-template-columns:1fr 340px;gap:24px;margin-top:12px}
+.sumtbl div{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
+.sumtbl .t{border-top:1px solid var(--line);margin-top:4px;padding-top:10px;font:700 15px Inter}
+.sumtbl .in{width:120px;height:28px}
+.exp-f{flex-wrap:wrap}
+.tbl.q td:nth-child(4){white-space:normal}
+</style>
+</head>
+<body>
+<div class="ubar">
+  <a class="brand" href="admin-dashboard.html"><b>DNA</b><span>Quản trị website Hoàng Nguyên</span></a>
+  <div class="uright">
+    <span class="u"><span class="i i-help"></span>Hỗ trợ</span>
+    <span class="u bell"><span class="i i-bell" style="width:18px;height:18px"></span><em>3</em></span>
+    <span class="u"><span class="i i-gear" style="width:18px;height:18px"></span></span>
+    <span class="avatar"><span class="i i-user"></span></span>
+  </div>
+</div>
+<div class="mbar">
+  <nav aria-label="Menu chính">
+    <a href="admin-dashboard.html">Tổng quan</a>
+    <a href="admin-products.html">Hàng hóa</a>
+    <a href="admin-quotes.html" class="on" aria-current="page">Báo giá &amp; đơn hàng</a>
+    <a href="#">Nội dung</a>
+    <a href="admin-import.html">Đồng bộ KiotViet</a>
+    <a href="#">Cài đặt</a>
+  </nav>
+  <a class="go" href="store-home.html"><span class="i i-globe" style="width:18px;height:18px"></span>Xem website</a>
+</div>
+
+<div class="page">
+  <div class="ptitle">
+    <h1 style="min-width:230px">Báo giá &amp; đơn hàng<span class="demo">Dữ liệu minh họa</span></h1>
+    <div class="search"><span class="i i-search"></span><input type="text" placeholder="Theo mã, tên khách, số điện thoại" aria-label="Tìm"><span class="i i-sliders"></span></div>
+    <div class="tools">
+      <button class="btn"><span class="i i-export"></span>Xuất file</button>
+      <button class="btn btn-ico" aria-label="Chọn cột"><span class="i i-list"></span></button>
+      <button class="btn btn-ico" aria-label="Thiết lập"><span class="i i-gear"></span></button>
+      <button class="btn btn-ico" aria-label="Trợ giúp"><span class="i i-help"></span></button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="fcol" aria-label="Bộ lọc">
+      <div class="fb"><h3>Loại yêu cầu</h3><div class="pills"><button class="pill on">Tất cả</button><button class="pill">Báo giá</button><button class="pill">Đơn hàng</button></div></div>
+      <div class="fb"><h3>Trạng thái báo giá</h3>
+        <label class="opt"><input class="chk" type="checkbox" checked> Mới</label>
+        <label class="opt"><input class="chk" type="checkbox" checked> Đã báo giá</label>
+        <label class="opt"><input class="chk" type="checkbox"> Chốt</label>
+        <label class="opt"><input class="chk" type="checkbox"> Hủy</label></div>
+      <div class="fb"><h3>Trạng thái đơn hàng</h3>
+        <label class="opt"><input class="chk" type="checkbox" checked> Chờ xác nhận</label>
+        <label class="opt"><input class="chk" type="checkbox" checked> Đã xác nhận</label>
+        <label class="opt"><input class="chk" type="checkbox" checked> Đã nhận tiền</label>
+        <label class="opt"><input class="chk" type="checkbox" checked> Đã nhập KiotViet</label>
+        <label class="opt"><input class="chk" type="checkbox" checked> Đang giao</label>
+        <label class="opt"><input class="chk" type="checkbox"> Hoàn tất</label>
+        <label class="opt"><input class="chk" type="checkbox"> Hủy</label></div>
+      <div class="fb"><h3>Hình thức thanh toán</h3><div class="pills"><button class="pill on">Tất cả</button><button class="pill">COD</button><button class="pill">Chuyển khoản</button></div></div>
+      <div class="fb"><h3>Thời gian</h3>
+        <label class="radio"><input type="radio" name="t" checked> Tháng này</label>
+        <label class="radio"><input type="radio" name="t"> Tùy chỉnh</label>
+        <div style="position:relative"><input class="in" placeholder="dd/mm/yyyy" aria-label="Khoảng thời gian"><span class="i i-cal" style="position:absolute;right:10px;top:9px;color:var(--muted)"></span></div></div>
+      <div class="fb"><h3>Người phụ trách</h3><select class="sel" aria-label="Người phụ trách"><option>Chọn người phụ trách</option><option>Quản lý</option><option>Biên tập</option></select></div>
+    </aside>
+
+    <section>
+      <div class="tblwrap">
+        <table class="tbl q">
+          <thead><tr><th class="ck"><input class="chk" type="checkbox" aria-label="Chọn tất cả"></th><th class="st"><span class="i i-star" style="color:#6B7280"></span></th><th>Mã</th><th>Khách hàng</th><th>Điện thoại</th><th>Thời gian</th><th class="r">Số mã</th><th class="r">Tổng tiền hàng</th><th>Hình thức</th><th>Phụ trách</th><th>Trạng thái</th></tr></thead>
+          <tbody>
+            <tr class="tot"><td></td><td></td><td></td><td></td><td></td><td></td><td class="r">31</td><td class="r num">23.859.496</td><td></td><td></td><td></td></tr>
+
+            <tr class="row" data-t="d45"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="mono">DH00045</td><td>Cửa hàng Minh Châu</td><td>0912 345 678</td><td>29/10/2026 17:40</td><td class="r">1</td><td class="r num">1.064.448</td><td>Chuyển khoản</td><td class="muted">Chưa gán</td><td><span class="badge b-warn">Chờ xác nhận</span></td></tr>
+            <tr class="row" data-t="b31"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="mono">BG00031</td><td>Nguyễn Văn An</td><td>0987 654 321</td><td>29/10/2026 17:28</td><td class="r">4</td><td class="r num">3.050.348</td><td>Báo giá</td><td class="muted">Chưa gán</td><td><span class="badge b-blue">Mới</span></td></tr>
+            <tr class="expand" data-p="b31" hidden><td colspan="11"><div class="exp">
+              <div class="exp-t"><a class="on" href="#">Thông tin</a><a href="#">Lịch sử</a></div>
+              <div class="hd"><b>BG00031</b><span class="badge b-blue">Mới</span><span class="muted">Yêu cầu báo giá · 29/10/2026 17:28</span></div>
+              <div style="padding:0 16px"><div class="step" style="margin:10px 0 6px"><div class="now">Mới</div><div>Đã báo giá</div><div>Chốt</div></div></div>
+              <div class="exp-b">
+                <div class="cols"><div><h4>Khách hàng</h4><div class="kv" style="grid-template-columns:1fr"><div><span>Họ tên</span><span>Nguyễn Văn An</span></div><div><span>Điện thoại / Zalo</span><span>0987 654 321</span></div><div><span>Công ty</span><span>-</span></div></div></div>
+                  <div><h4>&nbsp;</h4><div class="kv" style="grid-template-columns:1fr"><div><span>Địa chỉ nhận</span><span>-</span></div><div><span>Người phụ trách</span><span>Chưa gán</span></div><div><span>Ghi chú của khách</span><span>-</span></div></div></div></div>
+                <table class="items"><thead><tr><th>STT</th><th>Mã hàng</th><th>Tên hàng</th><th>ĐVT</th><th class="r">SL</th><th class="r">Đơn giá</th><th class="r">Thành tiền</th></tr></thead><tbody>
+                  <tr><td>1</td><td class="mono">SV320-3L-Thùng 50G</td><td>Giấy ăn rút Sen Vàng khăn giấy lụa Gấu trúc</td><td>Thùng 50 gói</td><td class="r">2</td><td class="r num">428.500</td><td class="r num">857.000</td></tr>
+                  <tr><td>2</td><td class="mono">SV12C1.4Kg 4L(SV1412) C</td><td>Giấy vệ sinh Sen Vàng 12C4L</td><td>Cây (Dây) 10 gói</td><td class="r">1</td><td class="r num">540.000</td><td class="r num">540.000</td></tr>
+                  <tr><td>3</td><td class="mono">Pin tiểu Con Thỏ R6P 2AA - Thùng</td><td>Pin tiểu Con Thỏ R6P 2AA</td><td>Thùng 18 hộp</td><td class="r">1</td><td class="r num">1.064.448</td><td class="r num">1.064.448</td></tr>
+                  <tr><td>4</td><td class="mono">GP15A Super ALKALINE - 2AA - Hộp</td><td>Pin GP Super Alkaline AA</td><td>Hộp 10 vỉ</td><td class="r">3</td><td class="r num">196.300</td><td class="r num">588.900</td></tr></tbody></table>
+                <div class="bottom"><label class="fld"><span class="lbl">Ghi chú nội bộ</span><textarea class="ta" placeholder="Ghi chú"></textarea></label>
+                  <div class="sumtbl"><div><span>Tổng tiền hàng (đã gồm VAT)</span><b class="num">3.050.348</b></div><div class="t"><span>Tổng báo giá</span><span class="num">3.050.348</span></div></div></div>
+              </div>
+              <div class="exp-f"><button class="btn btn-danger">Hủy</button><button class="btn"><span class="i i-export"></span>Xuất Excel / PDF</button><button class="btn"><span class="i i-chat"></span>Nhắn Zalo</button><button class="btn btn-pri">Đánh dấu đã báo giá</button></div>
+            </div></td></tr>
+
+            <tr class="row open" data-t="d44"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="mono b" style="color:var(--pri)">DH00044</td><td>Quán cà phê Gió Núi</td><td>0903 111 222</td><td>29/10/2026 15:05</td><td class="r">3</td><td class="r num">1.985.900</td><td>COD</td><td>Quản lý</td><td><span class="badge b-ok">Đã xác nhận</span></td></tr>
+            <tr class="expand" data-p="d44"><td colspan="11"><div class="exp">
+              <div class="exp-t"><a class="on" href="#">Thông tin</a><a href="#">Lịch sử</a></div>
+              <div class="hd"><b>DH00044</b><span class="badge b-ok">Đã xác nhận</span><span class="muted">Đơn đặt hàng · COD · phụ trách: Quản lý</span></div>
+              <div style="padding:0 16px"><div class="step" style="margin:10px 0 2px"><div class="done">Chờ xác nhận</div><div class="now">Đã xác nhận</div><div>Đã nhập KiotViet</div><div>Đang giao</div><div>Hoàn tất</div></div>
+                <p class="muted" style="font-size:12px;text-align:center">Đơn chuyển khoản có thêm bước "Đã nhận tiền" trước "Đã nhập KiotViet". Đơn có thể Hủy ở mọi bước trước Hoàn tất.</p></div>
+              <div class="exp-b">
+                <div class="cols"><div><h4>Khách hàng</h4><div class="kv" style="grid-template-columns:1fr"><div><span>Họ tên</span><span>Quán cà phê Gió Núi</span></div><div><span>Điện thoại / Zalo</span><span>0903 111 222</span></div><div><span>Địa chỉ nhận</span><span>(minh họa) Phú Thọ</span></div></div></div>
+                  <div><h4>Đơn hàng</h4><div class="kv" style="grid-template-columns:1fr"><div><span>Thời gian đặt</span><span>29/10/2026 15:05</span></div><div><span>Thanh toán</span><span>COD</span></div><div><span>Mã đơn KiotViet</span><span><input class="in" style="width:250px;height:28px" placeholder="Nhập sau khi tạo đơn trong KiotViet" aria-label="Mã đơn KiotViet"></span></div></div></div></div>
+                <table class="items"><thead><tr><th>STT</th><th>Mã hàng</th><th>Tên hàng</th><th>ĐVT</th><th class="r">SL</th><th class="r">Giá chốt khi đặt</th><th class="r">Thành tiền</th></tr></thead><tbody>
+                  <tr><td>1</td><td class="mono">SV320-3L-Thùng 50G</td><td>Giấy ăn rút Sen Vàng khăn giấy lụa Gấu trúc</td><td>Thùng 50 gói</td><td class="r">2</td><td class="r num">428.500</td><td class="r num">857.000</td></tr>
+                  <tr><td>2</td><td class="mono">SV12C1.4Kg 4L(SV1412) C</td><td>Giấy vệ sinh Sen Vàng 12C4L</td><td>Cây (Dây) 10 gói</td><td class="r">1</td><td class="r num">540.000</td><td class="r num">540.000</td></tr>
+                  <tr><td>3</td><td class="mono">GP15A Super ALKALINE - 2AA - Hộp</td><td>Pin GP Super Alkaline AA</td><td>Hộp 10 vỉ</td><td class="r">3</td><td class="r num">196.300</td><td class="r num">588.900</td></tr></tbody></table>
+                <div class="bottom"><label class="fld"><span class="lbl">Ghi chú nội bộ</span><textarea class="ta">Khách xin giao trong tuần. Đã gọi xác nhận tồn kho.</textarea></label>
+                  <div class="sumtbl"><div><span>Tổng tiền hàng (đã gồm VAT)</span><b class="num">1.985.900</b></div><div><span>Giảm đã áp (khuyến mại, bậc ưu đãi)</span><span class="num">0</span></div><div><span>Phí giao hàng (nhân viên nhập)</span><input class="in r num" placeholder="Nhập khi xác nhận"></div><div class="t"><span>Khách cần trả</span><span class="num">1.985.900</span></div></div></div>
+              </div>
+              <div class="exp-f"><button class="btn btn-danger">Hủy đơn</button><button class="btn"><span class="i i-print"></span>In phiếu</button><button class="btn"><span class="i i-export"></span>Xuất Excel (nhập KiotViet)</button><button class="btn"><span class="i i-edit"></span>Chỉnh sửa</button><button class="btn btn-pri">Đánh dấu đã nhập KiotViet</button></div>
+            </div></td></tr>
+
+            <tr class="row" data-t="b30"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="mono">BG00030</td><td>Công ty TNHH Bình An</td><td>0988 000 111</td><td>29/10/2026 11:12</td><td class="r">6</td><td class="r num">8.420.000</td><td>Báo giá</td><td>Quản lý</td><td><span class="badge b-blue">Mới</span></td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="mono">BG00029</td><td>Trần Thị Lan</td><td>0977 222 333</td><td>28/10/2026 16:30</td><td class="r">2</td><td class="r num">1.052.000</td><td>Báo giá</td><td>Quản lý</td><td><span class="badge b-warn">Đã báo giá</span></td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="mono">DH00043</td><td>Tạp hóa Hoa Mai</td><td>0966 444 555</td><td>28/10/2026 09:48</td><td class="r">5</td><td class="r num">2.271.300</td><td>COD</td><td>Quản lý</td><td><span class="badge b-blue">Đang giao</span></td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="mono">DH00042</td><td>Nhà hàng Sông Đà</td><td>0944 555 666</td><td>27/10/2026 14:20</td><td class="r">2</td><td class="r num">640.500</td><td>Chuyển khoản</td><td>Quản lý</td><td><span class="badge b-grey">Hoàn tất</span></td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="mono">BG00028</td><td>Công ty CP Hòa Bình</td><td>0933 777 888</td><td>27/10/2026 10:05</td><td class="r">7</td><td class="r num">4.860.000</td><td>Báo giá</td><td>Biên tập</td><td><span class="badge b-ok">Chốt</span></td></tr>
+            <tr class="row"><td class="ck"><input class="chk" type="checkbox"></td><td class="st"><span class="i i-star"></span></td><td class="mono">BG00027</td><td>Lê Văn Hùng</td><td>0922 888 999</td><td>26/10/2026 20:15</td><td class="r">1</td><td class="r num">515.000</td><td>Báo giá</td><td>Biên tập</td><td><span class="badge b-red">Hủy</span></td></tr>
+          </tbody>
+        </table>
+        <div class="tfoot"><span>Hiển thị <select class="sel" aria-label="Số dòng"><option>15 dòng</option></select></span><div class="pager"><span>‹</span><span class="on">1</span><span>2</span><span>›</span></div></div>
+      </div>
+      <p class="wf-note">Wireframe: khách hàng, số điện thoại, thời gian, mã yêu cầu và tổng tiền là dữ liệu minh họa; mã hàng, tên hàng và đơn giá lấy từ danh mục. Giá được chốt tại thời điểm đặt. Phí giao do nhân viên nhập khi xác nhận. Bấm một dòng để mở rộng (BG00031 mở ra luồng báo giá).</p>
+    </section>
+  </div>
+</div>
+<div class="help"><span class="i i-chat"></span>Hỗ trợ</div>
+
+<script>
+document.querySelectorAll('tr.row[data-t]').forEach(function(r){
+  r.addEventListener('click',function(e){
+    if(e.target.closest('input,a,button'))return;
+    var p=document.querySelector('tr.expand[data-p="'+r.dataset.t+'"]');
+    if(!p)return;
+    var open=p.hidden; p.hidden=!open; r.classList.toggle('open',open);
+  });
+});
+</script>
+</body>
+</html>

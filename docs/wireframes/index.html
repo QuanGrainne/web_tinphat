@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wireframe v3: web DNA Hoàng Nguyên</title>
+<style>
+body{margin:0;background:#FAFAF9;color:#1F2937;font:15px/1.55 system-ui,'Segoe UI',sans-serif}
+main{max-width:1080px;margin:0 auto;padding:32px 24px 64px}
+h1{font-size:26px;margin:0 0 6px} h2{font-size:18px;margin:32px 0 8px}
+p{margin:0 0 8px;color:#4B5563}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #E5E7EB}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #E5E7EB;vertical-align:top;font-size:14px}
+th{background:#F3F4F6;font-weight:600}
+a{color:#0B5CD5}
+code{background:#F3F4F6;padding:1px 5px;border-radius:3px;font-size:13px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Wireframe v3: web DNA Hoàng Nguyên</h1>
+  <p>Ngày 29/10/2026. Catalogue chỉ là nguồn dữ liệu (tên hàng, đơn vị, mã, giá), không lấy phong cách. Quy tắc thiết kế: <code>../design-guidelines.md</code>.</p>
+  <p><b>Admin</b> theo mẫu KiotViet (xanh <span class="sw" style="background:#0041C5"></span>#0041C5, 1440px). <b>Storefront</b>: bố cục theo <code>pinhongngoc.com</code>, màu và kiểu chữ theo KiotViet (cùng token với admin, 1440px và 390px). Tên khách, thời gian, số liệu thống kê và mã yêu cầu trong admin là dữ liệu minh họa và có nhãn.</p>
+
+  <h2>Storefront (một file chạy cả máy tính và điện thoại)</h2>
+  <table>
+    <tr><th>Màn hình</th><th>File</th><th>Ghi chú</th></tr>
+    <tr><td>Trang chủ</td><td><a href="store-home.html">store-home.html</a></td><td>Thứ tự như pinhongngoc: thanh tối, header + nút Danh mục + 3 icon, menu xanh có nút "Đại lý &amp; Mua sỉ", banner, dải 3 ý, Nhóm hàng, Thương hiệu, lưới thẻ theo hãng. Mobile: dock đáy, lưới 2 cột.</td></tr>
+    <tr><td>Nhóm hàng</td><td><a href="store-listing.html">store-listing.html</a> · <a href="store-listing.html#filter">ngăn lọc (mobile)</a> · <a href="store-listing.html#sort">ngăn sắp xếp (mobile)</a></td><td>Cột lọc trái + thanh "Xếp theo" trên desktop. Mobile: hai nút Lọc / Sắp xếp mở ngăn kéo (CSS <code>:target</code>).</td></tr>
+    <tr><td>Sản phẩm</td><td><a href="store-product.html">store-product.html</a> · <a href="store-product.html#thung">chọn Thùng</a> · <a href="store-product.html#sv6c">SV6C (có "Tiết kiệm 1,9%")</a></td><td>Ba ô Gói / Dây / Thùng đổi giá, mã hàng, thành tiền; huy hiệu tiết kiệm chỉ hiện khi &gt; 0. Mobile: thanh CTA dính đáy.</td></tr>
+    <tr><td>Báo giá</td><td><a href="store-quote.html">store-quote.html</a></td><td>Danh sách dòng + form khách ngắn. Không có phí giao.</td></tr>
+    <tr><td>Giỏ hàng và đặt hàng</td><td><a href="store-checkout.html">store-checkout.html</a> · <a href="store-checkout.html#cod">chọn COD</a></td><td>Form nhận hàng, COD hoặc chuyển khoản (thông tin ngân hàng, QR, nội dung = mã đơn). Tên ngân hàng và số tài khoản là chỗ giữ chỗ. Không có dòng phí giao.</td></tr>
+  </table>
+
+  <h2>Admin (1440px, mẫu KiotViet)</h2>
+  <table>
+    <tr><th>Màn hình</th><th>File</th><th>Ghi chú</th></tr>
+    <tr><td>Tổng quan</td><td><a href="admin-dashboard.html">admin-dashboard.html</a></td><td>Yêu cầu mới hôm nay, biểu đồ theo ngày, việc cần làm, hoạt động gần đây.</td></tr>
+    <tr><td>Hàng hóa (danh sách)</td><td><a href="admin-products.html">admin-products.html</a></td><td>Cột lọc trái, hàng tổng đậm, dòng mở rộng có bảng quy cách.</td></tr>
+    <tr><td>Sửa hàng hóa</td><td><a href="admin-product-edit.html">admin-product-edit.html</a> · <a href="admin-product-edit.html#category">Tạo nhóm hàng</a> · <a href="admin-product-edit.html#brand">Tạo thương hiệu</a> · <a href="admin-product-edit.html#delete">Xóa thương hiệu</a></td><td>Modal 3 tab (Thông tin / Mô tả / SEO), thẻ "Quy cách &amp; giá" có cảnh báo lệch giá.</td></tr>
+    <tr><td>Import KiotViet</td><td><a href="admin-import.html">admin-import.html</a> · <a href="admin-import.html#step2">bước 2: xem trước thay đổi</a></td><td>Bước 1 theo KiotViet; bước 2 (diff trước khi Áp dụng) là cải tiến. Dữ liệu diff minh họa.</td></tr>
+    <tr><td>Báo giá &amp; đơn hàng</td><td><a href="admin-quotes.html">admin-quotes.html</a></td><td>Dòng DH00044 mở rộng: luồng trạng thái, mặt hàng giá chốt, phí giao nhập tay, nút thao tác. Bấm BG00031 để xem luồng báo giá.</td></tr>
+  </table>
+
+  <h2>Ảnh chụp</h2>
+  <p>Thư mục <a href="screenshots/">screenshots/</a>: desktop 1440 cho mọi màn hình; mobile 390 cho 5 màn storefront (<code>store-*-mobile.png</code>, kèm ngăn lọc).</p>
+</main>
+</body>
+</html>
