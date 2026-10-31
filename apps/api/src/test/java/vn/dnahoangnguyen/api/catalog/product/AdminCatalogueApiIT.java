@@ -1,6 +1,5 @@
 package vn.dnahoangnguyen.api.catalog.product;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -13,6 +12,7 @@ import org.springframework.http.MediaType;
 import vn.dnahoangnguyen.api.admin.user.AppUser;
 import vn.dnahoangnguyen.api.admin.user.Role;
 import vn.dnahoangnguyen.api.catalog.CatalogIntegrationTest;
+import vn.dnahoangnguyen.api.support.AdminLogin;
 import vn.dnahoangnguyen.api.support.TestAuth;
 
 /** The admin catalogue routes over HTTP: auth, JSON shapes of the contract and role rules. */
@@ -43,7 +43,7 @@ class AdminCatalogueApiIT extends CatalogIntegrationTest {
     void managerCreatesAProductWithTheContractShape() throws Exception {
         AppUser manager = newUser(Role.MANAGER);
 
-        mvc.perform(post("/api/admin/products").with(TestAuth.as(manager)).with(csrf())
+        mvc.perform(post("/api/admin/products").with(TestAuth.as(manager)).with(TestAuth.xsrf(AdminLogin.XSRF))
                         .contentType(MediaType.APPLICATION_JSON).content(NEW_PRODUCT))
                 .andExpect(status().isCreated())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("\"isBase\":true")))
@@ -90,11 +90,11 @@ class AdminCatalogueApiIT extends CatalogIntegrationTest {
 
         String body = mvc.perform(get("/api/admin/products/" + id).with(TestAuth.as(editor))).andReturn().getResponse()
                 .getContentAsString(java.nio.charset.StandardCharsets.UTF_8).replace("\"price\":21000", "\"price\":1");
-        mvc.perform(put("/api/admin/products/" + id).with(TestAuth.as(editor)).with(csrf())
+        mvc.perform(put("/api/admin/products/" + id).with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
                         .contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("FORBIDDEN_FIELD"));
-        mvc.perform(post("/api/admin/products/" + id + "/publish").with(TestAuth.as(editor)).with(csrf()))
+        mvc.perform(post("/api/admin/products/" + id + "/publish").with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF)))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("FORBIDDEN"));
     }
@@ -104,15 +104,23 @@ class AdminCatalogueApiIT extends CatalogIntegrationTest {
         AppUser manager = newUser(Role.MANAGER);
         long noCategory = create("Chưa nhóm", null, null, sku("M1", "Gói", 1, true, 1_000L));
 
-        mvc.perform(post("/api/admin/products/" + noCategory + "/publish").with(TestAuth.as(manager)).with(csrf()))
+        mvc.perform(post("/api/admin/products/" + noCategory + "/publish").with(TestAuth.as(manager)).with(TestAuth.xsrf(AdminLogin.XSRF)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value("PUBLISH_REQUIREMENTS_UNMET"))
+                .andExpect(jsonPath("$.missing.length()").value(1))
                 .andExpect(jsonPath("$.missing[0]").value("CATEGORY"));
+
+        long nothing = create("Chưa có gì", null, null, sku("M0", "Gói", 1, true, null));
+        mvc.perform(post("/api/admin/products/" + nothing + "/publish").with(TestAuth.as(manager))
+                        .with(TestAuth.xsrf(AdminLogin.XSRF)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.missing[0]").value("CATEGORY"))
+                .andExpect(jsonPath("$.missing[1]").value("VISIBLE_PRICED_SKU"));
 
         long ready = create("Sẵn sàng", null, categoryService.create(
                 new vn.dnahoangnguyen.api.catalog.category.CategoryService.CategoryCreate("Nhóm", null)).id(),
                 sku("M2", "Gói", 1, true, 1_000L));
-        mvc.perform(post("/api/admin/products/" + ready + "/publish").with(TestAuth.as(manager)).with(csrf()))
+        mvc.perform(post("/api/admin/products/" + ready + "/publish").with(TestAuth.as(manager)).with(TestAuth.xsrf(AdminLogin.XSRF)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.published").value(true));
         mvc.perform(get("/api/public/products/san-sang")).andExpect(status().isOk());
@@ -124,30 +132,30 @@ class AdminCatalogueApiIT extends CatalogIntegrationTest {
     void categoriesAndBrandsHaveListCreateAndUpdate() throws Exception {
         AppUser editor = newUser(Role.EDITOR);
 
-        mvc.perform(post("/api/admin/categories").with(TestAuth.as(editor)).with(csrf())
+        mvc.perform(post("/api/admin/categories").with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Pin\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.slug").value("pin"))
                 .andExpect(jsonPath("$.children.length()").value(0));
         long pin = categoryService.tree().get(0).id();
-        mvc.perform(post("/api/admin/categories").with(TestAuth.as(editor)).with(csrf())
+        mvc.perform(post("/api/admin/categories").with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Pin kiềm\",\"parentId\":" + pin + "}"))
                 .andExpect(status().isCreated());
         long level2 = categoryService.tree().get(0).children().get(0).id();
-        mvc.perform(post("/api/admin/categories").with(TestAuth.as(editor)).with(csrf())
+        mvc.perform(post("/api/admin/categories").with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Cấp ba\",\"parentId\":" + level2 + "}"))
                 .andExpect(status().isUnprocessableEntity());
-        mvc.perform(put("/api/admin/categories/" + pin).with(TestAuth.as(editor)).with(csrf())
+        mvc.perform(put("/api/admin/categories/" + pin).with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Pin các loại\",\"description\":null,\"visible\":true,\"sortOrder\":3}"))
                 .andExpect(jsonPath("$.name").value("Pin các loại")).andExpect(jsonPath("$.sortOrder").value(3));
         mvc.perform(get("/api/admin/categories").with(TestAuth.as(editor)))
                 .andExpect(jsonPath("$[0].children[0].name").value("Pin kiềm"));
 
-        mvc.perform(post("/api/admin/brands").with(TestAuth.as(editor)).with(csrf())
+        mvc.perform(post("/api/admin/brands").with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"GP\"}"))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.slug").value("gp"));
-        mvc.perform(post("/api/admin/brands").with(TestAuth.as(editor)).with(csrf())
+        mvc.perform(post("/api/admin/brands").with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"gp\"}"))
                 .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("DUPLICATE"));
         mvc.perform(get("/api/admin/brands").with(TestAuth.as(editor)))
