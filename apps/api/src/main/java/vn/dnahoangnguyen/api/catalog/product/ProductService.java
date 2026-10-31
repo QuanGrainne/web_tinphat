@@ -260,13 +260,21 @@ public class ProductService {
         if (bases != 1) {
             throw invalid("Phải có đúng một quy cách cơ sở (quy đổi = 1).");
         }
-        for (Draft d : drafts) {
+        for (int i = 0; i < drafts.size(); i++) {
+            Draft d = drafts.get(i);
             AdminSku row = d.row();
             if (row.conversion() == null || row.conversion() < 1 || row.conversion() > MAX_CONVERSION) {
                 throw invalid("Quy đổi của \"" + row.code() + "\" phải là số nguyên từ 1 đến " + MAX_CONVERSION + ".");
             }
-            if (row.price() != null && (row.price() < 0 || row.price() > MAX_PRICE)) {
-                throw invalid("Giá của \"" + row.code() + "\" không hợp lệ.");
+            // no price (null) shows "Liên hệ"; a price of 0 would sell for free
+            if (row.price() != null && (row.price() <= 0 || row.price() > MAX_PRICE)) {
+                String message = row.price() <= 0 ? "Giá phải lớn hơn 0; để trống nếu hiển thị Liên hệ."
+                        : "Giá của \"" + row.code() + "\" không hợp lệ.";
+                throw invalid(message).withFieldError("skus[" + i + "].price", message);
+            }
+            if (row.promoPrice() != null && row.promoPrice() <= 0) {
+                String message = "Giá khuyến mãi phải lớn hơn 0.";
+                throw invalid(message).withFieldError("skus[" + i + "].promoPrice", message);
             }
             if (d.base() && row.conversion() != 1) {
                 throw invalid("Quy cách cơ sở phải có quy đổi = 1.");

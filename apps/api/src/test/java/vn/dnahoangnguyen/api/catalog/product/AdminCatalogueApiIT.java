@@ -74,6 +74,36 @@ class AdminCatalogueApiIT extends CatalogIntegrationTest {
     }
 
     @Test
+    void aSkuPriceIsEmptyOrAboveZero() throws Exception {
+        AppUser manager = newUser(Role.MANAGER);
+        String message = "Giá phải lớn hơn 0; để trống nếu hiển thị Liên hệ.";
+
+        mvc.perform(post("/api/admin/products").with(TestAuth.as(manager)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON).content(NEW_PRODUCT.replace("\"price\":21000", "\"price\":0")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.errors[0].field").value("skus[0].price"))
+                .andExpect(jsonPath("$.errors[0].message").value(message));
+        mvc.perform(post("/api/admin/products").with(TestAuth.as(manager)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON).content(NEW_PRODUCT.replace("\"price\":126000", "\"price\":0")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("skus[1].price"));
+        mvc.perform(post("/api/admin/products").with(TestAuth.as(manager)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(NEW_PRODUCT.replace("\"price\":126000,\"priceVisible\":true,\"needsConfirmation\":false,\"promoPrice\":null",
+                                "\"price\":126000,\"priceVisible\":true,\"needsConfirmation\":false,\"promoPrice\":0")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("skus[1].promoPrice"));
+        assertThat(count("select count(*) from product")).isZero();
+
+        // an empty price is the "Liên hệ" case and stays valid
+        mvc.perform(post("/api/admin/products").with(TestAuth.as(manager)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON).content(NEW_PRODUCT.replace("\"price\":21000", "\"price\":null")))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.skus[0].price").value((Object) null));
+    }
+
+    @Test
     void writesNeedACsrfToken() throws Exception {
         AppUser manager = newUser(Role.MANAGER);
 
