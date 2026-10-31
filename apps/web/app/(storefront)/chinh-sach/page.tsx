@@ -14,7 +14,8 @@ export const metadata: Metadata = {
 
 export default async function PolicyPage() {
   const { company, hotline } = await apiGet<PublicSettings>("/api/public/settings");
-  const phone = formatPhone(hotline || company.phone);
+  // non-breaking spaces keep the number on one line inside sentences
+  const phone = formatPhone(hotline || company.phone).replace(/ /g, "\u00A0");
   return (
     <PageFrame crumbs={[{ name: "Chính sách" }]}>
       <StaticPage title="Chính sách">

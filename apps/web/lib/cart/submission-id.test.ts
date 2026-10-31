@@ -17,15 +17,15 @@ class MemoryStorage {
 }
 
 const fake = new MemoryStorage();
-const useStorage = (value: unknown) => Object.defineProperty(globalThis, "sessionStorage", { value, configurable: true });
-useStorage(fake);
+const setStorage = (value: unknown) => Object.defineProperty(globalThis, "sessionStorage", { value, configurable: true });
+setStorage(fake);
 
 const ids = await import("./submission-id");
 const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 describe("submission id", () => {
   beforeEach(() => {
-    useStorage(fake);
+    setStorage(fake);
     fake.clear();
     ids.resetSubmissionId("quote");
     ids.resetSubmissionId("order");
@@ -61,7 +61,7 @@ describe("submission id", () => {
   });
 
   it("still holds for the page view when sessionStorage is unavailable", () => {
-    useStorage(undefined);
+    setStorage(undefined);
     const first = ids.getSubmissionId("order");
     expect(first).toMatch(UUID_V4);
     expect(ids.getSubmissionId("order")).toBe(first);
