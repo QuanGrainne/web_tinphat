@@ -114,6 +114,7 @@ class StorefrontQueryIT extends CatalogIntegrationTest {
     void levelOneCategoryIncludesItsChildrenProducts() throws Exception {
         var parent = categoryService.create(new CategoryCreate("Giấy", null));
         var child = categoryService.create(new CategoryCreate("Giấy vệ sinh", parent.id()));
+        categoryService.create(new CategoryCreate("Giấy trống", parent.id()));
         create("Cuộn lớn", null, child.id(), sku("C1", "Cuộn", 1, true, 1_000L));
         create("Hộp lớn", null, parent.id(), sku("C2", "Hộp", 1, true, 2_000L));
         publishAll();
