@@ -72,7 +72,7 @@ export default async function ProductPage({ params }: Props) {
                 Sản phẩm đã ngừng kinh doanh.
               </p>
               {product.category && (
-                <div className="acts" style={{ display: "flex" }}>
+                <div className="acts">
                   <Link className="btn btn-out" href={`/danh-muc/${product.category.slug}`}>
                     Xem {product.category.name}
                   </Link>

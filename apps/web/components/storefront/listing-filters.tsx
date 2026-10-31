@@ -1,7 +1,5 @@
 "use client";
 
-import Form from "next/form";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { DEFAULT_SORT, listingHref, type SortValue } from "./listing-url";
@@ -47,7 +45,7 @@ export function BrandFilter({ action, sort, brands, selected, total, children }:
   return (
     <div className="sheet" id="filter" aria-label="Bộ lọc">
       <a className="scrim" href="#x" aria-label="Đóng" />
-      <Form className="panel" action={action}>
+      <form className="panel" action={action} method="get">
         <div className="sheet-h">
           <span>Lọc sản phẩm</span>
           <a href="#x" aria-label="Đóng">
@@ -77,14 +75,14 @@ export function BrandFilter({ action, sort, brands, selected, total, children }:
           {children}
         </div>
         <div className="sheet-f">
-          <Link className="btn" href={listingHref(action, { sort })}>
+          <a className="btn" href={listingHref(action, { sort })}>
             Xóa lọc
-          </Link>
+          </a>
           <button type="submit" className="btn btn-pri">
             {count !== null ? `Xem ${count} sản phẩm` : "Xem sản phẩm"}
           </button>
         </div>
-      </Form>
+      </form>
     </div>
   );
 }

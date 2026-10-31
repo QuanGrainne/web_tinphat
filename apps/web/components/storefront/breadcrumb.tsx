@@ -7,8 +7,8 @@ export function Breadcrumb({ trail }: { trail: Crumb[] }) {
   const current = trail[trail.length - 1];
   return (
     <nav className="bc" aria-label="Breadcrumb">
-      {trail.slice(0, -1).map((crumb) => (
-        <Fragment key={crumb.href}>
+      {trail.slice(0, -1).map((crumb, index) => (
+        <Fragment key={`${index}-${crumb.href}`}>
           <Link href={crumb.href}>{crumb.name}</Link>
           <i className="i i-right" aria-hidden="true" />
         </Fragment>

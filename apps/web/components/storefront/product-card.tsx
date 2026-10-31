@@ -36,7 +36,7 @@ export function ProductCard({ card }: { card: ProductCardData }) {
           )}
         </div>
         {card.units.length > 0 && (
-          <div className="chips" aria-hidden="true">
+          <div className="chips">
             {card.units.map((u) => (
               <i key={u.name}>{u.priceVisible ? u.name : `${u.name}: Liên hệ`}</i>
             ))}

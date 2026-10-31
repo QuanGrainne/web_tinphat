@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { SORTS, type SortValue } from "./listing-url";
 
 interface ListingSortProps {
@@ -32,15 +31,14 @@ export function ListingSort({ total, sort, hrefFor }: ListingSortProps) {
             <div className="sort-l">
               <span className="lbl">Xếp theo:</span>
               {SORTS.map((s) => (
-                <Link
+                <a
                   key={s.value}
                   href={hrefFor(s.value)}
-                  prefetch={false}
                   className={s.value === sort ? "on" : undefined}
                   aria-current={s.value === sort ? "true" : undefined}
                 >
                   {s.label}
-                </Link>
+                </a>
               ))}
             </div>
           </div>

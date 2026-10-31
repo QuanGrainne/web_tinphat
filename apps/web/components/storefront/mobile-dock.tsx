@@ -54,15 +54,15 @@ export function MobileDock({ nav }: { nav: Nav | null }) {
                 <nav className="cats" aria-label="Nhóm hàng">
                   {nav.categories.map((category) => (
                     <div key={category.id}>
-                      <Link href={`/danh-muc/${category.slug}`}>
+                      <a href={`/danh-muc/${category.slug}`}>
                         {category.name}
                         <small>{category.productCount}</small>
-                      </Link>
+                      </a>
                       {category.children.map((child) => (
-                        <Link key={child.id} className="sub" href={`/danh-muc/${child.slug}`}>
+                        <a key={child.id} className="sub" href={`/danh-muc/${child.slug}`}>
                           {child.name}
                           <small>{child.productCount}</small>
-                        </Link>
+                        </a>
                       ))}
                     </div>
                   ))}
@@ -73,10 +73,10 @@ export function MobileDock({ nav }: { nav: Nav | null }) {
                   <span className="blk-t">Thương hiệu</span>
                   <nav className="cats" aria-label="Thương hiệu">
                     {nav.brands.map((brand) => (
-                      <Link key={brand.slug} href={`/thuong-hieu/${brand.slug}`}>
+                      <a key={brand.slug} href={`/thuong-hieu/${brand.slug}`}>
                         {brand.name}
                         <small>{brand.productCount}</small>
-                      </Link>
+                      </a>
                     ))}
                   </nav>
                 </div>

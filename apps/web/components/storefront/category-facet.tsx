@@ -1,4 +1,3 @@
-import Link from "next/link";
 
 interface CategoryFacetProps {
   categories: { name: string; slug: string; count: number }[];
@@ -24,33 +23,31 @@ export function CategoryFacet({ categories, activeSlug, total, hrefFor }: Catego
           <div className="blk">
             <span className="blk-t">Danh mục</span>
             <nav className="cats" aria-label="Danh mục">
-              <Link
+              <a
                 href={hrefFor(undefined)}
-                prefetch={false}
                 className={activeSlug === undefined ? "on" : undefined}
                 aria-current={activeSlug === undefined ? "true" : undefined}
               >
                 Tất cả
-              </Link>
+              </a>
               {categories.map((category) => (
-                <Link
+                <a
                   key={category.slug}
                   href={hrefFor(category.slug)}
-                  prefetch={false}
                   className={category.slug === activeSlug ? "on" : undefined}
                   aria-current={category.slug === activeSlug ? "true" : undefined}
                 >
                   {category.name}
                   <small>{category.count}</small>
-                </Link>
+                </a>
               ))}
             </nav>
           </div>
         </div>
         <div className="sheet-f">
-          <Link className="btn" href={hrefFor(undefined)}>
+          <a className="btn" href={hrefFor(undefined)}>
             Xóa lọc
-          </Link>
+          </a>
           <a className="btn btn-pri" href="#x">
             Xem {total} sản phẩm
           </a>

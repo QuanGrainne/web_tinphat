@@ -75,6 +75,7 @@ export default async function CategoryPage(props: Props) {
         </aside>
         <section>
           <ListingSort total={data.total} sort={sort} hrefFor={(s) => listingHref(base, { brand: brands, sort: s })} />
+          <h2 className="sr">Danh sách sản phẩm</h2>
           {data.items.length > 0 ? (
             <ProductGrid cards={data.items} variant="grid-4" />
           ) : (

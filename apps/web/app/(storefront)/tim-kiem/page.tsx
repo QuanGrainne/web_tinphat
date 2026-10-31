@@ -54,6 +54,7 @@ export default async function SearchPage({ searchParams }: Props) {
       </p>
       {data.items.length > 0 ? (
         <>
+          <h2 className="sr">Danh sách sản phẩm</h2>
           <ProductGrid cards={data.items} variant="grid-4" />
           <Pagination
             page={data.page}
