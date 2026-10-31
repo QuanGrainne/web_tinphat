@@ -43,7 +43,8 @@ export function ProductBuy({ brand, skus }: ProductBuyProps) {
       </div>
     );
   }
-  return <PurchasePanel brand={brand} skus={skus} />;
+  // Keyed by the SKU set so a different product (or a changed unit list) never reuses a stale selection.
+  return <PurchasePanel key={skus.map((s) => s.id).join("-")} brand={brand} skus={skus} />;
 }
 
 function PurchasePanel({ brand, skus }: ProductBuyProps) {

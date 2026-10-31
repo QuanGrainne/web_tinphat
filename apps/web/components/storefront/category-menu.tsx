@@ -8,18 +8,21 @@ import type { Nav } from "@/lib/api/types";
 /** DANH MỤC button with the category / brand mega menu (desktop). Closes on navigation, outside click and Escape. */
 export function CategoryMenu({ nav }: { nav: Nav }) {
   const pathname = usePathname();
-  // Remembering the path the menu was opened on closes it automatically after navigation.
-  const [openedOn, setOpenedOn] = useState<string | null>(null);
-  const open = openedOn === pathname;
+  // Keyed by path so every navigation starts with the menu closed.
+  return <CategoryMenuPanel key={pathname} nav={nav} />;
+}
+
+function CategoryMenuPanel({ nav }: { nav: Nav }) {
+  const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpenedOn(null);
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpenedOn(null);
+      if (event.key === "Escape") setOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
@@ -36,13 +39,13 @@ export function CategoryMenu({ nav }: { nav: Nav }) {
         className="catbtn"
         aria-expanded={open}
         aria-controls="cat-panel"
-        onClick={() => setOpenedOn(open ? null : pathname)}
+        onClick={() => setOpen(!open)}
       >
         <i className="i i-menu" aria-hidden="true" />
         Danh mục
       </button>
       {open && (
-        <div id="cat-panel" className="catpanel" onClick={() => setOpenedOn(null)}>
+        <div id="cat-panel" className="catpanel" onClick={() => setOpen(false)}>
           {nav.categories.map((category) => (
             <div key={category.id}>
               <h3>
