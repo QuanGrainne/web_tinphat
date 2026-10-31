@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: dna-api
+  config:
+    # catalogue and sales modules ship their own settings files
+    import: optional:classpath:config/catalogue.yml,optional:classpath:config/sales.yml
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/dna}
+    username: ${SPRING_DATASOURCE_USERNAME:dna}
+    password: ${SPRING_DATASOURCE_PASSWORD:dna}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Ho_Chi_Minh
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+  mvc:
+    problemdetails:
+      enabled: true
+  flyway:
+    # phases land on dev databases in any order; production overrides this to false
+    out-of-order: true
+
+server:
+  port: 8080
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      timeout: 4h
+      cookie:
+        name: DNA_SESSION
+        http-only: true
+        same-site: lax
+        secure: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+dna:
+  client-ip-header: CF-Connecting-IP
+  site-url: ${DNA_SITE_URL:http://localhost:8000}
+  seed:
+    catalogue:
+      enabled: ${DNA_SEED_CATALOGUE_ENABLED:false}
+  turnstile:
+    enabled: ${DNA_TURNSTILE_ENABLED:false}
+  security:
+    bcrypt-strength: 12

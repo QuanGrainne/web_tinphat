@@ -1,0 +1,18 @@
+insert into app_setting (key, value, updated_by)
+values ('company',
+        '{"name": "CÔNG TY TNHH DNA HOÀNG NGUYÊN",
+          "taxCode": "5400533724",
+          "address": "Số nhà 41, tổ 1, phường Hòa Bình, tỉnh Phú Thọ",
+          "warehouse": "Đường Võ Thị Sáu, tổ 12, phường Thống Nhất, tỉnh Phú Thọ",
+          "phone": "0366 985 679",
+          "email": "congtydnahoangnguyen@gmail.com"}'::jsonb,
+        'system'),
+       ('bank',
+        '{"bankName": "", "bin": "", "accountNo": "", "accountName": ""}'::jsonb,
+        'system'),
+       ('pricing.mismatchThresholdPct', '2.0'::jsonb, 'system'),
+       ('discount.tiers', '[]'::jsonb, 'system'),
+       ('notify.ownerEmail', '"congtydnahoangnguyen@gmail.com"'::jsonb, 'system'),
+       ('site.trustStrip', '["Giá đã gồm VAT", "Hotline 0366 985 679"]'::jsonb, 'system'),
+       ('site.hotline', '"0366 985 679"'::jsonb, 'system'),
+       ('site.zalo', '"0366985679"'::jsonb, 'system');

@@ -1,0 +1,14 @@
+spring:
+  flyway:
+    out-of-order: false
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+
+logging:
+  structured:
+    format:
+      console: ecs

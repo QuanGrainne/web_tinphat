@@ -1,0 +1,3 @@
+dna:
+  security:
+    bcrypt-strength: 4
