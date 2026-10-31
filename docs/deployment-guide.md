@@ -45,7 +45,7 @@ From Git Bash, container paths such as `/etc/caddy/Caddyfile` get rewritten to W
 | Database (debugging) | `127.0.0.1:55432`, database/user from `.env` |
 | Health (inside the container only, Caddy answers 404) | `docker compose -f deploy/compose.yml exec api curl -s http://127.0.0.1:8080/actuator/health` |
 
-Only Caddy (8000), Mailpit (8025, this machine only) and the database (55432, this machine only) are published. To open the site from a phone on the same network use `http://<PC address>:8000`, allow Docker in the Windows firewall and set `DNA_SITE_URL` to that address so email links work. `HTTP_BIND=127.0.0.1` (the default) keeps the site off the network; set `HTTP_BIND=0.0.0.0` for a phone test or a server.
+Only Caddy (8000), Mailpit (8025) and the database (55432) are published, the last two on this machine only. To open the site from a phone on the same network use `http://<PC address>:8000`, allow Docker in the Windows firewall and set `DNA_SITE_URL` to that address so email links work. `HTTP_BIND=127.0.0.1` (the default) keeps the site off the network; set `HTTP_BIND=0.0.0.0` for a phone test or a server.
 
 ## 4. Configuration (`deploy/.env`)
 
@@ -53,7 +53,9 @@ Only Caddy (8000), Mailpit (8025, this machine only) and the database (55432, th
 |---|---|---|
 | `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Database name and login. The password is only read when the volume is created; to change it later run `ALTER USER` or `down -v` | `dna`, `dna`, `dna-dev-pass` |
 | `DNA_BOOTSTRAP_MANAGER_USERNAME`, `DNA_BOOTSTRAP_MANAGER_PASSWORD` | First MANAGER account, created only while the `app_user` table is empty; password at least 12 characters | `owner`, `Dna-Dev-2026-Owner!` |
-| `DNA_SITE_URL` | Base URL used in email links | `http://localhost:8000` |
+| `DNA_SITE_URL` | Base URL used in email links (API) and in canonical URLs, sitemap and robots (web) | `http://localhost:8000` |
+| `DNA_MAIL_FROM` | From address of outgoing email | `no-reply@dnahoangnguyen.vn` |
+| `DNA_ORDER_RATE_LIMIT`, `DNA_QUOTE_RATE_LIMIT`, `DNA_LOOKUP_RATE_LIMIT` | Order creates, quote creates and order lookups allowed per client IP and 10 minutes. API defaults are 5, 5 and 10; the dev `.env` raises them because every local visitor shares one address | `50`, `50`, `100` |
 | `HTTP_BIND` | Interface for port 8000 (`0.0.0.0` = LAN, `127.0.0.1` = this machine) | `127.0.0.1` |
 | `DNA_API_PROFILES` (optional, commented out) | Spring profiles of the API. Default `docker,mail`: notifications are emailed through Mailpit. `docker` alone only logs them | `docker,mail` |
 | `DNA_SEED_CATALOGUE_ENABLED` | Load the 32 products / 69 SKUs at API start | `true` |
@@ -63,7 +65,7 @@ Only Caddy (8000), Mailpit (8025, this machine only) and the database (55432, th
 | `DNA_SEPAY_ACCOUNT_NO` | Account number SePay reports; must equal the bank account for auto-matching | `0123456789` |
 | `DNA_BANK_NAME`, `DNA_BANK_BIN`, `DNA_BANK_ACCOUNT_NO`, `DNA_BANK_ACCOUNT_NAME` | Bank transfer details shown to customers and put in the VietQR | demo placeholders |
 
-Fixed by `compose.yml`: mail host `mailpit:1025`, Turnstile off, uploads directory `/app/uploads`, JVM options `-Xms256m -Xmx512m -XX:MaxMetaspaceSize=160m -XX:+ExitOnOutOfMemoryError`.
+Fixed by `compose.yml`: mail host `mailpit:1025`, Turnstile off, uploads directory `/app/uploads` (reserved for image upload, not read by the API yet), JVM options `-Xms256m -Xmx512m -XX:MaxMetaspaceSize=160m -XX:+ExitOnOutOfMemoryError`.
 
 ## 5. Dev credentials: change them
 
@@ -177,7 +179,7 @@ This stack is a demo/dev environment, not a production deployment:
 
 - Plain HTTP on one machine, no Cloudflare or Authenticated Origin Pulls, no CSP header, no edge rate limits, no container memory limits, no log rotation settings.
 - Mail never leaves the machine (Mailpit); no real SMTP configuration.
-- Docker Desktop hides real client addresses: Caddy sees every visitor as the same internal address, so per-IP limits (login, order forms) count all local visitors together.
+- Docker Desktop hides real client addresses: Caddy sees every visitor as the same internal address, so per-IP limits (login, order and quote forms, order lookup) count all local visitors together. The order, quote and lookup limits are raised in `.env` for that reason; the login limit is not.
 - Backups are local files made by hand; no off-site copy, no scheduled run, no restore drill, no uptime or backup monitor, no automatic revert on a failed release.
 - Dev credentials and a database port on the host (loopback only).
 - Cut from the MVP: KiotViet import and fields, image upload and processing (products show a placeholder; the `uploads` volume is prepared for later), slug history and redirects, attribute filters, bulk edit, product and brand merge, news and page management, home blocks, discount-tier admin screen, Turnstile widget (flag stays off), Excel and print exports, `/bang-gia`, contact form, amount reissue and line edits after submit, bank reconcile job, users screen, CI workflow, Playwright and Lighthouse runs.

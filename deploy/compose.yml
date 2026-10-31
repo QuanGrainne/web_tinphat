@@ -58,6 +58,12 @@ services:
       DNA_SEED_CATALOGUE_ENABLED: ${DNA_SEED_CATALOGUE_ENABLED:-true}
       DNA_SEED_CATALOGUE_PUBLISH: ${DNA_SEED_CATALOGUE_PUBLISH:-false}
       DNA_SITE_URL: ${DNA_SITE_URL:-http://localhost:8000}
+      DNA_MAIL_FROM: ${DNA_MAIL_FROM:-no-reply@dnahoangnguyen.vn}
+      # per client IP and 10 minutes; Docker Desktop makes every local visitor one address
+      DNA_ORDER_RATE_LIMIT: ${DNA_ORDER_RATE_LIMIT:-5}
+      DNA_QUOTE_RATE_LIMIT: ${DNA_QUOTE_RATE_LIMIT:-5}
+      DNA_LOOKUP_RATE_LIMIT: ${DNA_LOOKUP_RATE_LIMIT:-10}
+      # reserved for image upload; the API does not read it yet
       DNA_UPLOADS_DIR: /app/uploads
       DNA_TURNSTILE_ENABLED: "false"
       DNA_SEPAY_ENABLED: ${DNA_SEPAY_ENABLED:-true}
@@ -88,6 +94,8 @@ services:
       NODE_ENV: production
       NODE_OPTIONS: --max-old-space-size=384
       API_INTERNAL_URL: http://api:8080
+      # canonical URLs, sitemap and robots
+      DNA_SITE_URL: ${DNA_SITE_URL:-http://localhost:8000}
       TZ: Asia/Ho_Chi_Minh
     healthcheck:
       # the server accepts connections; pages are not rendered so the API is not involved
