@@ -74,7 +74,7 @@ function BasketRow({ kind, line, priced }: { kind: BasketKind; line: CartLineIn;
         <i className="i i-image" />
       </div>
       <div className="info2">
-        <b>{gone ? name : <Link href={`/san-pham/${priced.productSlug}`}>{name}</Link>}</b>
+        <b>{gone ? name : <Link href={`/san-pham/${priced.productSlug}`} prefetch={false}>{name}</Link>}</b>
         {gone ? null : (
           <>
             <span>{unitText}</span>

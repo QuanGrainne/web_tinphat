@@ -14,12 +14,16 @@ class MemoryStorage {
 }
 
 const fake = new MemoryStorage();
-Object.defineProperty(globalThis, "sessionStorage", { value: fake, configurable: true });
+const setStorage = (value: unknown) => Object.defineProperty(globalThis, "sessionStorage", { value, configurable: true });
+setStorage(fake);
 
 const store = await import("./last-order");
 
 describe("last-order", () => {
-  beforeEach(() => fake.clear());
+  beforeEach(() => {
+    setStorage(fake);
+    fake.clear();
+  });
 
   it("remembers the phone per normalised order code", () => {
     store.rememberOrder("dna 7k2m-9q", " 0912 345 678 ");
@@ -57,5 +61,13 @@ describe("last-order", () => {
     expect(store.recallPhone("DNA111111")).toBeNull();
     store.rememberOrder("DNA111111", "0911111111");
     expect(store.recallPhone("DNA111111")).toBe("0911111111");
+  });
+
+  it("keeps the phone for the page view when sessionStorage is unavailable", () => {
+    setStorage(undefined);
+    store.rememberOrder("DNA999999", "0999999999");
+    expect(store.recallPhone("DNA999999")).toBe("0999999999");
+    store.forgetOrder("DNA999999");
+    expect(store.recallPhone("DNA999999")).toBeNull();
   });
 });

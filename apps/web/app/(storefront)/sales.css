@@ -36,6 +36,7 @@ body:has(.sticky) .dock{display:none}
 .ln .del{width:44px;height:44px;margin:-4px}
 .ln .info2 b a:hover{color:var(--pri)}
 .ln .info2 .mono{overflow-wrap:anywhere}
+.ln .tot{white-space:nowrap}
 .ln .info2 .ln-note{margin-top:2px;color:var(--warn);font-weight:500}
 .ln.bad{background:#FFFBEB}
 .ln.bad .tot{color:var(--muted)}
@@ -69,6 +70,7 @@ body:has(.sticky) .dock{display:none}
 .steps li{overflow-wrap:anywhere;padding-left:1px;padding-right:1px}
 .ord-h .rf{margin-left:auto}
 .ord-meta{margin:-6px 0 14px;font-size:13px;color:var(--muted)}
+.paybox .kv{align-items:center}
 .paybox .kv dd.cp-row{display:flex;align-items:center;gap:8px}
 .paybox .kv dd.cp-row>span{min-width:0}
 .cp{flex:none;display:inline-flex;align-items:center;gap:4px;min-height:44px;margin:-8px 0;padding:0 8px;border:0;border-radius:var(--r);background:none;color:var(--pri);font:600 12.5px Inter;cursor:pointer}

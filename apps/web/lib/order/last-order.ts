@@ -17,9 +17,20 @@ function storage(): Storage | null {
   }
 }
 
+/** Mirror used only when sessionStorage cannot be read, so the order page still works within one page view. */
+let memory: Entries = [];
+
 function read(): Entries {
+  let raw: string | null;
   try {
-    const parsed: unknown = JSON.parse(storage()?.getItem(LAST_ORDER_KEY) ?? "[]");
+    const store = storage();
+    if (!store) return memory;
+    raw = store.getItem(LAST_ORDER_KEY);
+  } catch {
+    return memory;
+  }
+  try {
+    const parsed: unknown = JSON.parse(raw ?? "[]");
     if (!Array.isArray(parsed)) return [];
     return parsed.filter(
       (e): e is [string, string] => Array.isArray(e) && typeof e[0] === "string" && typeof e[1] === "string",
@@ -30,10 +41,11 @@ function read(): Entries {
 }
 
 function write(entries: Entries): void {
+  memory = entries.slice(-MAX_ENTRIES);
   try {
-    storage()?.setItem(LAST_ORDER_KEY, JSON.stringify(entries.slice(-MAX_ENTRIES)));
+    storage()?.setItem(LAST_ORDER_KEY, JSON.stringify(memory));
   } catch {
-    // storage full or blocked: the order page falls back to the lookup form
+    // storage full or blocked: the in-memory copy still serves this page view
   }
 }
 
