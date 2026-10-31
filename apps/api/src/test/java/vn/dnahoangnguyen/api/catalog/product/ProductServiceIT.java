@@ -303,7 +303,8 @@ class ProductServiceIT extends CatalogIntegrationTest {
         long id = create("Giấy ăn", brand.id(), null, sku("G1", "Gói", 1, true, 1_000L));
         assertThat(jdbc.queryForObject("select search_text from product where id = ?", String.class, id)).contains("sen vang");
 
-        brandService.update(brand.id(), new vn.dnahoangnguyen.api.catalog.brand.BrandService.BrandUpdate("Sen Vàng Mới", null));
+        brandService.update(brand.id(), new vn.dnahoangnguyen.api.catalog.brand.BrandService.BrandUpdate("Sen Vàng Mới", null),
+                MANAGER);
 
         assertThat(jdbc.queryForObject("select search_text from product where id = ?", String.class, id))
                 .contains("sen vang moi");

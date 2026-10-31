@@ -7,16 +7,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import vn.dnahoangnguyen.api.admin.user.AppUser;
 import vn.dnahoangnguyen.api.admin.user.Role;
 import vn.dnahoangnguyen.api.catalog.CatalogIntegrationTest;
+import vn.dnahoangnguyen.api.catalog.brand.BrandService;
+import vn.dnahoangnguyen.api.catalog.category.CategoryService;
 import vn.dnahoangnguyen.api.support.AdminLogin;
 import vn.dnahoangnguyen.api.support.TestAuth;
 
 /** The admin catalogue routes over HTTP: auth, JSON shapes of the contract and role rules. */
 class AdminCatalogueApiIT extends CatalogIntegrationTest {
+
+    @Autowired
+    ObjectMapper mapper;
 
     private static final String NEW_PRODUCT = """
             {"id":null,"version":null,"name":"Giấy rút đáy Sen Vàng","slug":"","brandId":null,"categoryId":null,
@@ -126,6 +137,77 @@ class AdminCatalogueApiIT extends CatalogIntegrationTest {
         mvc.perform(get("/api/public/products/san-sang")).andExpect(status().isOk());
         mvc.perform(get("/api/admin/products").param("published", "true").with(TestAuth.as(manager)))
                 .andExpect(jsonPath("$.total").value(1));
+    }
+
+    @Test
+    void onlyManagersChangeVisibilityOfCategoriesBrandsAndSkus() throws Exception {
+        AppUser editor = newUser(Role.EDITOR);
+        AppUser manager = newUser(Role.MANAGER);
+        var category = categoryService.create(new CategoryService.CategoryCreate("Giấy", null));
+        var brand = brandService.create(new BrandService.BrandCreate("Sen Vàng"));
+        long id = create("Giấy rút đáy", brand.id(), category.id(),
+                sku("V1", "Gói", 1, true, 21_000L), sku("V2", "Thùng 6", 6, false, 120_000L));
+
+        // category: a rename passes, flipping visible does not, a manager may
+        String categoryUrl = "/api/admin/categories/" + category.id();
+        mvc.perform(put(categoryUrl).with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Giấy các loại\",\"description\":null,\"visible\":true,\"sortOrder\":0}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Giấy các loại"));
+        mvc.perform(put(categoryUrl).with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Giấy các loại\",\"description\":null,\"visible\":false,\"sortOrder\":0}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("FORBIDDEN_FIELD"))
+                .andExpect(jsonPath("$.field").value("visible"));
+        mvc.perform(put(categoryUrl).with(TestAuth.as(manager)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Giấy các loại\",\"description\":null,\"visible\":false,\"sortOrder\":0}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.visible").value(false));
+
+        // brand
+        String brandUrl = "/api/admin/brands/" + brand.id();
+        mvc.perform(put(brandUrl).with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Sen Vàng Mới\",\"visible\":true}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Sen Vàng Mới"));
+        mvc.perform(put(brandUrl).with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Sen Vàng Mới\",\"visible\":false}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("FORBIDDEN_FIELD"))
+                .andExpect(jsonPath("$.field").value("visible"));
+        mvc.perform(put(brandUrl).with(TestAuth.as(manager)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Sen Vàng Mới\",\"visible\":false}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.visible").value(false));
+
+        // SKU: text edits pass, hiding a SKU (by flag or by leaving it out) does not
+        String stored = mvc.perform(get("/api/admin/products/" + id).with(TestAuth.as(editor))).andReturn().getResponse()
+                .getContentAsString(java.nio.charset.StandardCharsets.UTF_8);
+        ObjectNode withText = (ObjectNode) mapper.readTree(stored);
+        withText.put("specLine", "12 cuộn");
+        mvc.perform(put("/api/admin/products/" + id).with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(withText)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.specLine").value("12 cuộn"));
+
+        String current = mvc.perform(get("/api/admin/products/" + id).with(TestAuth.as(editor))).andReturn().getResponse()
+                .getContentAsString(java.nio.charset.StandardCharsets.UTF_8);
+        ObjectNode flagged = (ObjectNode) mapper.readTree(current);
+        ((ObjectNode) flagged.get("skus").get(1)).put("visible", false);
+        mvc.perform(put("/api/admin/products/" + id).with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(flagged)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("FORBIDDEN_FIELD"))
+                .andExpect(jsonPath("$.field").value("visible"));
+        ObjectNode omitted = (ObjectNode) mapper.readTree(current);
+        ((ArrayNode) omitted.get("skus")).remove(1);
+        mvc.perform(put("/api/admin/products/" + id).with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(omitted)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.field").value("visible"));
+        assertThat(count("select count(*) from sku where product_id = " + id + " and visible")).isEqualTo(2);
+
+        mvc.perform(put("/api/admin/products/" + id).with(TestAuth.as(manager)).with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(flagged)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.skus[1].visible").value(false));
     }
 
     @Test

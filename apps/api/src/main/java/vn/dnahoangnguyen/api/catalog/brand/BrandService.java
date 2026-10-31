@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.dnahoangnguyen.api.catalog.product.ChangeActor;
 import vn.dnahoangnguyen.api.catalog.product.IdCount;
 import vn.dnahoangnguyen.api.catalog.product.ProductRepository;
 import vn.dnahoangnguyen.api.catalog.product.ProductService;
@@ -57,9 +58,13 @@ public class BrandService {
         return toDto(createBrand(in.name()), 0);
     }
 
+    /** Showing or hiding a brand decides what the storefront publishes, so changing {@code visible} is for managers. */
     @Transactional
-    public AdminBrand update(long id, BrandUpdate in) {
+    public AdminBrand update(long id, BrandUpdate in, ChangeActor actor) {
         Brand brand = brands.findById(id).orElseThrow(() -> DomainException.notFound("Không tìm thấy thương hiệu."));
+        if (in.visible() != null && in.visible() != brand.isVisible()) {
+            actor.requireManager("visible", "Chỉ quản lý mới được ẩn hoặc hiện thương hiệu.");
+        }
         String name = requireName(in.name());
         boolean renamed = !name.equals(brand.getName());
         if (renamed) {

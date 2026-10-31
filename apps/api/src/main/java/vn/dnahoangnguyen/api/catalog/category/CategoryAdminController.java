@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.dnahoangnguyen.api.catalog.category.CategoryService.AdminCategory;
 import vn.dnahoangnguyen.api.catalog.category.CategoryService.CategoryCreate;
 import vn.dnahoangnguyen.api.catalog.category.CategoryService.CategoryUpdate;
+import vn.dnahoangnguyen.api.catalog.product.ChangeActor;
 
 @RestController
 @RequestMapping("/api/admin/categories")
@@ -37,6 +38,6 @@ public class CategoryAdminController {
 
     @PutMapping("/{id}")
     public AdminCategory update(@PathVariable("id") long id, @RequestBody CategoryUpdate body) {
-        return service.update(id, body);
+        return service.update(id, body, ChangeActor.current());
     }
 }

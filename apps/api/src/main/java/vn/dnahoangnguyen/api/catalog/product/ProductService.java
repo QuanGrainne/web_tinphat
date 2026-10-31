@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.dnahoangnguyen.api.admin.audit.AuditService;
@@ -93,7 +92,7 @@ public class ProductService {
 
         List<Draft> drafts = resolveDrafts(in.skus(), existing);
         validateDrafts(drafts);
-        guardRestrictedFields(drafts, actor, source);
+        guardRestrictedFields(drafts, existing, actor, source);
         ensureCodesAreFree(drafts);
 
         Brand brand = in.brandId() == null ? null : brands.findById(in.brandId())
@@ -282,16 +281,29 @@ public class ProductService {
         }
     }
 
-    private static void guardRestrictedFields(List<Draft> drafts, ChangeActor actor, ChangeSource source) {
+    private static void guardRestrictedFields(List<Draft> drafts, List<Sku> existing, ChangeActor actor,
+                                              ChangeSource source) {
         if (source != ChangeSource.MANUAL || actor.manager()) {
             return;
         }
         for (Draft d : drafts) {
             String field = d.target() == null ? "code" : restrictedChange(d);
             if (field != null) {
-                throw new DomainException(HttpStatus.FORBIDDEN, ProblemCode.FORBIDDEN_FIELD,
-                        "Bạn không có quyền thay đổi \"" + field + "\" (giá, quy cách, mã hàng chỉ dành cho quản lý).")
-                        .withExtension("field", field);
+                throw DomainException.forbiddenField(field,
+                        "Bạn không có quyền thay đổi \"" + field + "\" (giá, quy cách, mã hàng, hiển thị chỉ dành cho quản lý).");
+            }
+        }
+        // a visible SKU left out of the request is hidden by the save, which is the same change
+        Set<Long> kept = new HashSet<>();
+        for (Draft d : drafts) {
+            if (d.target() != null) {
+                kept.add(d.target().getId());
+            }
+        }
+        for (Sku sku : existing) {
+            if (sku.isVisible() && !kept.contains(sku.getId())) {
+                throw DomainException.forbiddenField("visible",
+                        "Bạn không có quyền ẩn quy cách \"" + sku.getCode() + "\" (chỉ dành cho quản lý).");
             }
         }
     }
@@ -326,6 +338,9 @@ public class ProductService {
         }
         if (!Objects.equals(row.promoTo(), t.getPromoTo())) {
             return "promoTo";
+        }
+        if (d.visible() != t.isVisible()) {
+            return "visible";
         }
         return null;
     }

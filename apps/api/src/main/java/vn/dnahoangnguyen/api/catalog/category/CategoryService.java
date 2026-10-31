@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.dnahoangnguyen.api.catalog.product.ChangeActor;
 import vn.dnahoangnguyen.api.catalog.product.IdCount;
 import vn.dnahoangnguyen.api.catalog.product.ProductRepository;
 import vn.dnahoangnguyen.api.catalog.slug.SlugUtil;
@@ -68,9 +69,13 @@ public class CategoryService {
         return toDto(category, 0, List.of());
     }
 
+    /** Showing or hiding a group decides what the storefront publishes, so changing {@code visible} is for managers. */
     @Transactional
-    public AdminCategory update(long id, CategoryUpdate in) {
+    public AdminCategory update(long id, CategoryUpdate in, ChangeActor actor) {
         Category category = categories.findById(id).orElseThrow(() -> DomainException.notFound("Không tìm thấy nhóm hàng."));
+        if (in.visible() != null && in.visible() != category.isVisible()) {
+            actor.requireManager("visible", "Chỉ quản lý mới được ẩn hoặc hiện nhóm hàng.");
+        }
         String name = requireName(in.name());
         boolean renamed = !name.equals(category.getName());
         if (renamed) {

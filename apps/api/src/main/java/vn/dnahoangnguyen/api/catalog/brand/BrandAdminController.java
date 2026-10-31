@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.dnahoangnguyen.api.catalog.brand.BrandService.AdminBrand;
 import vn.dnahoangnguyen.api.catalog.brand.BrandService.BrandCreate;
 import vn.dnahoangnguyen.api.catalog.brand.BrandService.BrandUpdate;
+import vn.dnahoangnguyen.api.catalog.product.ChangeActor;
 
 @RestController
 @RequestMapping("/api/admin/brands")
@@ -37,6 +38,6 @@ public class BrandAdminController {
 
     @PutMapping("/{id}")
     public AdminBrand update(@PathVariable("id") long id, @RequestBody BrandUpdate body) {
-        return service.update(id, body);
+        return service.update(id, body, ChangeActor.current());
     }
 }
