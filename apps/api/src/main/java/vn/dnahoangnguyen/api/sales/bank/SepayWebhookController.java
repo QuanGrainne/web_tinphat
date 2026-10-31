@@ -69,7 +69,15 @@ public class SepayWebhookController {
         if (id.isPresent()) {
             ingest.processQuietly(id.get());
         } else {
-            log.info("Bank notification replay ignored (account {})", BankTransactionRepository.maskAccount(tx.accountNo()));
+            Optional<Long> unprocessed = ingest.findUnprocessed(tx);
+            if (unprocessed.isPresent()) {
+                log.info("Bank notification replay matches the stored transaction {} again (account {})",
+                        unprocessed.get(), BankTransactionRepository.maskAccount(tx.accountNo()));
+                ingest.processQuietly(unprocessed.get());
+            } else {
+                log.info("Bank notification replay ignored (account {})",
+                        BankTransactionRepository.maskAccount(tx.accountNo()));
+            }
         }
         return ResponseEntity.ok(Map.of("success", true));
     }

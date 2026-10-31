@@ -57,6 +57,35 @@ class BootstrapManagerRunnerTest {
     }
 
     @Test
+    void skipsTheAccountInsteadOfCrashingWhenThePasswordExceedsBcryptsSeventyTwoBytes() {
+        when(users.count()).thenReturn(0L);
+        // the real encoder throws on more than 72 bytes: starting up must still succeed without an account
+        when(encoder.encode(any())).thenThrow(new IllegalArgumentException("password cannot be more than 72 bytes"));
+
+        BootstrapManagerRunner ascii = runnerKeepingEncoder("owner", "p".repeat(80));
+        ascii.run(new DefaultApplicationArguments());
+        // 30 characters, 90 bytes: long in bytes although short in characters
+        BootstrapManagerRunner accented = runnerKeepingEncoder("owner", "ệ".repeat(30));
+        accented.run(new DefaultApplicationArguments());
+
+        verify(users, never()).save(any());
+        verify(encoder, never()).encode(any());
+    }
+
+    @Test
+    void acceptsAPasswordOfExactlySeventyTwoBytes() {
+        when(users.count()).thenReturn(0L);
+
+        runner("owner", "p".repeat(72)).run(new DefaultApplicationArguments());
+        verify(users).save(any(AppUser.class));
+    }
+
+    private BootstrapManagerRunner runnerKeepingEncoder(String username, String password) {
+        when(users.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        return new BootstrapManagerRunner(users, encoder, audit, username, password, "Quản lý");
+    }
+
+    @Test
     void rejectsAPasswordShorterThanTwelveCharacters() {
         when(users.count()).thenReturn(0L);
 

@@ -50,6 +50,12 @@ public class DomainException extends RuntimeException {
         return new DomainException(HttpStatus.FORBIDDEN, ProblemCode.FORBIDDEN, detailVi);
     }
 
+    /** 403 for a field only managers may change; the field name travels in the {@code field} extension. */
+    public static DomainException forbiddenField(String field, String detailVi) {
+        return new DomainException(HttpStatus.FORBIDDEN, ProblemCode.FORBIDDEN_FIELD, detailVi)
+                .withExtension("field", field);
+    }
+
     public static DomainException tooManyRequests(String detailVi, Duration retryAfter) {
         DomainException ex = new DomainException(HttpStatus.TOO_MANY_REQUESTS, ProblemCode.RATE_LIMITED, detailVi);
         ex.retryAfter = retryAfter;

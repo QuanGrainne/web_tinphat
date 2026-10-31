@@ -45,17 +45,20 @@ public class BankTransactionAdminService {
         this.audit = audit;
     }
 
+    /** {@code status=REVIEW} means "needs a decision": rows matching flagged plus rows it never decided (RECEIVED). */
     @Transactional(readOnly = true)
     public PageOf<BankTransactionRow> list(String status, int page, int size) {
         String filter = status == null || status.isBlank() ? null : status.strip().toUpperCase();
         if (filter != null && !STATUSES.contains(filter)) {
             throw SalesErrors.invalidField("status", "Trạng thái không hợp lệ.");
         }
+        List<String> statuses = filter == null ? List.of()
+                : "REVIEW".equals(filter) ? List.of("REVIEW", "RECEIVED") : List.of(filter);
         int safePage = Math.max(1, page);
         int safeSize = Math.min(MAX_PAGE_SIZE, Math.max(1, size));
-        List<BankTransactionRow> items = transactions.list(filter, safeSize, (safePage - 1) * safeSize).stream()
+        List<BankTransactionRow> items = transactions.list(statuses, safeSize, (safePage - 1) * safeSize).stream()
                 .map(BankTransactionRepository::toRow).toList();
-        return new PageOf<>(items, safePage, safeSize, transactions.count(filter));
+        return new PageOf<>(items, safePage, safeSize, transactions.count(statuses));
     }
 
     /**

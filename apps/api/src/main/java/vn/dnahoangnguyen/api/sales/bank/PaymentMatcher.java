@@ -1,7 +1,9 @@
 package vn.dnahoangnguyen.api.sales.bank;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -70,14 +72,18 @@ public final class PaymentMatcher {
         if (codes.isEmpty()) {
             return new Review(Reason.NO_CODE, null);
         }
-        if (codes.size() > 1) {
-            return new Review(Reason.MULTIPLE_CODES, null);
+        // a candidate that is no order (the payer's name run together, for example) is noise beside the real code
+        List<OrderFacts> existing = new ArrayList<>();
+        for (String code : codes.stream().sorted().toList()) {
+            orders.apply(code).ifPresent(existing::add);
         }
-        Optional<OrderFacts> found = orders.apply(codes.iterator().next());
-        if (found.isEmpty()) {
+        if (existing.isEmpty()) {
             return new Review(Reason.UNKNOWN_CODE, null);
         }
-        OrderFacts order = found.get();
+        if (existing.size() > 1) {
+            return new Review(Reason.MULTIPLE_CODES, null);
+        }
+        OrderFacts order = existing.get(0);
         if (order.method() != PaymentMethod.BANK_TRANSFER) {
             return new Review(Reason.NOT_BANK_TRANSFER, order);
         }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import vn.dnahoangnguyen.api.admin.audit.AuditActor;
 import vn.dnahoangnguyen.api.admin.audit.AuditService;
+import vn.dnahoangnguyen.api.admin.auth.PasswordService;
 
 /**
  * Creates the first MANAGER from {@code DNA_BOOTSTRAP_MANAGER_USERNAME} / {@code DNA_BOOTSTRAP_MANAGER_PASSWORD}
@@ -62,6 +63,11 @@ public class BootstrapManagerRunner implements ApplicationRunner {
         if (password.length() < MIN_PASSWORD_LENGTH) {
             log.error("DNA_BOOTSTRAP_MANAGER_PASSWORD must have at least {} characters; no account created",
                     MIN_PASSWORD_LENGTH);
+            return;
+        }
+        if (!PasswordService.fitsBcrypt(password)) {
+            log.error("DNA_BOOTSTRAP_MANAGER_PASSWORD must be at most {} bytes in UTF-8 (the bcrypt limit); "
+                    + "no account created", PasswordService.MAX_PASSWORD_BYTES);
             return;
         }
         AppUser manager = users.save(new AppUser(username, encoder.encode(password), displayName, Role.MANAGER));

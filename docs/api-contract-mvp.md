@@ -29,7 +29,7 @@ export type SavingKind = "PERCENT" | "EQUAL" | "NONE";
 | `POST /api/auth/login` | form-urlencoded `username`, `password` | 200 `AdminSession`; 401 problem `UNAUTHENTICATED` (identical body for every failure); 429 `RATE_LIMITED` |
 | `POST /api/auth/logout` | - | 204 |
 | `GET /api/admin/me` | - | 200 `AdminSession`; 401 |
-| `POST /api/admin/me/password` | `{currentPassword,newPassword}` | 204 |
+| `POST /api/admin/me/password` | `{currentPassword,newPassword}` | 204; 400 `VALIDATION_FAILED` on `newPassword` when it has fewer than 12 characters or more than 72 characters / 72 UTF-8 bytes (bcrypt limit; accented characters take 2-3 bytes) |
 | `GET /api/public/settings` | - | `PublicSettings` |
 | `GET /api/admin/settings` | - | `AdminSettings` |
 | `PUT /api/admin/settings/bank` (MANAGER) | `BankSettingsUpdate` | 200 `BankInfo`; wrong password = 403 `FORBIDDEN` |
@@ -165,11 +165,11 @@ export interface LookupRequest { code: string; phone: string }
 | `GET /api/admin/products?q=&categoryId=&brandId=&published=&needsAttention=&page=1&size=30` | `AdminProductList` |
 | `GET /api/admin/products/{id}` | `AdminProduct` |
 | `POST /api/admin/products` | body `AdminProduct` without ids -> 201 `AdminProduct` |
-| `PUT /api/admin/products/{id}` | body `AdminProduct` with `version`s -> `AdminProduct`; 409 `VERSION_CONFLICT`; EDITOR touching price/priceVisible/needsConfirmation/promo/conversion/code/isBase = 403 `FORBIDDEN_FIELD` |
+| `PUT /api/admin/products/{id}` | body `AdminProduct` with `version`s -> `AdminProduct`; 409 `VERSION_CONFLICT`; EDITOR touching price/priceVisible/needsConfirmation/promo/conversion/code/isBase/`visible` (or leaving a visible SKU out of the list, which hides it) = 403 `FORBIDDEN_FIELD`; a SKU `price` is null ("Liên hệ") or > 0 and a `promoPrice` is null or > 0, else 400 `VALIDATION_FAILED` on `skus[i].price` / `skus[i].promoPrice` |
 | `POST /api/admin/products/{id}/publish` `/unpublish` `/discontinue` `/reactivate` (MANAGER) | -> `AdminProduct`; publish needs a category and >= 1 visible priced SKU else 422 `PUBLISH_REQUIREMENTS_UNMET` (extension `missing: string[]`). No image = allowed, warning `NO_IMAGE` |
 | `GET /api/admin/categories` | tree `AdminCategory[]` |
-| `POST /api/admin/categories` `{name, parentId?}` / `PUT /api/admin/categories/{id}` `{name, description?, visible, sortOrder}` | `AdminCategory`; depth <= 2 else 422 |
-| `GET /api/admin/brands` / `POST /api/admin/brands` `{name}` / `PUT /api/admin/brands/{id}` `{name, visible}` | `AdminBrand` |
+| `POST /api/admin/categories` `{name, parentId?}` / `PUT /api/admin/categories/{id}` `{name, description?, visible, sortOrder}` | `AdminCategory`; depth <= 2 else 422; EDITOR changing `visible` = 403 `FORBIDDEN_FIELD` (an unchanged value is fine) |
+| `GET /api/admin/brands` / `POST /api/admin/brands` `{name}` / `PUT /api/admin/brands/{id}` `{name, visible}` | `AdminBrand`; EDITOR changing `visible` = 403 `FORBIDDEN_FIELD` |
 
 "Cần bổ sung" (`needsAttention`) = no image or any SKU `needsConfirmation` or (unpublished and (no category or no visible priced SKU)). Price mismatch warning: `|price - basePrice*conversion| / (basePrice*conversion) * 100 > threshold` (default 2.0, both directions, warning only). Every price change writes `price_history` + audit in the same transaction.
 
@@ -211,13 +211,13 @@ export interface AdminBrand { id: number; name: string; slug: string; visible: b
 | `POST /api/admin/orders/{id}/transition` | `OrderTransition` -> `AdminOrder`; 422 `INVALID_TRANSITION`; EDITOR -> PAID = 403 |
 | `POST /api/admin/quotes/{id}/transition` | `{to, note?}` -> `AdminQuote` |
 | `PUT /api/admin/requests/{kind}/{id}/internal-note` | `{internalNote}` -> 204 (`kind` = `orders` or `quotes`) |
-| `GET /api/admin/bank-transactions?status=REVIEW&page=1&size=30` (MANAGER) | `Page<BankTransactionRow>` |
+| `GET /api/admin/bank-transactions?status=REVIEW&page=1&size=30` (MANAGER) | `Page<BankTransactionRow>`; `status=REVIEW` means "needs a decision": it returns `REVIEW` rows and `RECEIVED` rows (stored, but matching never decided them, shown with `reviewReason = "UNPROCESSED"`); `counters.bankReview` counts both |
 | `POST /api/admin/bank-transactions/{id}/link` (MANAGER) | `{orderId, markPaid, note?}` -> `BankTransactionRow`; `markPaid` runs the normal manual PAID transition |
 | `POST /api/admin/bank-transactions/{id}/dismiss` (MANAGER) | `{note}` -> `BankTransactionRow` |
-| `POST /api/webhooks/bank/sepay` | header `Authorization: Apikey <key>` (env `DNA_SEPAY_WEBHOOK_KEYS`, constant-time compare), SePay JSON body `SepayWebhook` -> 200 `{"success":true}`; 401 bad key (nothing stored); 404 when `DNA_SEPAY_ENABLED=false`. Persist first (unique per vendor tx id), then match |
+| `POST /api/webhooks/bank/sepay` | header `Authorization: Apikey <key>` (env `DNA_SEPAY_WEBHOOK_KEYS`, constant-time compare), SePay JSON body `SepayWebhook` -> 200 `{"success":true}`; 401 bad key (nothing stored); 404 when `DNA_SEPAY_ENABLED=false`. Persist first (unique per vendor tx id), then match; a replay of an id whose row is still `RECEIVED` runs the matching again before answering 200 |
 
-Order state machine (pure class `OrderStatusMachine`): COD `PENDING -> CONFIRMED` (needs `shippingFee >= 0`) `-> ENTERED_KIOTVIET` (needs `kiotvietOrderCode`) `-> SHIPPING -> COMPLETED`; BANK_TRANSFER `PENDING -> CONFIRMED -> PAID` (MANAGER or system actor `BANK_WEBHOOK`; needs `paidAmount`, `note` when `paidAmount != total`) `-> ENTERED_KIOTVIET -> SHIPPING -> COMPLETED`; `CANCELLED` from any non-terminal (from PAID requires `note`); COD never PAID; BANK_TRANSFER cannot skip PAID. `COMPLETED` and `CANCELLED` are terminal. Total = subtotal - discountTotal + shippingFee, recomputed when the fee is set at confirm; no other edits after submit in the MVP. "Chờ nhập KiotViet" (`awaitsKiotVietEntry`) = COD in CONFIRMED or BANK_TRANSFER in PAID. Quote machine: `NEW -> QUOTED -> WON | CANCELLED`, `NEW -> CANCELLED`.
-Webhook matcher (pure `PaymentMatcher`): auto-PAID only when ALL hold: exactly one distinct `DNA` + 6 code found in the normalised content (NFD strip marks, `đ`->`D`, uppercase, drop spaces/hyphens/dots/underscores, `O`->`0`, `I`/`L`->`1`), order exists, `BANK_TRANSFER`, status CONFIRMED, `transferAmount == total`, `accountNumber` == configured bank account == env `DNA_SEPAY_ACCOUNT_NO`, `transferType == "in"`. Anything else -> `REVIEW` with reason `NO_CODE MULTIPLE_CODES UNKNOWN_CODE NOT_BANK_TRANSFER NOT_CONFIRMED ALREADY_PAID AMOUNT_MISMATCH WRONG_ACCOUNT OUT_WITH_CODE` and the order is untouched; outgoing transfers without a code = `IGNORED`. Auto-PAID audit actor `BANK_WEBHOOK` (`actor_id` null).
+Order state machine (pure class `OrderStatusMachine`): COD `PENDING -> CONFIRMED` (needs `0 <= shippingFee <= 100000000`) `-> ENTERED_KIOTVIET` (needs `kiotvietOrderCode`) `-> SHIPPING -> COMPLETED`; BANK_TRANSFER `PENDING -> CONFIRMED -> PAID` (MANAGER or system actor `BANK_WEBHOOK`; needs `paidAmount` <= 100000000000, `note` when `paidAmount != total`) `-> ENTERED_KIOTVIET -> SHIPPING -> COMPLETED`; `CANCELLED` from any non-terminal (from PAID requires `note`); COD never PAID; BANK_TRANSFER cannot skip PAID. `COMPLETED` and `CANCELLED` are terminal. Total = subtotal - discountTotal + shippingFee, recomputed when the fee is set at confirm; no other edits after submit in the MVP. "Chờ nhập KiotViet" (`awaitsKiotVietEntry`) = COD in CONFIRMED or BANK_TRANSFER in PAID. Quote machine: `NEW -> QUOTED -> WON | CANCELLED`, `NEW -> CANCELLED`.
+Webhook matcher (pure `PaymentMatcher`): auto-PAID only when ALL hold: exactly one distinct `DNA` + 6 code found in the normalised content (NFD strip marks, `đ`->`D`, uppercase, drop spaces/hyphens/dots/underscores, `O`->`0`, `I`/`L`->`1`) that exists as an order (candidates that are no order, such as the payer's name run together, are ignored: none existing = `UNKNOWN_CODE`, two or more existing = `MULTIPLE_CODES`), `BANK_TRANSFER`, status CONFIRMED, `transferAmount == total`, `accountNumber` == configured bank account == env `DNA_SEPAY_ACCOUNT_NO`, `transferType == "in"`. Anything else -> `REVIEW` with reason `NO_CODE MULTIPLE_CODES UNKNOWN_CODE NOT_BANK_TRANSFER NOT_CONFIRMED ALREADY_PAID AMOUNT_MISMATCH WRONG_ACCOUNT OUT_WITH_CODE` and the order is untouched; outgoing transfers without a code = `IGNORED`. Auto-PAID audit actor `BANK_WEBHOOK` (`actor_id` null).
 
 ```ts
 export interface RequestRow {
@@ -229,7 +229,8 @@ export interface RequestCounters { newQuotes: number; pendingOrders: number; awa
 export interface HistoryEntry { at: string; actor: string; action: string; from: string | null; to: string | null; note: string | null }
 export interface BankTransactionRow {
   id: number; txTime: string; amount: number; direction: "IN" | "OUT"; accountNoMasked: string; content: string;
-  status: "RECEIVED" | "MATCHED" | "REVIEW" | "IGNORED"; reviewReason: string | null; orderCode: string | null; decisionNote: string | null;
+  status: "RECEIVED" | "MATCHED" | "REVIEW" | "IGNORED"; reviewReason: string | null;   // a RECEIVED row carries "UNPROCESSED"
+  orderCode: string | null; decisionNote: string | null;
 }
 export type OrderTransitionField = "shippingFee" | "paidAmount" | "note" | "kiotvietOrderCode";
 export interface AdminOrder {

@@ -56,9 +56,7 @@ class BankTransactionAdminIT extends SalesIntegrationTest {
         return jdbc.queryForObject("select id from customer_order where code = ?", Long.class, code);
     }
 
-    /** Sends a notification that cannot be paid automatically and returns the stored transaction id. */
-    private long reviewTransaction(String content, long amount) throws Exception {
-        long vendorId = VENDOR_IDS.incrementAndGet();
+    private Map<String, Object> notification(long vendorId, String content, long amount) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("id", vendorId);
         body.put("accountNumber", BANK_ACCOUNT);
@@ -66,11 +64,26 @@ class BankTransactionAdminIT extends SalesIntegrationTest {
         body.put("transferType", "in");
         body.put("transferAmount", amount);
         body.put("transactionDate", "2026-10-31 14:02:37");
+        return body;
+    }
+
+    private void sendWebhook(Map<String, Object> body) throws Exception {
         mvc.perform(post("/api/webhooks/bank/sepay").header("Authorization", "Apikey key-one")
                         .contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(body)))
                 .andExpect(status().isOk());
+    }
+
+    /** Sends a notification that cannot be paid automatically and returns the stored transaction id. */
+    private long reviewTransaction(String content, long amount) throws Exception {
+        long vendorId = VENDOR_IDS.incrementAndGet();
+        sendWebhook(notification(vendorId, content, amount));
         return jdbc.queryForObject("select id from bank_transaction where vendor_tx_id = ?", Long.class,
                 Long.toString(vendorId));
+    }
+
+    private long bankReviewCounter() throws Exception {
+        return json(mvc.perform(get("/api/admin/requests/counters").with(TestAuth.as(manager))))
+                .get("bankReview").asLong();
     }
 
     private ResultActions postAs(AppUser user, String path, Map<String, Object> body) throws Exception {
@@ -101,6 +114,60 @@ class BankTransactionAdminIT extends SalesIntegrationTest {
                 .andExpect(jsonPath("$.bankReview").value(org.hamcrest.Matchers.greaterThanOrEqualTo(1)));
         mvc.perform(get("/api/admin/bank-transactions").param("status", "NOPE").with(TestAuth.as(manager)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void aNotificationWhoseMatchingFailedIsListedAsUnprocessedAndPaysTheOrderWhenReplayed() throws Exception {
+        String code = confirmedBankOrder(93_000);
+        long vendorId = VENDOR_IDS.incrementAndGet();
+        Map<String, Object> body = notification(vendorId, "NGUYEN VAN A " + code, 93_000);
+        long before = bankReviewCounter();
+
+        // every write to bank_transaction fails, so the notification is stored but cannot be decided
+        jdbc.execute("""
+                create function fail_bank_transaction_update() returns trigger language plpgsql
+                as $$ begin raise exception 'forced matching failure'; end $$
+                """);
+        jdbc.execute("create trigger fail_bank_transaction_update before update on bank_transaction "
+                + "for each row execute function fail_bank_transaction_update()");
+        try {
+            sendWebhook(body);
+        } finally {
+            jdbc.execute("drop trigger fail_bank_transaction_update on bank_transaction");
+            jdbc.execute("drop function fail_bank_transaction_update()");
+        }
+        long tx = jdbc.queryForObject("select id from bank_transaction where vendor_tx_id = ?", Long.class,
+                Long.toString(vendorId));
+        assertThat(jdbc.queryForObject("select status from bank_transaction where id = ?", String.class, tx))
+                .isEqualTo("RECEIVED");
+        assertThat(jdbc.queryForObject("select status from customer_order where code = ?", String.class, code))
+                .isEqualTo("CONFIRMED");
+
+        mvc.perform(get("/api/admin/bank-transactions").param("status", "REVIEW").param("size", "100")
+                        .with(TestAuth.as(manager)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[?(@.id == " + tx + ")].status").value("RECEIVED"))
+                .andExpect(jsonPath("$.items[?(@.id == " + tx + ")].reviewReason").value("UNPROCESSED"));
+        assertThat(bankReviewCounter()).isEqualTo(before + 1);
+
+        sendWebhook(body);
+
+        assertThat(jdbc.queryForObject("select count(*) from bank_transaction where vendor_tx_id = ?", Long.class,
+                Long.toString(vendorId))).isEqualTo(1L);
+        assertThat(jdbc.queryForObject("select status from bank_transaction where id = ?", String.class, tx))
+                .isEqualTo("MATCHED");
+        Map<String, Object> order = jdbc.queryForMap(
+                "select status, paid_via, paid_amount from customer_order where code = ?", code);
+        assertThat(order.get("status")).isEqualTo("PAID");
+        assertThat(order.get("paid_via")).isEqualTo("BANK_WEBHOOK");
+        assertThat(((Number) order.get("paid_amount")).longValue()).isEqualTo(93_000L);
+        assertThat(bankReviewCounter()).isEqualTo(before);
+
+        // a second replay of a decided row changes nothing
+        sendWebhook(body);
+        assertThat(jdbc.queryForObject(
+                "select count(*) from audit_log where entity_type = 'ORDER' and action = 'ORDER_STATUS' and entity_id = ?",
+                Long.class, orderId(code))).isEqualTo(1L);
     }
 
     @Test

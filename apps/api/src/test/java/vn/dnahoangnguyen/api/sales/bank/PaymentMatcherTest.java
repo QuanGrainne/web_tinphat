@@ -78,6 +78,23 @@ class PaymentMatcherTest {
     }
 
     @Test
+    void aPayeeNameNextToTheCodeIsNotASecondCode() {
+        // "DNA HOANG NGUYEN" folds to "DNAH0ANGN", which looks like a code but is no order
+        String content = "NGUYEN VAN A DNA7K2M9Q chuyen khoan DNA HOANG NGUYEN";
+        assertThat(PaymentMatcher.findCodes(content)).hasSize(2);
+        Outcome outcome = match(in(content, TOTAL), confirmed("DNA7K2M9Q"));
+        assertThat(outcome).isInstanceOfSatisfying(AutoPaid.class,
+                paid -> assertThat(paid.order().code()).isEqualTo("DNA7K2M9Q"));
+    }
+
+    @Test
+    void candidatesThatAreNoOrderAreUnknownAndTwoRealOrdersStillNeedAPerson() {
+        assertReview(match(in("DNA HOANG NGUYEN", TOTAL)), Reason.UNKNOWN_CODE);
+        assertReview(match(in("DNA7K2M9Q DNA8K3N0R DNA HOANG NGUYEN", TOTAL),
+                confirmed("DNA7K2M9Q"), confirmed("DNA8K3N0R")), Reason.MULTIPLE_CODES);
+    }
+
+    @Test
     void theSameCodeTwiceIsStillOneCode() {
         assertThat(match(in("DNA7K2M9Q DNA7K2M9Q", TOTAL), confirmed("DNA7K2M9Q"))).isInstanceOf(AutoPaid.class);
     }

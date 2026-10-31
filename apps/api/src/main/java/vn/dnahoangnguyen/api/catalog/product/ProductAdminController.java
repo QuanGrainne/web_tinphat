@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import vn.dnahoangnguyen.api.catalog.product.ProductDtos.AdminProduct;
 import vn.dnahoangnguyen.api.catalog.product.ProductDtos.AdminProductList;
-import vn.dnahoangnguyen.api.common.security.CurrentUser;
 
 /** Admin product API. Editors may edit text fields only; publishing and lifecycle changes are manager-only. */
 @RestController
@@ -86,7 +85,6 @@ public class ProductAdminController {
     }
 
     private static ChangeActor actor() {
-        return ChangeActor.of(CurrentUser.current()
-                .orElseThrow(() -> new IllegalStateException("Admin endpoint reached without an authenticated user")));
+        return ChangeActor.current();
     }
 }
