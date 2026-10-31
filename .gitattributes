@@ -8,3 +8,4 @@ Dockerfile text eol=lf
 *.webp binary
 *.ico binary
 *.woff2 binary
+Caddyfile text eol=lf

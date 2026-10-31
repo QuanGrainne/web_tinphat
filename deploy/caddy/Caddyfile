@@ -1,0 +1,59 @@
+# Reverse proxy for the local Docker stack (browser -> :8000 -> here).
+#   /api/*       -> api:8080 (Spring)
+#   /uploads/*   -> files from the shared uploads volume
+#   everything   -> web:3000 (Next standalone)
+# /actuator is never forwarded; the API health check runs inside the api container.
+{
+	auto_https off
+	servers {
+		protocols h1
+	}
+}
+
+# Upstream to the API. CF-Connecting-IP is overwritten with the TCP peer, so a
+# client-supplied value can never reach the API's client-IP resolver.
+(api_proxy) {
+	reverse_proxy api:8080 {
+		header_up CF-Connecting-IP {remote_host}
+	}
+}
+
+:80 {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
+	handle /actuator* {
+		respond "Not Found" 404
+	}
+
+	# bank webhook payloads are tiny
+	handle /api/webhooks/* {
+		request_body {
+			max_size 64KB
+		}
+		import api_proxy
+	}
+
+	handle /api/* {
+		request_body {
+			max_size 2MB
+		}
+		import api_proxy
+	}
+
+	handle /uploads/* {
+		root * /srv
+		file_server
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+}

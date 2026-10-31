@@ -1,0 +1,133 @@
+# DNA web: local Docker stack (db, api, web, caddy, mailpit).
+#
+#   docker compose -f deploy/compose.yml up -d --build
+#
+# Storefront + admin: http://localhost:8000   Mail inbox (Mailpit): http://localhost:8025
+# Settings come from deploy/.env, which Compose reads next to this file
+# (copy deploy/.env.example). Details: docs/deployment-guide.md
+name: dna
+
+services:
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in deploy/.env}
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in deploy/.env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
+      TZ: Asia/Ho_Chi_Minh
+    volumes:
+      # PostgreSQL 18 images keep the cluster under /var/lib/postgresql/<major>/docker
+      - pgdata:/var/lib/postgresql
+    ports:
+      # debugging only: psql -h 127.0.0.1 -p 55432
+      - "127.0.0.1:55432:5432"
+    healthcheck:
+      # -h 127.0.0.1 skips the init-time server that only listens on the unix socket
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  api:
+    build:
+      context: ../apps/api
+    init: true
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      JAVA_TOOL_OPTIONS: -Xms256m -Xmx512m -XX:MaxMetaspaceSize=160m -XX:+ExitOnOutOfMemoryError
+      # `mail` sends notifications through SMTP (Mailpit); without it they are only logged
+      SPRING_PROFILES_ACTIVE: ${DNA_API_PROFILES:-docker,mail}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_MAIL_HOST: mailpit
+      SPRING_MAIL_PORT: "1025"
+      # an SMTP outage must not turn the API health check red
+      MANAGEMENT_HEALTH_MAIL_ENABLED: "false"
+      # only used while app_user is empty; may be removed once the first account exists
+      DNA_BOOTSTRAP_MANAGER_USERNAME: ${DNA_BOOTSTRAP_MANAGER_USERNAME:-}
+      DNA_BOOTSTRAP_MANAGER_PASSWORD: ${DNA_BOOTSTRAP_MANAGER_PASSWORD:-}
+      DNA_SEED_CATALOGUE_ENABLED: ${DNA_SEED_CATALOGUE_ENABLED:-true}
+      DNA_SEED_CATALOGUE_PUBLISH: ${DNA_SEED_CATALOGUE_PUBLISH:-false}
+      DNA_SITE_URL: ${DNA_SITE_URL:-http://localhost:8000}
+      DNA_UPLOADS_DIR: /app/uploads
+      DNA_TURNSTILE_ENABLED: "false"
+      DNA_SEPAY_ENABLED: ${DNA_SEPAY_ENABLED:-true}
+      DNA_SEPAY_WEBHOOK_KEYS: ${DNA_SEPAY_WEBHOOK_KEYS:-}
+      DNA_SEPAY_ACCOUNT_NO: ${DNA_SEPAY_ACCOUNT_NO:-}
+      DNA_BANK_NAME: ${DNA_BANK_NAME:-}
+      DNA_BANK_BIN: ${DNA_BANK_BIN:-}
+      DNA_BANK_ACCOUNT_NO: ${DNA_BANK_ACCOUNT_NO:-}
+      DNA_BANK_ACCOUNT_NAME: ${DNA_BANK_ACCOUNT_NAME:-}
+    volumes:
+      - uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 60s
+
+  web:
+    build:
+      context: ../apps/web
+    init: true
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      NODE_OPTIONS: --max-old-space-size=384
+      API_INTERNAL_URL: http://api:8080
+      TZ: Asia/Ho_Chi_Minh
+    healthcheck:
+      # the server accepts connections; pages are not rendered so the API is not involved
+      test: ["CMD", "node", "-e", "require('net').connect(3000,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    ports:
+      # default 127.0.0.1 keeps the site (and its dev admin login) off the LAN; set HTTP_BIND=0.0.0.0 only on a server or to test from a phone
+      - "${HTTP_BIND:-127.0.0.1}:8000:80"
+    volumes:
+      - ./caddy:/etc/caddy:ro
+      - uploads:/srv/uploads:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8025:8025"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 5s
+
+volumes:
+  pgdata:
+  uploads:
+  caddy_data:
+  caddy_config:
