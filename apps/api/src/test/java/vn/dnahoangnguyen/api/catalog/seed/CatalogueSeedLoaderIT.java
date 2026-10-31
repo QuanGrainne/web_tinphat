@@ -4,11 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 import vn.dnahoangnguyen.api.catalog.CatalogIntegrationTest;
 import vn.dnahoangnguyen.api.catalog.sku.SkuRepository;
+import vn.dnahoangnguyen.api.settings.SettingsService;
 
 class CatalogueSeedLoaderIT extends CatalogIntegrationTest {
 
@@ -18,6 +21,8 @@ class CatalogueSeedLoaderIT extends CatalogIntegrationTest {
     SkuRepository skuRepository;
     @Autowired
     PlatformTransactionManager txManager;
+    @Autowired
+    SettingsService settingsService;
 
     @Test
     void loadsTheWholeCatalogueAsDraftsAndIsIdempotent() {
@@ -56,19 +61,49 @@ class CatalogueSeedLoaderIT extends CatalogIntegrationTest {
                 + "and not needs_confirmation")).isEqualTo(2);
     }
 
+    /** The startup run leaves a marker in the settings; it must not leak into other tests of the shared database. */
+    @BeforeEach
+    @AfterEach
+    void clearSeedMarker() {
+        jdbc.update("delete from app_setting where key = 'seed.catalogue.appliedAt'");
+    }
+
+    private CatalogueSeedLoader startupRunner(boolean enabled) {
+        return new CatalogueSeedLoader(enabled, true, productService, categoryService, brandService, skuRepository,
+                txManager, settingsService);
+    }
+
     @Test
     void startupRunSeedsAndPublishesOnlyWhenEnabled() throws Exception {
-        new CatalogueSeedLoader(false, true, productService, categoryService, brandService, skuRepository, txManager)
-                .run(null);
+        startupRunner(false).run(null);
         assertThat(count("select count(*) from product")).isZero();
+        assertThat(count("select count(*) from app_setting where key = 'seed.catalogue.appliedAt'")).isZero();
 
-        new CatalogueSeedLoader(true, true, productService, categoryService, brandService, skuRepository, txManager)
-                .run(null);
+        startupRunner(true).run(null);
 
         assertThat(count("select count(*) from product where published and first_published_at is not null")).isEqualTo(32);
         mvc.perform(get("/api/public/nav")).andExpect(jsonPath("$.categories.length()").value(6));
         mvc.perform(get("/api/public/search").param("q", "giay rut day"))
                 .andExpect(jsonPath("$.items[0].name").value("Giấy rút đáy Sen Vàng"));
+    }
+
+    @Test
+    void startupRunLoadsOnlyOncePerDatabase() throws Exception {
+        startupRunner(true).run(null);
+        assertThat(settingsService.get("seed.catalogue.appliedAt", String.class)).isPresent()
+                .hasValueSatisfying(at -> assertThat(java.time.Instant.parse(at)).isNotNull());
+        assertThat(count("select count(*) from product")).isEqualTo(32);
+
+        // staff renamed the base code of a product: loading the file again would create that product a second time
+        jdbc.update("update sku set code = 'RENAMED-BASE', code_key = 'renamed-base' where code = 'SV6C Bathroom Tissue'");
+        startupRunner(true).run(null);
+        assertThat(count("select count(*) from product")).isEqualTo(32);
+        assertThat(count("select count(*) from sku where code = 'SV6C Bathroom Tissue'")).isZero();
+
+        // the marker is what stops it: without it the next start would load again
+        clearSeedMarker();
+        startupRunner(true).run(null);
+        assertThat(count("select count(*) from product")).isEqualTo(33);
     }
 
     @Test

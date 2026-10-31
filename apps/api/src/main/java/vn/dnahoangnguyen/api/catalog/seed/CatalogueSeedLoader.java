@@ -2,11 +2,13 @@ package vn.dnahoangnguyen.api.catalog.seed;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +32,12 @@ import vn.dnahoangnguyen.api.catalog.seed.CatalogueSeedCsv.SeedRow;
 import vn.dnahoangnguyen.api.catalog.sku.Sku;
 import vn.dnahoangnguyen.api.catalog.sku.SkuCodeKey;
 import vn.dnahoangnguyen.api.catalog.sku.SkuRepository;
+import vn.dnahoangnguyen.api.settings.SettingsService;
 
 /**
- * Loads the printed catalogue (69 SKUs, 32 products) on start when {@code dna.seed.catalogue.enabled} is true.
- * Idempotent: SKUs whose code key already exists are skipped, so a second run writes nothing.
+ * Loads the printed catalogue (69 SKUs, 32 products) on start when {@code dna.seed.catalogue.enabled} is true, once
+ * per database (see {@link #run}). {@link #load()} itself is idempotent: SKUs whose code key already exists are
+ * skipped, so a second call writes nothing.
  * {@code dna.seed.catalogue.publish} publishes the products it creates.
  */
 @Component
@@ -44,6 +48,8 @@ public class CatalogueSeedLoader implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(CatalogueSeedLoader.class);
     private static final String RESOURCE = "seed/catalogue-2026.csv";
+    /** Settings key holding the ISO timestamp of the first successful startup load. */
+    static final String APPLIED_KEY = "seed.catalogue.appliedAt";
 
     private final boolean enabled;
     private final boolean publish;
@@ -52,11 +58,13 @@ public class CatalogueSeedLoader implements ApplicationRunner {
     private final BrandService brandService;
     private final SkuRepository skus;
     private final TransactionTemplate tx;
+    private final SettingsService settings;
 
     public CatalogueSeedLoader(@Value("${dna.seed.catalogue.enabled:false}") boolean enabled,
                                @Value("${dna.seed.catalogue.publish:false}") boolean publish,
                                ProductService productService, CategoryService categoryService,
-                               BrandService brandService, SkuRepository skus, PlatformTransactionManager txManager) {
+                               BrandService brandService, SkuRepository skus, PlatformTransactionManager txManager,
+                               SettingsService settings) {
         this.enabled = enabled;
         this.publish = publish;
         this.productService = productService;
@@ -64,13 +72,25 @@ public class CatalogueSeedLoader implements ApplicationRunner {
         this.brandService = brandService;
         this.skus = skus;
         this.tx = new TransactionTemplate(txManager);
+        this.settings = settings;
     }
 
+    /**
+     * Startup path: loads once. The first successful run leaves a marker in the settings, and later starts skip the
+     * load, so products that staff renamed or merged are not created again from the file.
+     */
     @Override
     public void run(ApplicationArguments args) {
-        if (enabled) {
-            load();
+        if (!enabled) {
+            return;
         }
+        Optional<String> applied = settings.get(APPLIED_KEY, String.class);
+        if (applied.isPresent()) {
+            log.info("Catalogue seed skipped: already applied at {}", applied.get());
+            return;
+        }
+        load();
+        settings.put(APPLIED_KEY, Instant.now().toString());
     }
 
     /** Runs the seed in one transaction; a failure leaves the catalogue untouched. */
