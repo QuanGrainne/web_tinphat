@@ -1,0 +1,93 @@
+.page {
+  padding: 16px 48px 64px;
+  color: #1f2937;
+  font-size: 13px;
+}
+
+.title {
+  margin: 0 0 12px;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 960px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.cardTitle {
+  margin: 0 0 4px;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.cardNote {
+  margin: 0 0 12px;
+  color: #6b7280;
+  font-size: 12.5px;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+.rows > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.rows > div:last-child {
+  border-bottom: 0;
+}
+
+.rows > div > span:first-child {
+  flex: none;
+  width: 220px;
+  font-weight: 600;
+}
+
+.rows > div > span:last-child {
+  flex: 1;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.desc {
+  display: block;
+  color: #6b7280;
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.mono {
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+.muted {
+  color: #6b7280;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
