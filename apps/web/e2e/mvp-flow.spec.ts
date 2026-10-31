@@ -6,7 +6,7 @@ import path from "node:path";
 
 const ADMIN_USER = process.env.ADMIN_USER ?? "owner";
 const ADMIN_PASS = process.env.ADMIN_PASS ?? "Dna-Dev-2026-Owner!";
-const SHOTS = path.resolve(__dirname, "../../../docs/mvp-screens");
+const SHOTS = path.resolve(import.meta.dirname, "../../../docs/mvp-screens");
 
 async function shot(page: Page, name: string, fullPage = true) {
   await page.screenshot({ path: path.join(SHOTS, `${name}.png`), fullPage });
@@ -96,8 +96,11 @@ test("admin: login, products, flagged SKUs", async ({ page }) => {
   await page.getByLabel("Mật khẩu").fill(ADMIN_PASS);
   await page.getByRole("button", { name: "Đăng nhập" }).click();
   await expect(page).toHaveURL(/\/admin\/products/, { timeout: 20_000 });
-  await expect(page.getByText("Cần xác nhận quy cách").first()).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText("32 dòng sản phẩm")).toBeVisible({ timeout: 20_000 });
   await shot(page, "08-admin-products", false);
+  await page.getByRole("textbox", { name: "Tìm hàng hóa" }).fill("SV465");
+  await expect(page.getByText("Cần xác nhận quy cách").first()).toBeVisible({ timeout: 20_000 });
+  await shot(page, "08b-admin-products-sv465-flag", false);
 });
 
 test("admin: confirm order with shipping fee, customer then sees the QR", async ({ page, browser }) => {
@@ -105,6 +108,7 @@ test("admin: confirm order with shipping fee, customer then sees the QR", async 
   await page.getByLabel("Tên đăng nhập").fill(ADMIN_USER);
   await page.getByLabel("Mật khẩu").fill(ADMIN_PASS);
   await page.getByRole("button", { name: "Đăng nhập" }).click();
+  await expect(page).toHaveURL(/\/admin\/products/, { timeout: 20_000 });
   await page.goto("/admin/requests");
   const row = page.getByRole("row", { name: new RegExp(orderCode) });
   await expect(row).toBeVisible({ timeout: 20_000 });
@@ -123,7 +127,7 @@ test("admin: confirm order with shipping fee, customer then sees the QR", async 
   const cp = await customer.newPage();
   await cp.goto(`/don-hang/${orderCode}`);
   await cp.getByLabel(/Số điện thoại/).fill("0912345678");
-  await cp.locator("button[type=submit]:visible").first().click();
+  await cp.getByRole("button", { name: "Tra cứu", exact: true }).click();
   await expect(cp.getByRole("img", { name: "Mã QR chuyển khoản" })).toBeVisible({ timeout: 20_000 });
   expect(await noHorizontalScroll(cp)).toBe(true);
   await cp.screenshot({ path: path.join(SHOTS, "10-order-confirmed-qr-mobile.png"), fullPage: true });

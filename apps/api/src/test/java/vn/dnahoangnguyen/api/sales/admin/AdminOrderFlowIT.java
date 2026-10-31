@@ -1,7 +1,6 @@
 package vn.dnahoangnguyen.api.sales.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -22,6 +21,7 @@ import vn.dnahoangnguyen.api.admin.user.AppUser;
 import vn.dnahoangnguyen.api.admin.user.AppUserRepository;
 import vn.dnahoangnguyen.api.admin.user.Role;
 import vn.dnahoangnguyen.api.sales.SalesIntegrationTest;
+import vn.dnahoangnguyen.api.support.AdminLogin;
 import vn.dnahoangnguyen.api.support.TestAuth;
 
 class AdminOrderFlowIT extends SalesIntegrationTest {
@@ -42,7 +42,7 @@ class AdminOrderFlowIT extends SalesIntegrationTest {
     }
 
     private ResultActions transition(AppUser as, long id, Map<String, Object> body) throws Exception {
-        return mvc.perform(post("/api/admin/orders/" + id + "/transition").with(TestAuth.as(as)).with(csrf())
+        return mvc.perform(post("/api/admin/orders/" + id + "/transition").with(TestAuth.as(as)).with(TestAuth.xsrf(AdminLogin.XSRF))
                 .contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(body)));
     }
 
@@ -181,7 +181,7 @@ class AdminOrderFlowIT extends SalesIntegrationTest {
                 .andExpect(jsonPath("$.awaitingKiotViet").isNumber())
                 .andExpect(jsonPath("$.bankReview").isNumber());
 
-        mvc.perform(put("/api/admin/requests/orders/" + id + "/internal-note").with(TestAuth.as(editor)).with(csrf())
+        mvc.perform(put("/api/admin/requests/orders/" + id + "/internal-note").with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"internalNote\":\"Gọi lại cho khách\"}"))
                 .andExpect(status().isNoContent());
         mvc.perform(get("/api/admin/orders/" + id).with(TestAuth.as(editor)))
@@ -218,7 +218,7 @@ class AdminOrderFlowIT extends SalesIntegrationTest {
     }
 
     private ResultActions quoteTransition(long id, String to) throws Exception {
-        return mvc.perform(post("/api/admin/quotes/" + id + "/transition").with(TestAuth.as(editor)).with(csrf())
+        return mvc.perform(post("/api/admin/quotes/" + id + "/transition").with(TestAuth.as(editor)).with(TestAuth.xsrf(AdminLogin.XSRF))
                 .contentType(MediaType.APPLICATION_JSON).content("{\"to\":\"" + to + "\"}"));
     }
 }

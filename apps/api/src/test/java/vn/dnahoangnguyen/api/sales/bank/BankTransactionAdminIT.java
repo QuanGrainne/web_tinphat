@@ -1,7 +1,6 @@
 package vn.dnahoangnguyen.api.sales.bank;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -20,6 +19,7 @@ import vn.dnahoangnguyen.api.admin.user.AppUser;
 import vn.dnahoangnguyen.api.admin.user.AppUserRepository;
 import vn.dnahoangnguyen.api.admin.user.Role;
 import vn.dnahoangnguyen.api.sales.SalesIntegrationTest;
+import vn.dnahoangnguyen.api.support.AdminLogin;
 import vn.dnahoangnguyen.api.support.TestAuth;
 
 class BankTransactionAdminIT extends SalesIntegrationTest {
@@ -74,7 +74,7 @@ class BankTransactionAdminIT extends SalesIntegrationTest {
     }
 
     private ResultActions postAs(AppUser user, String path, Map<String, Object> body) throws Exception {
-        return mvc.perform(post(path).with(TestAuth.as(user)).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+        return mvc.perform(post(path).with(TestAuth.as(user)).with(TestAuth.xsrf(AdminLogin.XSRF)).contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(body)));
     }
 

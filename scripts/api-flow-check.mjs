@@ -258,7 +258,7 @@ try {
   check("price restored to the printed value", restore.status === 200 && restore.data?.skus?.find((s) => s.isBase)?.price === 31000, restore.text.slice(0, 200));
 
   // ---- bank settings: MANAGER only + password re-entry ----
-  const badPw = await adminCall("PUT", "/api/admin/settings/bank", { bankName: "X", bin: "970422", accountNo: "123", accountName: "X", currentPassword: "not-the-password" });
+  const badPw = await adminCall("PUT", "/api/admin/settings/bank", { bankName: "MB Bank", bin: "970422", accountNo: "0123456789", accountName: "CONG TY TNHH DNA HOANG NGUYEN", currentPassword: "not-the-password" });
   check("bank settings with wrong current password rejected", badPw.status === 403, `status ${badPw.status}`);
 
   // ---- mail ----
