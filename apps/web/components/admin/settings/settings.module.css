@@ -78,10 +78,6 @@
   font-family: ui-monospace, Consolas, monospace;
 }
 
-.muted {
-  color: #6b7280;
-}
-
 .num {
   font-variant-numeric: tabular-nums;
 }

@@ -98,7 +98,10 @@ export function OrderTransitionDialog({ order, transition, onClose }: Props) {
             <span>Khách cần trả</span>
             <span className={s.num}>{formatVnd(totalWithShippingFee(order, values.shippingFee))}</span>
           </div>
-          <p className={s.hint}>Sau khi xác nhận không sửa được phí giao hàng và tổng tiền.</p>
+          <p className={s.hint}>
+            Sau khi xác nhận không sửa được phí giao hàng và tổng tiền.
+            {order.paymentMethod === "BANK_TRANSFER" && " Khách sẽ thấy mã QR chuyển khoản theo số tiền này."}
+          </p>
         </>
       )}
 

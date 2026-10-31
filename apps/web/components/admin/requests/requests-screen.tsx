@@ -9,7 +9,7 @@ import { BankTransactionsTab } from "./bank-transactions-tab";
 import { RequestFilterColumn } from "./request-filter-column";
 import { RequestTable, requestRowKey } from "./request-table";
 import s from "./requests.module.css";
-import { useAdminSession } from "./use-admin-role";
+import { useAdminSession } from "./use-admin-session";
 import { useDebouncedValue } from "./use-debounced-value";
 
 export type RequestsTab = "requests" | "bank";

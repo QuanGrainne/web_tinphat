@@ -97,10 +97,6 @@
   overflow: hidden;
 }
 
-.tableFoot {
-  padding: 4px 12px 8px;
-}
-
 .clickRow {
   cursor: pointer;
 }
