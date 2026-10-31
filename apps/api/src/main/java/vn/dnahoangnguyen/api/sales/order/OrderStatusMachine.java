@@ -41,6 +41,9 @@ public final class OrderStatusMachine {
 
     private static final int MAX_NOTE = 500;
     private static final int MAX_KIOTVIET_CODE = 80;
+    /** Upper bounds for staff-entered money, far above any real order but small enough to keep sums exact. */
+    static final long MAX_SHIPPING_FEE = 100_000_000L;
+    static final long MAX_PAID_AMOUNT = 100_000_000_000L;
 
     private OrderStatusMachine() {
     }
@@ -49,6 +52,15 @@ public final class OrderStatusMachine {
     public static boolean awaitsKiotVietEntry(OrderStatus status, PaymentMethod method) {
         return (method == PaymentMethod.COD && status == OrderStatus.CONFIRMED)
                 || (method == PaymentMethod.BANK_TRANSFER && status == OrderStatus.PAID);
+    }
+
+    /** Order total once the shipping fee is known; figures that do not fit a long are refused instead of wrapping. */
+    public static long totalWithShipping(long subtotal, long discountTotal, long shippingFee) {
+        try {
+            return Math.addExact(Math.subtractExact(subtotal, discountTotal), shippingFee);
+        } catch (ArithmeticException e) {
+            throw invalid(Field.shippingFee, "Tổng tiền đơn hàng vượt quá giới hạn cho phép.");
+        }
     }
 
     /** Transitions the {@code actor} may start from this state, with the fields each one needs. */
@@ -85,6 +97,9 @@ public final class OrderStatusMachine {
                 if (command.shippingFee() == null || command.shippingFee() < 0) {
                     throw invalid(Field.shippingFee, "Vui lòng nhập phí giao hàng (từ 0đ trở lên).");
                 }
+                if (command.shippingFee() > MAX_SHIPPING_FEE) {
+                    throw invalid(Field.shippingFee, "Phí giao hàng tối đa 100.000.000đ.");
+                }
             }
             case PAID -> validatePaid(current, command, actor);
             case ENTERED_KIOTVIET -> {
@@ -111,6 +126,9 @@ public final class OrderStatusMachine {
         Long paid = command.paidAmount();
         if (paid == null || paid < 0) {
             throw invalid(Field.paidAmount, "Vui lòng nhập số tiền đã nhận.");
+        }
+        if (paid > MAX_PAID_AMOUNT) {
+            throw invalid(Field.paidAmount, "Số tiền đã nhận tối đa 100.000.000.000đ.");
         }
         if (actor == Actor.BANK_WEBHOOK) {
             // the webhook only ever pays an exact amount

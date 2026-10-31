@@ -82,7 +82,7 @@ public class AdminOrderService {
         switch (to) {
             case CONFIRMED -> {
                 shippingFee = command.shippingFee();
-                total = order.subtotal() - order.discountTotal() + shippingFee;
+                total = OrderStatusMachine.totalWithShipping(order.subtotal(), order.discountTotal(), shippingFee);
                 after.put("shippingFee", shippingFee);
                 after.put("total", total);
             }

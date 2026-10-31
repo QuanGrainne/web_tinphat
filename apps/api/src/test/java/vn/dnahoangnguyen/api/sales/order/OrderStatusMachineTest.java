@@ -93,6 +93,42 @@ class OrderStatusMachineTest {
     }
 
     @Test
+    void shippingFeeAndPaidAmountAreBounded() {
+        assertThatCode(() -> OrderStatusMachine.validate(cod(OrderStatus.PENDING),
+                new Command(OrderStatus.CONFIRMED, 100_000_000L, null, null, null), Actor.EDITOR)).doesNotThrowAnyException();
+        assertThatThrownBy(() -> OrderStatusMachine.validate(cod(OrderStatus.PENDING),
+                new Command(OrderStatus.CONFIRMED, 100_000_001L, null, null, null), Actor.EDITOR))
+                .isInstanceOfSatisfying(DomainException.class, e -> {
+                    assertThat(e.status()).isEqualTo(HttpStatus.BAD_REQUEST);
+                    assertThat(e.code()).isEqualTo(ProblemCode.VALIDATION_FAILED);
+                    assertThat(e.extensions().get("errors").toString()).contains("shippingFee").contains("100.000.000đ");
+                });
+
+        Current bigOrder = new Current(OrderStatus.CONFIRMED, PaymentMethod.BANK_TRANSFER, 100_000_000_000L);
+        assertThatCode(() -> OrderStatusMachine.validate(bigOrder,
+                new Command(OrderStatus.PAID, null, 100_000_000_000L, null, null), Actor.MANAGER)).doesNotThrowAnyException();
+        assertThatThrownBy(() -> OrderStatusMachine.validate(bank(OrderStatus.CONFIRMED),
+                new Command(OrderStatus.PAID, null, 100_000_000_001L, null, "ghi chú"), Actor.MANAGER))
+                .isInstanceOfSatisfying(DomainException.class, e -> {
+                    assertThat(e.status()).isEqualTo(HttpStatus.BAD_REQUEST);
+                    assertThat(e.code()).isEqualTo(ProblemCode.VALIDATION_FAILED);
+                    assertThat(e.extensions().get("errors").toString()).contains("paidAmount");
+                });
+    }
+
+    @Test
+    void totalWithShippingIsExactOrRefused() {
+        assertThat(OrderStatusMachine.totalWithShipping(93_000, 3_000, 30_000)).isEqualTo(120_000);
+        assertThatThrownBy(() -> OrderStatusMachine.totalWithShipping(Long.MAX_VALUE, 0, 1))
+                .isInstanceOfSatisfying(DomainException.class, e -> {
+                    assertThat(e.status()).isEqualTo(HttpStatus.BAD_REQUEST);
+                    assertThat(e.extensions().get("errors").toString()).contains("shippingFee");
+                });
+        assertThatThrownBy(() -> OrderStatusMachine.totalWithShipping(Long.MIN_VALUE, 1, 0))
+                .isInstanceOf(DomainException.class);
+    }
+
+    @Test
     void enteredKiotvietNeedsTheKiotvietCode() {
         assertThatThrownBy(() -> OrderStatusMachine.validate(cod(OrderStatus.CONFIRMED),
                 new Command(OrderStatus.ENTERED_KIOTVIET, null, null, "  ", null), Actor.EDITOR))

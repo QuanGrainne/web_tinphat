@@ -95,6 +95,27 @@ class AdminOrderFlowIT extends SalesIntegrationTest {
     }
 
     @Test
+    void shippingFeeAndPaidAmountAboveTheLimitsAreValidationErrors() throws Exception {
+        long id = placed("BANK_TRANSFER", 10_000, 1);
+        transition(editor, id, Map.of("to", "CONFIRMED", "shippingFee", 100_000_001L))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.errors[0].field").value("shippingFee"));
+        assertThat(jdbc.queryForObject("select status from customer_order where id = ?", String.class, id))
+                .isEqualTo("PENDING");
+
+        transition(editor, id, Map.of("to", "CONFIRMED", "shippingFee", 100_000_000L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(100_010_000));
+        transition(manager, id, Map.of("to", "PAID", "paidAmount", 100_000_000_001L, "note", "nhập nhầm"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.errors[0].field").value("paidAmount"));
+        assertThat(jdbc.queryForObject("select status from customer_order where id = ?", String.class, id))
+                .isEqualTo("CONFIRMED");
+    }
+
+    @Test
     void editorCannotMarkPaidAndManagerNeedsANoteForADifferentAmount() throws Exception {
         long id = placed("BANK_TRANSFER", 31_000, 3);
         transition(editor, id, Map.of("to", "CONFIRMED", "shippingFee", 0)).andExpect(status().isOk());
