@@ -19,6 +19,8 @@ export function useSession() {
   useEffect(() => {
     if (!unauthenticated) return;
     const next = encodeURIComponent(window.location.pathname + window.location.search);
+    // Full navigation on purpose so no stale admin state survives the expired session.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign(`/admin/login?next=${next}`);
   }, [unauthenticated]);
 

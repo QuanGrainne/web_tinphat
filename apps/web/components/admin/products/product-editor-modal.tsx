@@ -102,8 +102,8 @@ export function ProductEditorModal({
   return (
     <Modal
       open
-      width={1100}
-      style={{ top: 16 }}
+      width={1180}
+      style={{ top: 16, maxWidth: "calc(100vw - 32px)" }}
       title={
         <span>
           {activeId === null ? "Tạo hàng hóa" : "Sửa hàng hóa"}
@@ -477,12 +477,16 @@ function ProductEditorForm({
         </Button>
       </div>
 
-      <CategoryDialog
-        open={categoryDialog}
-        onClose={() => setCategoryDialog(false)}
-        onSaved={(created) => form.setFieldValue("categoryId", created.id)}
-      />
-      <BrandDialog open={brandDialog} onClose={() => setBrandDialog(false)} onSaved={(created) => form.setFieldValue("brandId", created.id)} />
+      {categoryDialog && (
+        <CategoryDialog
+          open
+          onClose={() => setCategoryDialog(false)}
+          onSaved={(created) => form.setFieldValue("categoryId", created.id)}
+        />
+      )}
+      {brandDialog && (
+        <BrandDialog open onClose={() => setBrandDialog(false)} onSaved={(created) => form.setFieldValue("brandId", created.id)} />
+      )}
     </Form>
   );
 }

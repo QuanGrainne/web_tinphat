@@ -13,7 +13,9 @@ const DATE_DISPLAY = "DD/MM/YYYY";
 
 const moneyFormatter = (value: number | string | undefined) =>
   value === undefined || value === null || value === "" ? "" : formatNumber(Number(value));
-const moneyParser = (value: string | undefined) => Number((value ?? "").replace(/\D/g, ""));
+// An empty string must stay empty so clearing the box yields null (no price), never 0; the cast is
+// needed only because the parser type says number while the component accepts numeric strings.
+const moneyParser = (value: string | undefined) => (value ?? "").replace(/\D/g, "") as unknown as number;
 
 const PRICE_VISIBLE_OPTIONS = [
   { value: true, label: "Hiện giá" },
@@ -40,7 +42,7 @@ export function SkuPriceTable({
   const columns: TableColumnsType<FormListFieldData> = [
     {
       title: "Đơn vị",
-      width: 92,
+      width: 80,
       render: (_, field) => (
         <Form.Item name={[field.name, "unitName"]} rules={[{ required: true, whitespace: true, message: "Nhập đơn vị" }]}>
           <Input placeholder="Gói" maxLength={40} />
@@ -49,7 +51,7 @@ export function SkuPriceTable({
     },
     {
       title: "Quy đổi (gói)",
-      width: 88,
+      width: 76,
       render: (_, field) => {
         const isBase = rows[field.name]?.isBase ?? false;
         return (
@@ -64,7 +66,7 @@ export function SkuPriceTable({
     },
     {
       title: "Mã hàng",
-      width: 170,
+      width: 140,
       render: (_, field) => (
         <Form.Item
           name={[field.name, "code"]}
@@ -87,7 +89,7 @@ export function SkuPriceTable({
     },
     {
       title: "Giá đã gồm VAT",
-      width: 120,
+      width: 112,
       align: "right",
       render: (_, field) => (
         <Form.Item name={[field.name, "price"]}>
@@ -99,14 +101,15 @@ export function SkuPriceTable({
             parser={moneyParser}
             disabled={lockPrice}
             status={warningByRow.has(field.name) ? "warning" : undefined}
-            style={{ width: "100%", textAlign: "right" }}
+            className={styles.moneyInput}
+            style={{ width: "100%" }}
           />
         </Form.Item>
       ),
     },
     {
       title: "Đơn giá/gói",
-      width: 92,
+      width: 76,
       align: "right",
       render: (_, field) => {
         const row = rows[field.name];
@@ -138,10 +141,10 @@ export function SkuPriceTable({
               }),
             ]}
           >
-            <InputNumber min={0} precision={0} controls={false} placeholder="Giá KM" formatter={moneyFormatter} parser={moneyParser} disabled={lockPrice} style={{ width: 92 }} />
+            <InputNumber min={0} precision={0} controls={false} placeholder="Giá KM" formatter={moneyFormatter} parser={moneyParser} className={styles.moneyInput} disabled={lockPrice} style={{ width: 80 }} />
           </Form.Item>
           <Form.Item name={[field.name, "promoFrom"]}>
-            <DatePicker format={DATE_DISPLAY} placeholder="Từ ngày" disabled={lockPrice} style={{ width: 118 }} />
+            <DatePicker format={DATE_DISPLAY} placeholder="Từ ngày" disabled={lockPrice} suffixIcon={null} style={{ width: 96 }} />
           </Form.Item>
           <Form.Item
             name={[field.name, "promoTo"]}
@@ -157,14 +160,14 @@ export function SkuPriceTable({
               }),
             ]}
           >
-            <DatePicker format={DATE_DISPLAY} placeholder="Đến ngày" disabled={lockPrice} style={{ width: 118 }} />
+            <DatePicker format={DATE_DISPLAY} placeholder="Đến ngày" disabled={lockPrice} suffixIcon={null} style={{ width: 96 }} />
           </Form.Item>
         </div>
       ),
     },
     {
       title: "Hiển thị giá",
-      width: 150,
+      width: 132,
       render: (_, field) => (
         <>
           <Form.Item name={[field.name, "priceVisible"]}>
@@ -182,7 +185,7 @@ export function SkuPriceTable({
     },
     {
       title: "Hiện",
-      width: 56,
+      width: 52,
       align: "center",
       render: (_, field) => (
         <Form.Item name={[field.name, "visible"]} valuePropName="checked">
@@ -199,6 +202,7 @@ export function SkuPriceTable({
           <Table<FormListFieldData>
             className={styles.skuTable}
             size="small"
+            scroll={{ x: "max-content" }}
             pagination={false}
             rowKey="key"
             dataSource={fields}
@@ -206,7 +210,7 @@ export function SkuPriceTable({
               ...columns,
               {
                 title: "",
-                width: 40,
+                width: 36,
                 render: (_, field) => {
                   const row = rows[field.name];
                   // Only rows that were never saved can be removed.

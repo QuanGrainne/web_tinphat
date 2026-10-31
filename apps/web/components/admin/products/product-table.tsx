@@ -37,10 +37,10 @@ const columns: TableColumnsType<AdminProductRow> = [
     title: "Giá đơn vị cơ bản",
     dataIndex: "basePrice",
     align: "right",
-    width: 140,
+    width: 150,
     render: (v: number | null) => <span className={styles.num}>{v === null ? "-" : formatNumber(v)}</span>,
   },
-  { title: "Quy cách", dataIndex: "skuCount", align: "right", width: 90 },
+  { title: "Quy cách", dataIndex: "skuCount", align: "right", width: 100 },
   {
     title: "Hiển thị web",
     dataIndex: "published",

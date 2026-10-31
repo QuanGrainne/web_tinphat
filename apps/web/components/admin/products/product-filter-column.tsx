@@ -118,8 +118,8 @@ export function ProductFilterColumn({
         <p className={styles.hint}>Thiếu ảnh, nhóm hàng hoặc quy cách có giá.</p>
       </div>
 
-      <CategoryDialog open={categoryDialog} onClose={() => setCategoryDialog(false)} />
-      <BrandDialog open={brandDialog} onClose={() => setBrandDialog(false)} />
+      {categoryDialog && <CategoryDialog open onClose={() => setCategoryDialog(false)} />}
+      {brandDialog && <BrandDialog open onClose={() => setBrandDialog(false)} />}
     </aside>
   );
 }
