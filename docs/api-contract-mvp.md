@@ -119,6 +119,8 @@ export interface SitemapData { products: { slug: string; updatedAt: string }[]; 
 | `POST /api/public/orders` | `OrderSubmit` -> 201 `OrderView` (200 on replay); 409 `PRICE_CHANGED` with extension `pricedCart: PricedCart`; 422 `SKU_NOT_ORDERABLE`; 400 `VALIDATION_FAILED` (also honeypot `website` filled); 429 `RATE_LIMITED` + `Retry-After` |
 | `POST /api/public/orders/lookup` | `{code, phone}` -> `OrderView`; any mismatch = 404 `NOT_FOUND` with one generic message |
 
+Behaviour details: `OrderView.bank` is `null` while the bank account number is not configured in settings; `qrAmount` is only ever set for `BANK_TRANSFER`; a non-orderable or unavailable line answers 422 `SKU_NOT_ORDERABLE` (checked before the `expectedTotal` comparison) with the extension `pricedCart`, and quotes also answer 422 when a line is `unavailable`; a quote line's `listPrice` equals its `unitPrice` (quotes store no list price); an admin transition with a missing required field answers 400 `VALIDATION_FAILED` with `errors[].field` = the `OrderTransitionField` name.
+
 Rules: `qty` 1..9999, max 50 lines, duplicate SKUs merged; server ignores client prices; phone normalised (`+84`/`84` -> `0`, `^0\d{9,10}$`); lookup normalises the code (uppercase, drop spaces/hyphens, `O`->`0`, `I`/`L`->`1`); codes: orders `DNA`+6 Crockford base32 (`0123456789ABCDEFGHJKMNPQRSTVWXYZ`), quotes `BG`+6. `expectedTotal` = the `PricedCart.total` the client last displayed. Discount ladder (`discount.tiers`, empty at launch = off): highest tier with `threshold <= subtotal` (post-promo), `discountTotal = round(subtotal*pct/100)`, one figure + `discountNote`. Orders cannot contain hidden-price lines (`SKU_NOT_ORDERABLE`); quotes can (priced `null`).
 
 ```ts
@@ -203,7 +205,7 @@ export interface AdminBrand { id: number; name: string; slug: string; visible: b
 
 | Method + path | Notes |
 |---|---|
-| `GET /api/admin/requests?kind=&status=&payment=&q=&page=1&size=30` | `RequestList`, newest first, unified quotes + orders; `q` matches code/name/phone |
+| `GET /api/admin/requests?kind=&status=&payment=&q=&awaitingKiotViet=&page=1&size=30` | `RequestList`, newest first, unified quotes + orders; `q` matches code/name/phone; optional `awaitingKiotViet=true` keeps only orders where `awaitsKiotVietEntry` holds; `RequestRow.total` of a quote = its priced subtotal (null when 0); `history` of an order or quote is oldest first |
 | `GET /api/admin/requests/counters` | `RequestCounters` (bell; polled every 60 s) |
 | `GET /api/admin/orders/{id}` / `GET /api/admin/quotes/{id}` | `AdminOrder` / `AdminQuote` |
 | `POST /api/admin/orders/{id}/transition` | `OrderTransition` -> `AdminOrder`; 422 `INVALID_TRANSITION`; EDITOR -> PAID = 403 |

@@ -38,6 +38,7 @@ class OrderSubmitIT extends SalesIntegrationTest {
                 .andExpect(jsonPath("$.address").doesNotExist()));
         String code = order.get("code").asText();
         assertThat(code).matches("^DNA[0-9A-HJKMNP-TV-Z]{6}$");
+        assertThat(order.get("createdAt").asText()).matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*\\+07:00");
         assertThat(order.get("subtotal").asLong()).isEqualTo(84_000);
         assertThat(order.get("total").asLong()).isEqualTo(84_000);
         JsonNode item = order.get("items").get(0);
