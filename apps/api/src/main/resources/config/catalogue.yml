@@ -1,0 +1,5 @@
+dna:
+  seed:
+    catalogue:
+      # publish the products the seed loader creates (otherwise they stay drafts until a manager publishes them)
+      publish: ${DNA_SEED_CATALOGUE_PUBLISH:false}
