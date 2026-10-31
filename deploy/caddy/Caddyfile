@@ -12,6 +12,9 @@
 
 # Upstream to the API. CF-Connecting-IP is overwritten with the TCP peer, so a
 # client-supplied value can never reach the API's client-IP resolver.
+# Local/dev only: behind Cloudflare the TCP peer is a Cloudflare edge address, which would make every
+# per-IP limit site-wide. For a server use trusted_proxies for Cloudflare and {client_ip}
+# (see docs/deployment-guide.md, "Before this stack faces the internet").
 (api_proxy) {
 	reverse_proxy api:8080 {
 		header_up CF-Connecting-IP {remote_host}

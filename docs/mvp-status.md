@@ -5,6 +5,7 @@ A runnable slice of phases 2, 3, 5, 6, 7 and 8 of `plans/261029-1949-dna-web-pha
 ## Run it
 
 ```
+copy deploy\.env.example deploy\.env                          # only on a fresh clone: deploy/.env is gitignored (dev values)
 docker compose -f deploy/compose.yml up -d --build --wait     # first build ~3 min, then ~1 min (deploy/.env is read automatically)
 node scripts/seed-demo.mjs                                    # optional: a few labelled demo orders and quotes
 ```

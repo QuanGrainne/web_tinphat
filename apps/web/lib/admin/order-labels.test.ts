@@ -155,7 +155,7 @@ describe("order steps", () => {
 });
 
 describe("bank review reasons", () => {
-  it("labels all nine matcher reasons", () => {
+  it("labels all matcher reasons and the unprocessed marker", () => {
     expect(BANK_REVIEW_REASON_LABELS).toEqual({
       NO_CODE: "Không thấy mã đơn",
       MULTIPLE_CODES: "Nhiều mã đơn",
@@ -166,6 +166,7 @@ describe("bank review reasons", () => {
       AMOUNT_MISMATCH: "Lệch số tiền",
       WRONG_ACCOUNT: "Sai tài khoản",
       OUT_WITH_CODE: "Tiền ra có mã đơn",
+      UNPROCESSED: "Chưa xử lý, cần kiểm tra",
     });
   });
 

@@ -159,6 +159,7 @@ export const BANK_REVIEW_REASON_LABELS: Record<string, string> = {
   AMOUNT_MISMATCH: "Lệch số tiền",
   WRONG_ACCOUNT: "Sai tài khoản",
   OUT_WITH_CODE: "Tiền ra có mã đơn",
+  UNPROCESSED: "Chưa xử lý, cần kiểm tra",
 };
 
 export function bankReviewReasonLabel(reason: string | null): string {

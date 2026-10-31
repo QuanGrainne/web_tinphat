@@ -184,6 +184,19 @@ This stack is a demo/dev environment, not a production deployment:
 - Dev credentials and a database port on the host (loopback only).
 - Cut from the MVP: KiotViet import and fields, image upload and processing (products show a placeholder; the `uploads` volume is prepared for later), slug history and redirects, attribute filters, bulk edit, product and brand merge, news and page management, home blocks, discount-tier admin screen, Turnstile widget (flag stays off), Excel and print exports, `/bang-gia`, contact form, amount reissue and line edits after submit, bank reconcile job, users screen, CI workflow, Playwright and Lighthouse runs.
 
+### Before this stack faces the internet
+
+Everything above is tuned for one machine. The independent review of the MVP listed what changes the moment the stack is reachable from outside; do these first:
+
+1. **Production profile.** Set `DNA_API_PROFILES=prod,mail` in `deploy/.env`. The `docker` profile changes nothing; `prod` turns on the `Secure` session cookie (needs HTTPS at the edge), structured logs and turns Flyway `out-of-order` off. With `DNA_SEPAY_ENABLED=true` the `prod` profile also refuses webhook keys shorter than 32 characters or containing a placeholder word (`change-me`, `dev-`, `example`, `test`, `secret`).
+2. **Client IP behind Cloudflare.** `deploy/caddy/Caddyfile` sets `CF-Connecting-IP` to the TCP peer (`{remote_host}`), which is right for direct access and for this machine. Behind Cloudflare every visitor then looks like one of a few edge addresses, so the per-IP limits (20 logins and 5 orders per 10 minutes) become site-wide and anyone could lock the owner out of `/admin`. In the server Caddyfile trust Cloudflare (`servers { trusted_proxies static <Cloudflare ranges> }`), use `header_up CF-Connecting-IP {client_ip}`, and accept connections only from Cloudflare (Authenticated Origin Pulls) so the header cannot be spoofed.
+3. **Webhook key and account.** Generate the key with `openssl rand -hex 32`, never reuse the `.env.example` value, and set `DNA_SEPAY_ACCOUNT_NO` and the bank settings to the real account. Anyone who knows the key, an order code and its total can mark that order paid.
+4. **Passwords.** bcrypt reads at most 72 bytes: longer admin passwords are refused (accented letters count as two or three bytes).
+5. **Seed.** Set `DNA_SEED_CATALOGUE_ENABLED=false` after the first start, and keep `DNA_SEED_CATALOGUE_PUBLISH` off unless the seeded products should go live untouched.
+6. **Ports and credentials.** Keep `HTTP_BIND=127.0.0.1` unless a reverse proxy on another machine needs the port; change every dev credential (section 5); take an off-site backup and run one restore before real orders arrive.
+
+Behaviours the review accepted for the MVP and left as they are: a replayed `submissionId` returns the stored order even if the basket changed in between; rate limits count successful creates only; `cart/price` and search suggestions have no per-IP limit; each listing or search call reads the whole catalogue (fine for about 32 products).
+
 ## 12. Troubleshooting
 
 | Symptom | Check |
