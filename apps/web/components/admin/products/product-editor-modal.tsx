@@ -280,6 +280,7 @@ function ProductEditorForm({
       cancelText: "Bỏ qua",
       okButtonProps: { danger: stop },
       onOk: async () => {
+        onProblem(null);
         try {
           const saved = stop ? await catalogueApi.discontinueProduct(id) : await catalogueApi.reactivateProduct(id);
           onProductChange(saved);
