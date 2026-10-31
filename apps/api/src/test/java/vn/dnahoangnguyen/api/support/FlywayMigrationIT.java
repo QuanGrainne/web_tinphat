@@ -44,6 +44,5 @@ class FlywayMigrationIT extends IntegrationTest {
         assertThat(settings.trustStrip()).containsExactly("Giá đã gồm VAT", "Hotline 0366 985 679");
         assertThat(settings.hotline()).isEqualTo("0366 985 679");
         assertThat(settings.zalo()).contains("0366985679");
-        assertThat(settings.bank().accountNo()).isEmpty();
     }
 }

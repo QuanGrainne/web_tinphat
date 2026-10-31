@@ -58,7 +58,10 @@ public class AppUser {
         this.role = role;
     }
 
-    /** Stores a new hash and stamps the change so older sessions are invalidated. */
+    /**
+     * Stores a new hash and stamps the change so older sessions are invalidated. Callers that compare the stamp with
+     * another instant should pass one already truncated to microseconds, the database precision.
+     */
     public void changePassword(String newPasswordHash, Instant now) {
         this.passwordHash = newPasswordHash;
         this.passwordChangedAt = now;

@@ -47,7 +47,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         if (ex.retryAfter() != null) {
             headers.set(HttpHeaders.RETRY_AFTER, String.valueOf(Math.max(1, ex.retryAfter().toSeconds())));
         }
-        return build(ex.status(), ex.code(), ex.detailVi(), request.getRequestURI(), null, ex.extensions(), headers);
+        return build(ex.status(), ex.code(), ex.detailVi(), request.getRequestURI(), ex.fieldErrors(),
+                ex.extensions(), headers);
     }
 
     @ExceptionHandler(OptimisticLockingFailureException.class)

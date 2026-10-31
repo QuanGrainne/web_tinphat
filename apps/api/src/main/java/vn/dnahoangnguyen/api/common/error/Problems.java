@@ -1,11 +1,10 @@
 package vn.dnahoangnguyen.api.common.error;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 
 /**
  * Builds the one problem body every error response uses:
@@ -32,22 +31,19 @@ public final class Problems {
         }
         body.put("code", code.name());
         if (errors != null && !errors.isEmpty()) {
-            List<Map<String, String>> list = errors.stream()
-                    .map(e -> Map.of("field", e.field(), "message", e.message()))
-                    .toList();
+            List<Map<String, String>> list = new ArrayList<>();
+            for (FieldViolation error : errors) {
+                Map<String, String> entry = new LinkedHashMap<>();
+                entry.put("field", error.field());
+                entry.put("message", error.message());
+                list.add(entry);
+            }
             body.put("errors", list);
         }
         if (extensions != null) {
             extensions.forEach(body::putIfAbsent);
         }
         return body;
-    }
-
-    public static ResponseEntity<Object> response(HttpStatus status, ProblemCode code, String detailVi,
-                                                  String instance) {
-        return ResponseEntity.status(status)
-                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                .body(body(status, code, detailVi, instance, null, null));
     }
 
     // Default Vietnamese messages, shared by the advice and the security handlers.

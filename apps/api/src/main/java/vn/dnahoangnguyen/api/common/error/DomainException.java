@@ -1,7 +1,9 @@
 package vn.dnahoangnguyen.api.common.error;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 
@@ -17,6 +19,7 @@ public class DomainException extends RuntimeException {
     private final ProblemCode code;
     private final String detailVi;
     private final Map<String, Object> extensions = new LinkedHashMap<>();
+    private final List<Problems.FieldViolation> fieldErrors = new ArrayList<>();
     private Duration retryAfter;
 
     public DomainException(HttpStatus status, ProblemCode code, String detailVi) {
@@ -57,6 +60,16 @@ public class DomainException extends RuntimeException {
     public DomainException withExtension(String key, Object value) {
         extensions.put(key, value);
         return this;
+    }
+
+    /** Adds an entry to the {@code errors} array of the problem body. Returns {@code this} for chaining. */
+    public DomainException withFieldError(String field, String message) {
+        fieldErrors.add(new Problems.FieldViolation(field, message));
+        return this;
+    }
+
+    public List<Problems.FieldViolation> fieldErrors() {
+        return List.copyOf(fieldErrors);
     }
 
     public HttpStatus status() {
