@@ -1,0 +1,13 @@
+dna:
+  mail:
+    from: ${DNA_MAIL_FROM:no-reply@dnahoangnguyen.vn}
+  sales:
+    # successful creates per client IP per 10 minutes, lookup attempts per client IP per 10 minutes
+    order-limit: ${DNA_ORDER_RATE_LIMIT:5}
+    quote-limit: ${DNA_QUOTE_RATE_LIMIT:5}
+    lookup-limit: ${DNA_LOOKUP_RATE_LIMIT:10}
+  sepay:
+    enabled: ${DNA_SEPAY_ENABLED:false}
+    # one or two keys, comma separated, so the key can be rotated without downtime
+    webhook-keys: ${DNA_SEPAY_WEBHOOK_KEYS:}
+    account-no: ${DNA_SEPAY_ACCOUNT_NO:}
