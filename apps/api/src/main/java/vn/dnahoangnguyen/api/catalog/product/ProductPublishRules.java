@@ -7,8 +7,9 @@ import java.util.List;
 /** What a product needs before it can go on the storefront. A missing image never blocks publishing. */
 public final class ProductPublishRules {
 
+    /** Codes of the {@code missing} extension of a refused publish; the admin UI maps them to Vietnamese. */
     public static final String MISSING_CATEGORY = "CATEGORY";
-    public static final String MISSING_PRICED_SKU = "PRICED_SKU";
+    public static final String MISSING_VISIBLE_PRICED_SKU = "VISIBLE_PRICED_SKU";
 
     private ProductPublishRules() {
     }
@@ -24,7 +25,7 @@ public final class ProductPublishRules {
             missing.add(MISSING_CATEGORY);
         }
         if (skus.stream().noneMatch(s -> s.visible() && s.price() != null)) {
-            missing.add(MISSING_PRICED_SKU);
+            missing.add(MISSING_VISIBLE_PRICED_SKU);
         }
         return missing;
     }
@@ -39,7 +40,7 @@ public final class ProductPublishRules {
         if (missing.contains(MISSING_CATEGORY)) {
             parts.add("chưa chọn nhóm hàng");
         }
-        if (missing.contains(MISSING_PRICED_SKU)) {
+        if (missing.contains(MISSING_VISIBLE_PRICED_SKU)) {
             parts.add("chưa có quy cách nào đang hiển thị và có giá");
         }
         return String.join("; ", parts);

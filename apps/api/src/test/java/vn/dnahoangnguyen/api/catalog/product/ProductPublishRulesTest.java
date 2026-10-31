@@ -22,9 +22,8 @@ class ProductPublishRulesTest {
     @Test
     void reportsMissingPricedVisibleSku() {
         List<SkuState> skus = List.of(new SkuState(false, 1000L), new SkuState(true, null));
-        assertThat(ProductPublishRules.missing(1L, skus)).containsExactly(ProductPublishRules.MISSING_PRICED_SKU);
-        assertThat(ProductPublishRules.missing(null, List.of()))
-                .containsExactly(ProductPublishRules.MISSING_CATEGORY, ProductPublishRules.MISSING_PRICED_SKU);
+        assertThat(ProductPublishRules.missing(1L, skus)).containsExactly("VISIBLE_PRICED_SKU");
+        assertThat(ProductPublishRules.missing(null, List.of())).containsExactly("CATEGORY", "VISIBLE_PRICED_SKU");
     }
 
     @Test
