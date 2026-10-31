@@ -1,3 +1,5 @@
+"use client";
+
 import { WarningOutlined } from "@ant-design/icons";
 import { formatVnd } from "@/lib/format/money";
 import type { PriceMismatchWarning } from "@/lib/admin/pricing-display";
