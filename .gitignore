@@ -1,0 +1,27 @@
+# build output
+node_modules/
+.next/
+out/
+target/
+*.class
+*.log
+*.tsbuildinfo
+
+# local env and runtime data
+.env
+.env.*
+!.env.example
+data/
+uploads/
+
+# tooling
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+playwright-report/
+test-results/
+
+# lead/agent scratch markers
+.kernel-ready
+.scaffold-ready
