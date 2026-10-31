@@ -77,7 +77,7 @@ Fixed by `compose.yml`: mail host `mailpit:1025`, Turnstile off, uploads directo
 
 ## 6. Catalogue seed
 
-The API loads the catalogue from `apps/api/src/main/resources/seed/catalogue-2026.csv` while `DNA_SEED_CATALOGUE_ENABLED=true`. It runs inside the API at start, creates only what is missing (SKU codes that already exist are skipped), so the first start loads everything and later starts write nothing. Set the flag to `false` once the data is in. `DNA_SEED_CATALOGUE_PUBLISH=true` publishes the seeded products; with `false` they stay drafts until published in `/admin`. To start from an empty database run `down -v` and `up -d --build`.
+The API loads the catalogue from `apps/api/src/main/resources/seed/catalogue-2026.csv` while `DNA_SEED_CATALOGUE_ENABLED=true`. It runs inside the API at start, creates only what is missing (SKU codes that already exist are skipped) and then stores `seed.catalogue.appliedAt` in the settings table, so the first start loads everything and every later start skips the seed (a renamed base code is never recreated). Set the flag to `false` once the data is in anyway. `DNA_SEED_CATALOGUE_PUBLISH=true` publishes the seeded products; with `false` they stay drafts until published in `/admin`. To start from an empty database run `down -v` and `up -d --build`.
 
 ## 7. Backup and restore
 

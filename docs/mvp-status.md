@@ -38,14 +38,20 @@ curl -X POST http://localhost:8000/api/webhooks/bank/sepay -H "Authorization: Ap
 
 | Check | Result |
 |---|---|
-| API: `mvn -B -f apps/api/pom.xml test` (unit + Testcontainers ITs, needs Docker running) | 275 tests, 0 failures, 0 skipped |
+| API: `mvn -B -f apps/api/pom.xml test` (unit + Testcontainers ITs, needs Docker running) | 292 tests, 0 failures, 0 skipped (run on the hardening branch; `apps/api` on `main` is identical, the rerun on merged `main` was stopped by low memory, run it once to confirm) |
 | Web: `npm test` in `apps/web` | 214 tests in 31 files |
 | Web: `npm run build` with no API reachable | passes, every data route renders per request |
 | `bash scripts/smoke.sh` against the running stack | 13/13 |
 | `node scripts/api-flow-check.mjs` (catalogue, redaction, quote, order, tamper, replay, lookup, admin flow, QR timing, webhook exact/mismatch/replay, REVIEW, quote flow, price edit with history, mail) | 61/61 |
 | `npx playwright test` in `apps/web` (real Chrome: browse, unit picker, hidden price, quote, order, admin confirm, customer QR, 390px no horizontal scroll) | 7/7, screenshots in `docs/mvp-screens/` |
 
+The flow check (61/61) and the browser run (7/7) were run on the stack built before the review fixes below; rerun them after the first `up --build` of the current `main`.
+
 `api-flow-check` and the Playwright run create orders and quotes: use `down -v` and a fresh start (plus `seed-demo.mjs`) afterwards for a clean demo.
+
+## Independent review (read-only, by code reading)
+
+No critical or high defects found in the application code: money and totals, the order state machine, webhook auth and exact-match rules, hidden-price redaction, sessions, CSRF and roles all held up. Fixed afterwards: unmatched bank notifications are now visible and re-processed on replay; bcrypt 72-byte password limit; only MANAGER can change `visible` on categories, brands and SKUs; shipping fee and paid amount bounds with overflow-safe totals; SKU price must be above 0; production profile refuses short or placeholder SePay keys; the catalogue seed runs once per database; the payment matcher ignores order-code lookalikes such as the payee name. Deployment-shaped findings (production profile, Cloudflare client IP, key strength) are written up in `docs/deployment-guide.md`, "Before this stack faces the internet". Accepted for the MVP: replayed `submissionId` ignores a changed basket; no per-IP limit on `cart/price` and suggestions; the catalogue is read in full per listing call.
 
 ## Cut from the MVP (still in the plan)
 
