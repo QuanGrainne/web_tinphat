@@ -1,0 +1,156 @@
+package vn.dnahoangnguyen.api.catalog.product;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import vn.dnahoangnguyen.api.admin.user.AppUser;
+import vn.dnahoangnguyen.api.admin.user.Role;
+import vn.dnahoangnguyen.api.catalog.CatalogIntegrationTest;
+import vn.dnahoangnguyen.api.support.TestAuth;
+
+/** The admin catalogue routes over HTTP: auth, JSON shapes of the contract and role rules. */
+class AdminCatalogueApiIT extends CatalogIntegrationTest {
+
+    private static final String NEW_PRODUCT = """
+            {"id":null,"version":null,"name":"Giấy rút đáy Sen Vàng","slug":"","brandId":null,"categoryId":null,
+             "descriptionMd":null,"specLine":"6 cuộn","imageUrl":null,"seoTitle":null,"seoDescription":null,
+             "internalNote":null,"published":false,"status":"ACTIVE",
+             "skus":[{"id":null,"version":null,"code":"SVRĐ1280t","name":null,"unitName":"Gói","conversion":1,
+                      "isBase":true,"price":21000,"priceVisible":true,"needsConfirmation":false,"promoPrice":null,
+                      "promoFrom":null,"promoTo":null,"visible":true,"source":"MANUAL","perBaseUnit":null,"warnings":[]},
+                     {"id":null,"version":null,"code":"SVRĐ1280t 6G","name":null,"unitName":"Thùng 6G","conversion":6,
+                      "isBase":false,"price":126000,"priceVisible":true,"needsConfirmation":false,"promoPrice":null,
+                      "promoFrom":null,"promoTo":null,"visible":true,"source":"MANUAL","perBaseUnit":null,"warnings":[]}],
+             "warnings":[],"priceHistory":[]}
+            """;
+
+    @Test
+    void adminRoutesNeedASession() throws Exception {
+        mvc.perform(get("/api/admin/products")).andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
+        mvc.perform(get("/api/admin/categories")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/admin/brands")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void managerCreatesAProductWithTheContractShape() throws Exception {
+        AppUser manager = newUser(Role.MANAGER);
+
+        mvc.perform(post("/api/admin/products").with(TestAuth.as(manager)).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content(NEW_PRODUCT))
+                .andExpect(status().isCreated())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("\"isBase\":true")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("\"needsConfirmation\":false")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("\"priceVisible\":true")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("\"base\":"))))
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.version").isNumber())
+                .andExpect(jsonPath("$.slug").value("giay-rut-day-sen-vang"))
+                .andExpect(jsonPath("$.categoryId").value((Object) null))
+                .andExpect(jsonPath("$.skus[1].perBaseUnit").value(21_000))
+                .andExpect(jsonPath("$.skus[0].source").value("MANUAL"))
+                .andExpect(jsonPath("$.warnings[0].type").value("NO_IMAGE"))
+                .andExpect(jsonPath("$.warnings[1].type").value("NOT_PUBLISHABLE"))
+                .andExpect(jsonPath("$.priceHistory.length()").value(2))
+                .andExpect(jsonPath("$.priceHistory[0].field").value("PRICE"));
+    }
+
+    @Test
+    void writesNeedACsrfToken() throws Exception {
+        AppUser manager = newUser(Role.MANAGER);
+
+        mvc.perform(post("/api/admin/products").with(TestAuth.as(manager))
+                        .contentType(MediaType.APPLICATION_JSON).content(NEW_PRODUCT))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void editorSeesButCannotChangePricesOrPublish() throws Exception {
+        AppUser editor = newUser(Role.EDITOR);
+        long id = create("Giấy rút đáy", null, categoryService.create(
+                new vn.dnahoangnguyen.api.catalog.category.CategoryService.CategoryCreate("Giấy", null)).id(),
+                sku("E1", "Gói", 1, true, 21_000L));
+
+        mvc.perform(get("/api/admin/products/" + id).with(TestAuth.as(editor))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.skus[0].price").value(21_000));
+        mvc.perform(get("/api/admin/products").with(TestAuth.as(editor)))
+                .andExpect(jsonPath("$.items[0].baseCode").value("E1"))
+                .andExpect(jsonPath("$.items[0].basePrice").value(21_000))
+                .andExpect(jsonPath("$.totals.products").value(1))
+                .andExpect(jsonPath("$.totals.skus").value(1))
+                .andExpect(jsonPath("$.totals.visibleSkus").value(1))
+                .andExpect(jsonPath("$.size").value(30));
+
+        String body = mvc.perform(get("/api/admin/products/" + id).with(TestAuth.as(editor))).andReturn().getResponse()
+                .getContentAsString(java.nio.charset.StandardCharsets.UTF_8).replace("\"price\":21000", "\"price\":1");
+        mvc.perform(put("/api/admin/products/" + id).with(TestAuth.as(editor)).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("FORBIDDEN_FIELD"));
+        mvc.perform(post("/api/admin/products/" + id + "/publish").with(TestAuth.as(editor)).with(csrf()))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("FORBIDDEN"));
+    }
+
+    @Test
+    void managerPublishesAndTheRequirementsAreReported() throws Exception {
+        AppUser manager = newUser(Role.MANAGER);
+        long noCategory = create("Chưa nhóm", null, null, sku("M1", "Gói", 1, true, 1_000L));
+
+        mvc.perform(post("/api/admin/products/" + noCategory + "/publish").with(TestAuth.as(manager)).with(csrf()))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("PUBLISH_REQUIREMENTS_UNMET"))
+                .andExpect(jsonPath("$.missing[0]").value("CATEGORY"));
+
+        long ready = create("Sẵn sàng", null, categoryService.create(
+                new vn.dnahoangnguyen.api.catalog.category.CategoryService.CategoryCreate("Nhóm", null)).id(),
+                sku("M2", "Gói", 1, true, 1_000L));
+        mvc.perform(post("/api/admin/products/" + ready + "/publish").with(TestAuth.as(manager)).with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.published").value(true));
+        mvc.perform(get("/api/public/products/san-sang")).andExpect(status().isOk());
+        mvc.perform(get("/api/admin/products").param("published", "true").with(TestAuth.as(manager)))
+                .andExpect(jsonPath("$.total").value(1));
+    }
+
+    @Test
+    void categoriesAndBrandsHaveListCreateAndUpdate() throws Exception {
+        AppUser editor = newUser(Role.EDITOR);
+
+        mvc.perform(post("/api/admin/categories").with(TestAuth.as(editor)).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Pin\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.slug").value("pin"))
+                .andExpect(jsonPath("$.children.length()").value(0));
+        long pin = categoryService.tree().get(0).id();
+        mvc.perform(post("/api/admin/categories").with(TestAuth.as(editor)).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Pin kiềm\",\"parentId\":" + pin + "}"))
+                .andExpect(status().isCreated());
+        long level2 = categoryService.tree().get(0).children().get(0).id();
+        mvc.perform(post("/api/admin/categories").with(TestAuth.as(editor)).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Cấp ba\",\"parentId\":" + level2 + "}"))
+                .andExpect(status().isUnprocessableEntity());
+        mvc.perform(put("/api/admin/categories/" + pin).with(TestAuth.as(editor)).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Pin các loại\",\"description\":null,\"visible\":true,\"sortOrder\":3}"))
+                .andExpect(jsonPath("$.name").value("Pin các loại")).andExpect(jsonPath("$.sortOrder").value(3));
+        mvc.perform(get("/api/admin/categories").with(TestAuth.as(editor)))
+                .andExpect(jsonPath("$[0].children[0].name").value("Pin kiềm"));
+
+        mvc.perform(post("/api/admin/brands").with(TestAuth.as(editor)).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"GP\"}"))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.slug").value("gp"));
+        mvc.perform(post("/api/admin/brands").with(TestAuth.as(editor)).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"gp\"}"))
+                .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("DUPLICATE"));
+        mvc.perform(get("/api/admin/brands").with(TestAuth.as(editor)))
+                .andExpect(jsonPath("$[0].visible").value(true)).andExpect(jsonPath("$[0].productCount").value(0));
+    }
+}
