@@ -1,15 +1,23 @@
 package vn.dnahoangnguyen.api.catalog.seed;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.PlatformTransactionManager;
 import vn.dnahoangnguyen.api.catalog.CatalogIntegrationTest;
+import vn.dnahoangnguyen.api.catalog.sku.SkuRepository;
 
 class CatalogueSeedLoaderIT extends CatalogIntegrationTest {
 
     @Autowired
     CatalogueSeedLoader loader;
+    @Autowired
+    SkuRepository skuRepository;
+    @Autowired
+    PlatformTransactionManager txManager;
 
     @Test
     void loadsTheWholeCatalogueAsDraftsAndIsIdempotent() {
@@ -46,6 +54,21 @@ class CatalogueSeedLoaderIT extends CatalogIntegrationTest {
                 .isEqualTo(2);
         assertThat(count("select count(*) from sku where code in ('SV300-3L-Gói', 'SP000014') and price_visible "
                 + "and not needs_confirmation")).isEqualTo(2);
+    }
+
+    @Test
+    void startupRunSeedsAndPublishesOnlyWhenEnabled() throws Exception {
+        new CatalogueSeedLoader(false, true, productService, categoryService, brandService, skuRepository, txManager)
+                .run(null);
+        assertThat(count("select count(*) from product")).isZero();
+
+        new CatalogueSeedLoader(true, true, productService, categoryService, brandService, skuRepository, txManager)
+                .run(null);
+
+        assertThat(count("select count(*) from product where published and first_published_at is not null")).isEqualTo(32);
+        mvc.perform(get("/api/public/nav")).andExpect(jsonPath("$.categories.length()").value(6));
+        mvc.perform(get("/api/public/search").param("q", "giay rut day"))
+                .andExpect(jsonPath("$.items[0].name").value("Giấy rút đáy Sen Vàng"));
     }
 
     @Test

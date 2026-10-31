@@ -162,6 +162,18 @@ class ProductServiceIT extends CatalogIntegrationTest {
     }
 
     @Test
+    void absurdPricesAndConversionsAreRejected() {
+        assertThatThrownBy(() -> create("Giá quá lớn", null, null, sku("BIG1", "Gói", 1, true, 2_000_000_000_000L)))
+                .satisfies(e -> assertDomain(e, HttpStatus.BAD_REQUEST, ProblemCode.VALIDATION_FAILED));
+        assertThatThrownBy(() -> create("Âm", null, null, sku("NEG1", "Gói", 1, true, -1L)))
+                .satisfies(e -> assertDomain(e, HttpStatus.BAD_REQUEST, ProblemCode.VALIDATION_FAILED));
+        assertThatThrownBy(() -> create("Quy đổi lớn", null, null, sku("CV1", "Gói", 1, true, 1L),
+                sku("CV2", "Thùng", 2_000_000, false, 1L)))
+                .satisfies(e -> assertDomain(e, HttpStatus.BAD_REQUEST, ProblemCode.VALIDATION_FAILED));
+        assertThat(count("select count(*) from product")).isZero();
+    }
+
+    @Test
     void skusMissingFromAnUpdateAreHiddenNeverDeleted() {
         long id = productService.saveAggregate(null, tissue(), MANAGER, ChangeSource.MANUAL);
         AdminProduct stored = reader.get(id);

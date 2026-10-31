@@ -48,6 +48,9 @@ public class ProductService {
     private static final int MAX_SEO_TITLE = 200;
     private static final int MAX_SEO_DESCRIPTION = 400;
     private static final int MAX_IMAGE_URL = 500;
+    // keeps price * conversion far below Long.MAX_VALUE in every pricing calculation
+    private static final int MAX_CONVERSION = 1_000_000;
+    private static final long MAX_PRICE = 1_000_000_000_000L;
 
     private final ProductRepository products;
     private final SkuRepository skus;
@@ -260,10 +263,10 @@ public class ProductService {
         }
         for (Draft d : drafts) {
             AdminSku row = d.row();
-            if (row.conversion() == null || row.conversion() < 1) {
-                throw invalid("Quy đổi của \"" + row.code() + "\" phải là số nguyên dương.");
+            if (row.conversion() == null || row.conversion() < 1 || row.conversion() > MAX_CONVERSION) {
+                throw invalid("Quy đổi của \"" + row.code() + "\" phải là số nguyên từ 1 đến " + MAX_CONVERSION + ".");
             }
-            if (row.price() != null && row.price() < 0) {
+            if (row.price() != null && (row.price() < 0 || row.price() > MAX_PRICE)) {
                 throw invalid("Giá của \"" + row.code() + "\" không hợp lệ.");
             }
             if (d.base() && row.conversion() != 1) {
