@@ -6,11 +6,21 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 
 /**
  * SePay settings, env only. When {@code enabled} is false the webhook endpoint answers 404 and the manual
- * "Đã nhận tiền" flow is the only way to mark an order paid.
+ * "Đã nhận tiền" flow is the only way to mark an order paid. Enabling it without a key or an account number is a
+ * misconfiguration, so the application refuses to start.
  */
 @ConfigurationProperties(prefix = "dna.sepay")
 public record SepayProperties(
         @DefaultValue("false") boolean enabled,
         @DefaultValue List<String> webhookKeys,
         @DefaultValue("") String accountNo) {
+
+    public SepayProperties {
+        webhookKeys = webhookKeys == null ? List.of()
+                : webhookKeys.stream().filter(key -> key != null && !key.isBlank()).map(String::strip).toList();
+        if (enabled && (webhookKeys.isEmpty() || accountNo == null || accountNo.isBlank())) {
+            throw new IllegalStateException(
+                    "dna.sepay.enabled requires dna.sepay.webhook-keys and dna.sepay.account-no (DNA_SEPAY_WEBHOOK_KEYS, DNA_SEPAY_ACCOUNT_NO)");
+        }
+    }
 }

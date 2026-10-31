@@ -38,6 +38,7 @@ class OrderSubmitIT extends SalesIntegrationTest {
                 .andExpect(jsonPath("$.address").doesNotExist()));
         String code = order.get("code").asText();
         assertThat(code).matches("^DNA[0-9A-HJKMNP-TV-Z]{6}$");
+        assertThat(order.get("createdAt").asText()).matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*\\+07:00");
         assertThat(order.get("subtotal").asLong()).isEqualTo(84_000);
         assertThat(order.get("total").asLong()).isEqualTo(84_000);
         JsonNode item = order.get("items").get(0);
@@ -63,6 +64,39 @@ class OrderSubmitIT extends SalesIntegrationTest {
         String first = json(postPublic("/api/public/orders", body, ip).andExpect(status().isCreated())).get("code").asText();
         String second = json(postPublic("/api/public/orders", body, ip).andExpect(status().isOk())).get("code").asText();
         assertThat(second).isEqualTo(first);
+        Integer rows = jdbc.queryForObject("select count(*) from customer_order where submission_id = ?::uuid",
+                Integer.class, submission.toString());
+        assertThat(rows).isEqualTo(1);
+    }
+
+    @Test
+    void concurrentSubmitsOfTheSameSubmissionIdCreateExactlyOneOrder() throws Exception {
+        long sku = createSku(10_000L, true);
+        UUID submission = UUID.randomUUID();
+        Map<String, Object> body = orderBody(submission, "COD", 10_000, List.of(line(sku, 1)));
+        String ip = randomIp();
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(6);
+        try {
+            List<java.util.concurrent.Future<String>> calls = new java.util.ArrayList<>();
+            java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+            for (int i = 0; i < 6; i++) {
+                calls.add(pool.submit(() -> {
+                    start.await();
+                    var response = postPublic("/api/public/orders", body, ip).andReturn().getResponse();
+                    return response.getStatus() + ":" + mapper.readTree(response.getContentAsString()).get("code").asText();
+                }));
+            }
+            start.countDown();
+            java.util.Set<String> codes = new java.util.HashSet<>();
+            for (var call : calls) {
+                String[] result = call.get().split(":");
+                assertThat(result[0]).isIn("200", "201");
+                codes.add(result[1]);
+            }
+            assertThat(codes).hasSize(1);
+        } finally {
+            pool.shutdownNow();
+        }
         Integer rows = jdbc.queryForObject("select count(*) from customer_order where submission_id = ?::uuid",
                 Integer.class, submission.toString());
         assertThat(rows).isEqualTo(1);

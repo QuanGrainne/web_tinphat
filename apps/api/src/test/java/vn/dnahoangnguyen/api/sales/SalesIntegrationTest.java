@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -30,6 +31,7 @@ public abstract class SalesIntegrationTest extends IntegrationTest {
     protected static final String BANK_ACCOUNT = "0123456789";
 
     private static final AtomicLong SEQUENCE = new AtomicLong(System.nanoTime() % 1_000_000);
+    private static final List<Long> CREATED_PRODUCTS = new java.util.concurrent.CopyOnWriteArrayList<>();
 
     @Autowired
     protected MockMvc mvc;
@@ -39,6 +41,33 @@ public abstract class SalesIntegrationTest extends IntegrationTest {
 
     @Autowired
     protected ObjectMapper mapper;
+
+    /**
+     * The database is shared by every test class of the build: remove what a test created (sales rows, catalogue
+     * rows, staff users) and put the seeded, empty bank account back, so other tests see the seeded state.
+     */
+    @AfterEach
+    void cleanUp() {
+        jdbc.update("delete from bank_transaction");
+        jdbc.update("delete from order_item");
+        jdbc.update("delete from customer_order");
+        jdbc.update("delete from quote_item");
+        jdbc.update("delete from quote_request");
+        List<Long> products = List.copyOf(CREATED_PRODUCTS);
+        CREATED_PRODUCTS.removeAll(products);
+        for (Long product : products) {
+            jdbc.update("delete from sku where product_id = ?", product);
+            jdbc.update("delete from product where id = ?", product);
+        }
+        jdbc.update("""
+                delete from audit_log where actor_id in (select id from app_user where username::text ~ '^(manager|editor)[0-9]+$')
+                """);
+        jdbc.update("delete from app_user where username::text ~ '^(manager|editor)[0-9]+$'");
+        jdbc.update("""
+                update app_setting set value = '{"bankName": "", "bin": "", "accountNo": "", "accountName": ""}'::jsonb
+                where key = 'bank'
+                """);
+    }
 
     protected static String unique(String prefix) {
         return prefix + SEQUENCE.incrementAndGet();
@@ -52,9 +81,11 @@ public abstract class SalesIntegrationTest extends IntegrationTest {
 
     protected long createProduct(boolean published, String status) {
         String slug = unique("san-pham-");
-        return jdbc.queryForObject(
+        Long id = jdbc.queryForObject(
                 "insert into product (name, slug, published, status) values (?, ?, ?, ?) returning id",
                 Long.class, "Sản phẩm " + slug, slug, published, status);
+        CREATED_PRODUCTS.add(id);
+        return id;
     }
 
     /** Base unit SKU of a fresh active, published product. */
