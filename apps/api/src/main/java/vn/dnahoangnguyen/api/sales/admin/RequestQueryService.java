@@ -116,7 +116,7 @@ public class RequestQueryService {
                   (select count(*) from customer_order
                     where (payment_method = 'COD' and status = 'CONFIRMED')
                        or (payment_method = 'BANK_TRANSFER' and status = 'PAID')) as awaiting_kiotviet,
-                  (select count(*) from bank_transaction where status = 'REVIEW') as bank_review
+                  (select count(*) from bank_transaction where status in ('REVIEW', 'RECEIVED')) as bank_review
                 """)
                 .query((rs, n) -> new RequestCounters(rs.getLong("new_quotes"), rs.getLong("pending_orders"),
                         rs.getLong("awaiting_kiotviet"), rs.getLong("bank_review")))

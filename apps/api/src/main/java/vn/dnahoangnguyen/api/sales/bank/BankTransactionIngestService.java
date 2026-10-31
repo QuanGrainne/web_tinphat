@@ -69,6 +69,14 @@ public class BankTransactionIngestService {
         return storeTx.execute(status -> transactions.insertIfAbsent(tx));
     }
 
+    /**
+     * Id of the stored row for a replayed notification when matching has not decided it yet (an earlier attempt
+     * failed); empty when the replay carries nothing left to do.
+     */
+    public Optional<Long> findUnprocessed(NewBankTx tx) {
+        return transactions.findReceivedId(tx.vendorTxId());
+    }
+
     /** Matches a stored notification, never throwing: any failure is logged and the row stays RECEIVED. */
     public void processQuietly(long id) {
         try {

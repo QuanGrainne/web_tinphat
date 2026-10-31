@@ -1,6 +1,7 @@
 package vn.dnahoangnguyen.api.sales.bank;
 
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.jdbc.core.RowMapper;
@@ -71,21 +72,29 @@ public class BankTransactionRepository {
                 .param("id", id).query(TX).optional();
     }
 
-    public List<BankTx> list(String status, int limit, int offset) {
-        String where = status == null ? "" : " where b.status = :status";
-        JdbcClient.StatementSpec spec = jdbc.sql(SELECT + where + " order by b.created_at desc, b.id desc limit :limit offset :offset")
+    /** Id of the stored row for a vendor transaction id, only while matching has not decided it yet. */
+    public Optional<Long> findReceivedId(String vendorTxId) {
+        return jdbc.sql("select id from bank_transaction where vendor = 'SEPAY' and vendor_tx_id = :vendorTxId and status = 'RECEIVED'")
+                .param("vendorTxId", vendorTxId).query(Long.class).optional();
+    }
+
+    /** {@code statuses} null or empty = every row. */
+    public List<BankTx> list(Collection<String> statuses, int limit, int offset) {
+        boolean filtered = statuses != null && !statuses.isEmpty();
+        JdbcClient.StatementSpec spec = jdbc.sql(SELECT + (filtered ? " where b.status in (:statuses)" : "")
+                        + " order by b.created_at desc, b.id desc limit :limit offset :offset")
                 .param("limit", limit).param("offset", offset);
-        if (status != null) {
-            spec = spec.param("status", status);
+        if (filtered) {
+            spec = spec.param("statuses", statuses);
         }
         return spec.query(TX).list();
     }
 
-    public long count(String status) {
-        if (status == null) {
+    public long count(Collection<String> statuses) {
+        if (statuses == null || statuses.isEmpty()) {
             return jdbc.sql("select count(*) from bank_transaction").query(Long.class).single();
         }
-        return jdbc.sql("select count(*) from bank_transaction where status = :status").param("status", status)
+        return jdbc.sql("select count(*) from bank_transaction where status in (:statuses)").param("statuses", statuses)
                 .query(Long.class).single();
     }
 
@@ -129,10 +138,13 @@ public class BankTransactionRepository {
                 .param("by", decidedBy).param("note", note).param("id", id).update();
     }
 
+    /** Review reason shown for a RECEIVED row: it was stored but matching never decided it. */
+    public static final String UNPROCESSED = "UNPROCESSED";
+
     public static BankTransactionRow toRow(BankTx tx) {
+        String reason = "RECEIVED".equals(tx.status()) ? UNPROCESSED : tx.reviewReason();
         return new BankTransactionRow(tx.id(), tx.txTime(), tx.amount(), tx.direction(), maskAccount(tx.accountNo()),
-                tx.content() == null ? "" : tx.content(), tx.status(), tx.reviewReason(), tx.orderCode(),
-                tx.decisionNote());
+                tx.content() == null ? "" : tx.content(), tx.status(), reason, tx.orderCode(), tx.decisionNote());
     }
 
     /** Only the last four characters survive: {@code ****6789}. */
