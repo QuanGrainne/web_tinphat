@@ -53,6 +53,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
       // The cookie may already be gone; the login page is the right place either way.
     }
     queryClient.clear();
+    // Full navigation on purpose: drops every cached query and in-memory admin state.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign("/admin/login");
   }
 
