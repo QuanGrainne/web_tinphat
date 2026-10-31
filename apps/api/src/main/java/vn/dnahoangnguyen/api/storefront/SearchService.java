@@ -25,6 +25,7 @@ public class SearchService {
 
     static final int SUGGEST_MAX = 8;
     static final int SUGGEST_MIN_CHARS = 2;
+    static final int MAX_QUERY_CHARS = 100;
 
     private final CatalogReader reader;
 
@@ -34,7 +35,7 @@ public class SearchService {
 
     @Transactional(readOnly = true)
     public SearchResult search(String q, int requestedPage) {
-        String query = q == null ? "" : q.strip();
+        String query = limit(q);
         List<ProductView> hits = rank(reader.load(), query);
         int page = Math.max(1, requestedPage);
         int from = (int) Math.min((long) (page - 1) * StorefrontQueryService.PAGE_SIZE, hits.size());
@@ -45,15 +46,21 @@ public class SearchService {
 
     @Transactional(readOnly = true)
     public Suggest suggest(String q) {
-        String folded = TextFold.fold(q);
+        String query = limit(q);
+        String folded = TextFold.fold(query);
         if (folded.length() < SUGGEST_MIN_CHARS) {
             return new Suggest(List.of());
         }
-        List<SuggestItem> items = rank(reader.load(), q.strip()).stream()
+        List<SuggestItem> items = rank(reader.load(), query).stream()
                 .limit(SUGGEST_MAX)
                 .map(v -> new SuggestItem(v.product().getName(), v.product().getSlug(), matchedCode(v, folded)))
                 .toList();
         return new Suggest(items);
+    }
+
+    private static String limit(String q) {
+        String stripped = q == null ? "" : q.strip();
+        return stripped.length() > MAX_QUERY_CHARS ? stripped.substring(0, MAX_QUERY_CHARS) : stripped;
     }
 
     /** Products matching all tokens, exact code hits first, then names starting with the query, then the rest. */

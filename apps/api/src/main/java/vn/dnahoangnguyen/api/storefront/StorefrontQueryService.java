@@ -122,6 +122,7 @@ public class StorefrontQueryService {
         breadcrumb.add(categoryCrumb(category));
         List<CategoryCount> children = catalog.childrenOf(category).stream()
                 .map(c -> new CategoryCount(c.getName(), c.getSlug(), catalog.productsIn(c).size()))
+                .filter(c -> c.productCount() > 0)
                 .toList();
 
         Paged paged = page(filtered, sort, page);
