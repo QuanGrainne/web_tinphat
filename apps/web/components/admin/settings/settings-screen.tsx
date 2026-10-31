@@ -4,7 +4,7 @@ import { Alert, Button, Skeleton } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAdminSettings, settingsKeys } from "@/lib/admin/settings-api";
 import { errorMessage } from "@/components/admin/requests/error-message";
-import { useAdminSession } from "@/components/admin/requests/use-admin-role";
+import { useAdminSession } from "@/components/admin/requests/use-admin-session";
 import { BankSettingsCard } from "./bank-settings-card";
 import { ReadonlySettingsCards } from "./readonly-settings-cards";
 import s from "./settings.module.css";
