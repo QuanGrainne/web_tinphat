@@ -63,7 +63,8 @@ public final class StorefrontDtos {
             List<PublicSku> skus,
             List<ProductCard> related,
             String seoTitle,
-            String seoDescription) {
+            String seoDescription,
+            List<String> galleryUrls) {
     }
 
     public record NavChild(long id, String name, String slug, long productCount) {
@@ -78,7 +79,7 @@ public final class StorefrontDtos {
     public record Nav(List<NavCategory> categories, List<BrandCount> brands) {
     }
 
-    public record CategoryCount(String name, String slug, long productCount) {
+    public record CategoryCount(String name, String slug, long productCount, String description, String imageUrl) {
     }
 
     public record HomeSection(NameSlug category, List<ProductCard> products) {
@@ -87,7 +88,10 @@ public final class StorefrontDtos {
     public record HomeData(List<CategoryCount> categories, List<BrandCount> brands, List<HomeSection> sections) {
     }
 
-    public record CategoryInfo(long id, String name, String slug, String description, NameSlug parent) {
+    public record ProductListing(List<ProductCard> items, int page, int pageSize, long total) {
+    }
+
+    public record CategoryInfo(long id, String name, String slug, String description, String imageUrl, NameSlug parent) {
     }
 
     public record FacetCount(String name, String slug, long count) {

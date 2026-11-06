@@ -25,7 +25,8 @@ export interface ProductFormValues {
   brandId: number | null;
   categoryId: number | null;
   specLine: string | null;
-  imageUrl: string | null;
+  /** Cover first, then the other photos. */
+  images: string[];
   internalNote: string | null;
   descriptionMd: string | null;
   seoTitle: string | null;
@@ -82,6 +83,7 @@ export function newProduct(): AdminProduct {
     descriptionMd: null,
     specLine: null,
     imageUrl: null,
+    galleryUrls: [],
     seoTitle: null,
     seoDescription: null,
     internalNote: null,
@@ -91,6 +93,13 @@ export function newProduct(): AdminProduct {
     warnings: [],
     priceHistory: [],
   };
+}
+
+/** New catalogue item: the one SKU the data model needs, with a generated code and no price. */
+export function newCatalogueProduct(): AdminProduct {
+  const blank = newProduct();
+  const code = `TP-${Date.now().toString(36).toUpperCase()}`;
+  return { ...blank, skus: [{ ...blank.skus[0], code, unitName: "Sản phẩm" }] };
 }
 
 function skuToApi(row: SkuFormRow): AdminSku {
@@ -121,7 +130,7 @@ export function toFormValues(product: AdminProduct): ProductFormValues {
     brandId: product.brandId,
     categoryId: product.categoryId,
     specLine: product.specLine,
-    imageUrl: product.imageUrl,
+    images: [...(product.imageUrl ? [product.imageUrl] : []), ...product.galleryUrls],
     internalNote: product.internalNote,
     descriptionMd: product.descriptionMd,
     seoTitle: product.seoTitle,
@@ -181,7 +190,8 @@ export function buildProductPayload(values: ProductFormValues, original: AdminPr
     categoryId: values.categoryId ?? null,
     descriptionMd: values.descriptionMd?.trim() ? values.descriptionMd : null,
     specLine: trimToNull(values.specLine),
-    imageUrl: trimToNull(values.imageUrl),
+    imageUrl: values.images[0] ?? null,
+    galleryUrls: values.images.slice(1),
     seoTitle: trimToNull(values.seoTitle),
     seoDescription: trimToNull(values.seoDescription),
     internalNote: trimToNull(values.internalNote),
@@ -204,11 +214,10 @@ export function parseFieldPath(field: string): (string | number)[] {
 }
 
 const MISSING_LABELS: Record<string, string> = {
-  CATEGORY: "Nhóm hàng",
-  CATEGORY_ID: "Nhóm hàng",
-  PRICED_SKU: "Ít nhất một quy cách đang hiện và có giá",
-  VISIBLE_PRICED_SKU: "Ít nhất một quy cách đang hiện và có giá",
-  SKU: "Ít nhất một quy cách đang hiện và có giá",
+  CATEGORY: "Danh mục",
+  CATEGORY_ID: "Danh mục",
+  VISIBLE_SKU: "Mã sản phẩm đang hiển thị",
+  SKU: "Mã sản phẩm đang hiển thị",
 };
 
 /** `missing[]` of a publish refusal: server text is shown as is, known codes get a Vietnamese label. */

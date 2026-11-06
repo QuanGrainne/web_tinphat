@@ -1,15 +1,21 @@
 package vn.dnahoangnguyen.api.catalog.product;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -41,6 +47,13 @@ public class Product {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    /** Photos after the cover, in display order. */
+    @ElementCollection
+    @CollectionTable(name = "product_image", joinColumns = @JoinColumn(name = "product_id"))
+    @OrderColumn(name = "position")
+    @Column(name = "url", nullable = false)
+    private List<String> galleryUrls = new ArrayList<>();
 
     @Column(name = "seo_title")
     private String seoTitle;
@@ -142,6 +155,15 @@ public class Product {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public List<String> getGalleryUrls() {
+        return galleryUrls;
+    }
+
+    public void setGalleryUrls(List<String> urls) {
+        galleryUrls.clear();
+        galleryUrls.addAll(urls);
     }
 
     public String getSeoTitle() {

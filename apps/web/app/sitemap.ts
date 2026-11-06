@@ -6,7 +6,7 @@ import { siteUrl } from "@/lib/seo/metadata";
 // Built per request from the live catalogue; never during `next build`.
 export const dynamic = "force-dynamic";
 
-const STATIC_PAGES = ["/gioi-thieu", "/chinh-sach", "/lien-he"];
+const STATIC_PAGES = ["/san-pham", "/gioi-thieu", "/lien-he"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const data = await apiGet<SitemapData>("/api/public/sitemap");
@@ -14,7 +14,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: `${base}/`, changeFrequency: "daily", priority: 1 },
     ...data.categories.map((c) => ({ url: `${base}/danh-muc/${c.slug}`, changeFrequency: "daily" as const, priority: 0.8 })),
-    ...data.brands.map((b) => ({ url: `${base}/thuong-hieu/${b.slug}`, changeFrequency: "daily" as const, priority: 0.7 })),
     ...data.products.map((p) => ({
       url: `${base}/san-pham/${p.slug}`,
       lastModified: p.updatedAt,

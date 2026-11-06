@@ -109,7 +109,7 @@ public class ProductAdminService {
         return new AdminProduct(p.getId(), p.getVersion(), p.getName(), p.getSlug(), p.getBrandId(), p.getCategoryId(),
                 p.getDescriptionMd(), p.getSpecLine(), p.getImageUrl(), p.getSeoTitle(), p.getSeoDescription(),
                 p.getInternalNote(), p.isPublished(), p.getStatus(), skuRows, productWarnings(p, list),
-                priceHistory(list));
+                priceHistory(list), List.copyOf(p.getGalleryUrls()));
     }
 
     // ---- list helpers ----
@@ -147,7 +147,17 @@ public class ProductAdminService {
         return new AdminProductRow(p.getId(), p.getName(), p.getSlug(), brand == null ? null : brand.getName(),
                 category == null ? null : category.getName(), p.isPublished(), p.getStatus(), list.size(),
                 base == null ? null : base.getCode(), base == null ? null : base.getPrice(), needsAttention(p, list),
-                list.stream().anyMatch(Sku::isNeedsConfirmation), CatalogTime.iso(p.getUpdatedAt()));
+                list.stream().anyMatch(Sku::isNeedsConfirmation), CatalogTime.iso(p.getUpdatedAt()), images(p));
+    }
+
+    /** Cover first, then the other photos. */
+    private static List<String> images(Product p) {
+        List<String> urls = new ArrayList<>();
+        if (ProductPublishRules.hasImage(p.getImageUrl())) {
+            urls.add(p.getImageUrl());
+        }
+        urls.addAll(p.getGalleryUrls());
+        return urls;
     }
 
     private static List<SkuState> states(Collection<Sku> list) {

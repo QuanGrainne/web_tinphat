@@ -10,6 +10,7 @@ import vn.dnahoangnguyen.api.storefront.StorefrontDtos.BrandListing;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.CategoryListing;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.HomeData;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.Nav;
+import vn.dnahoangnguyen.api.storefront.StorefrontDtos.ProductListing;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.PublicProduct;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.SearchResult;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.SitemapData;
@@ -52,6 +53,11 @@ public class StorefrontController {
                               @RequestParam(name = "sort", defaultValue = "name_asc") String sort,
                               @RequestParam(name = "page", defaultValue = "1") int page) {
         return queries.brand(slug, category, sort, page);
+    }
+
+    @GetMapping("/products")
+    public ProductListing products(@RequestParam(name = "page", defaultValue = "1") int page) {
+        return queries.products(page);
     }
 
     @GetMapping("/products/{slug}")

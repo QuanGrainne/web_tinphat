@@ -1,35 +1,26 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Alert, App, Button, Checkbox, Form, Input, Modal, Select, Spin, Table, Tabs, Tag, Tooltip, TreeSelect } from "antd";
-import type { TableColumnsType } from "antd";
+import { Alert, App, Button, Checkbox, Form, Input, InputNumber, Modal, Spin, Tabs, Tag, Tooltip, TreeSelect } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import dayjs from "dayjs";
 import { ApiProblem, VERSION_CONFLICT_MESSAGE } from "@/lib/admin/api-client";
 import { catalogueApi } from "@/lib/admin/catalogue-api";
 import {
   buildProductPayload,
-  newProduct,
+  newCatalogueProduct,
   readMissing,
   toFormValues,
   type ProductFormValues,
-  type SkuFormRow,
 } from "@/lib/admin/catalogue-form";
-import { useAdminSettings, useBrands, useCategories } from "@/lib/admin/catalogue-queries";
-import { priceMismatchWarnings } from "@/lib/admin/pricing-display";
+import { useCategories } from "@/lib/admin/catalogue-queries";
 import { useSession } from "@/lib/admin/use-session";
-import { formatNumber } from "@/lib/format/money";
 import type { AdminCategory, AdminProduct } from "@/lib/api/types";
-import { BrandDialog } from "../brands/brand-dialog";
 import { CategoryDialog } from "../categories/category-dialog";
+import { ImageGalleryUpload } from "../image-gallery-upload";
 import { readProblem } from "./form-errors";
-import { PriceWarningBox } from "./price-warning-box";
 import { SectionCard } from "./section-card";
-import { SkuPriceTable } from "./sku-price-table";
 import styles from "./products.module.css";
-
-const PLACEHOLDER_IMAGE = "/images/product-placeholder.svg";
 
 /** Error banner state, kept by the modal so it survives the form remount that follows a partial save. */
 export interface EditorProblem {
@@ -57,7 +48,7 @@ function describeFailure(error: unknown, form: Parameters<typeof readProblem>[1]
   return { kind: "error", title: readable.message, items: missing.length > 0 ? missing : readable.items };
 }
 
-/** Large KiotViet-style editor: Thông tin / Mô tả / SEO, "Quy cách & giá" card, publish toggle in the footer. */
+/** Catalogue editor: Thông tin / Mô tả with image upload and the publish toggle in the footer. No prices. */
 export function ProductEditorModal({
   productId,
   onClose,
@@ -71,11 +62,10 @@ export function ProductEditorModal({
 }) {
   const queryClient = useQueryClient();
   const { isManager } = useSession();
-  const settings = useAdminSettings();
   const [activeId, setActiveId] = useState<number | null>(productId);
   const [tab, setTab] = useState("info");
   const [problem, setProblem] = useState<EditorProblem | null>(null);
-  const blank = useMemo(() => newProduct(), []);
+  const blank = useMemo(() => newCatalogueProduct(), []);
 
   const query = useQuery({
     queryKey: ["admin", "product", activeId],
@@ -106,7 +96,7 @@ export function ProductEditorModal({
       style={{ top: 16, maxWidth: "calc(100vw - 32px)" }}
       title={
         <span>
-          {activeId === null ? "Tạo hàng hóa" : "Sửa hàng hóa"}
+          {activeId === null ? "Tạo sản phẩm" : "Sửa sản phẩm"}
           {product?.status === "DISCONTINUED" && (
             <Tag color="default" style={{ marginLeft: 12 }}>
               Ngừng kinh doanh
@@ -125,7 +115,6 @@ export function ProductEditorModal({
           key={`${product.id ?? "new"}-${product.version ?? 0}`}
           product={product}
           isManager={isManager}
-          threshold={settings.data?.pricingMismatchThresholdPct}
           tab={tab}
           onTabChange={setTab}
           problem={problem}
@@ -159,7 +148,6 @@ export function ProductEditorModal({
 interface FormProps {
   product: AdminProduct;
   isManager: boolean;
-  threshold: number | undefined;
   tab: string;
   onTabChange: (tab: string) => void;
   problem: EditorProblem | null;
@@ -172,7 +160,6 @@ interface FormProps {
 function ProductEditorForm({
   product,
   isManager,
-  threshold,
   tab,
   onTabChange,
   problem,
@@ -184,36 +171,18 @@ function ProductEditorForm({
   const { message, modal } = App.useApp();
   const [form] = Form.useForm<ProductFormValues>();
   const initial = useMemo(() => toFormValues(product), [product]);
-  const watchedRows = Form.useWatch("skus", { form, preserve: true }) as SkuFormRow[] | undefined;
-  const watchedImage = Form.useWatch("imageUrl", form) as string | null | undefined;
-  const rows = watchedRows ?? initial.skus;
-  const imageUrl = (watchedImage ?? initial.imageUrl ?? "").trim();
 
   const categories = useCategories();
-  const brands = useBrands();
-  const [published, setPublished] = useState(product.published);
+  // New items go live on save; unticking keeps them as drafts.
+  const [published, setPublished] = useState(product.id === null ? true : product.published);
   const [saving, setSaving] = useState(false);
   const [categoryDialog, setCategoryDialog] = useState(false);
-  const [brandDialog, setBrandDialog] = useState(false);
 
   const isNew = product.id === null;
   const discontinued = product.status === "DISCONTINUED";
 
   const categoryNodes = useMemo(() => toCategoryNodes(categories.data ?? []), [categories.data]);
-  const brandOptions = useMemo(() => (brands.data ?? []).map((b) => ({ value: b.id, label: b.name })), [brands.data]);
 
-  const liveWarnings = useMemo(
-    () =>
-      threshold === undefined
-        ? []
-        : priceMismatchWarnings(
-            rows.map((r) => ({ unitName: r.unitName ?? "", conversion: r.conversion, price: r.price, isBase: r.isBase })),
-            threshold,
-          ),
-    [rows, threshold],
-  );
-  // Without the threshold (settings refused or failed) the server's own warnings are the best available.
-  const serverMessages = threshold === undefined ? product.skus.flatMap((s) => s.warnings.map((w) => w.message)) : [];
   const productNotices = product.warnings.filter((w) => w.type !== "NO_IMAGE").map((w) => w.message);
 
   async function save() {
@@ -248,7 +217,6 @@ function ProductEditorForm({
       }
     }
 
-    const mismatches = latest.skus.reduce((n, s) => n + s.warnings.filter((w) => w.type === "PRICE_MISMATCH").length, 0);
     if (publishError) {
       message.warning("Đã lưu thông tin, nhưng chưa đổi được trạng thái hiển thị.");
       onProblem(publishError);
@@ -257,8 +225,7 @@ function ProductEditorForm({
       return;
     }
     onProductChange(latest);
-    message.success("Đã lưu hàng hóa");
-    if (mismatches > 0) message.warning(`Có ${mismatches} cảnh báo lệch giá. Kiểm tra lại quy cách.`);
+    message.success("Đã lưu sản phẩm");
     setSaving(false);
     onClose();
   }
@@ -272,10 +239,10 @@ function ProductEditorForm({
     }
     const stop = kind === "discontinue";
     modal.confirm({
-      title: stop ? "Ngừng kinh doanh hàng hóa này?" : "Kinh doanh lại hàng hóa này?",
+      title: stop ? "Ngừng kinh doanh sản phẩm này?" : "Kinh doanh lại sản phẩm này?",
       content: stop
-        ? "Hàng hóa sẽ không còn đặt được trên website. Bạn có thể kinh doanh lại sau."
-        : "Hàng hóa trở lại trạng thái đang kinh doanh.",
+        ? "Sản phẩm sẽ không còn nằm trong danh mục trên website. Bạn có thể kinh doanh lại sau."
+        : "Sản phẩm trở lại trạng thái đang kinh doanh.",
       okText: "Đồng ý",
       cancelText: "Bỏ qua",
       okButtonProps: { danger: stop },
@@ -292,15 +259,6 @@ function ProductEditorForm({
     });
   }
 
-  const historyColumns: TableColumnsType<AdminProduct["priceHistory"][number]> = [
-    { title: "Mã hàng", dataIndex: "skuCode", render: (v: string) => <span className={styles.mono}>{v}</span> },
-    { title: "Loại", dataIndex: "field", width: 90, render: (v: string) => (v === "PROMO" ? "Giá KM" : "Giá") },
-    { title: "Giá cũ", dataIndex: "oldPrice", align: "right", width: 110, render: (v: number | null) => (v === null ? "-" : formatNumber(v)) },
-    { title: "Giá mới", dataIndex: "newPrice", align: "right", width: 110, render: (v: number | null) => (v === null ? "-" : formatNumber(v)) },
-    { title: "Người đổi", dataIndex: "changedBy", width: 160, render: (v: string | null) => v ?? "Hệ thống" },
-    { title: "Thời điểm", dataIndex: "changedAt", width: 150, render: (v: string) => dayjs(v).format("DD/MM/YYYY HH:mm") },
-  ];
-
   const infoTab = (
     <>
       {productNotices.length > 0 && (
@@ -308,13 +266,13 @@ function ProductEditorForm({
       )}
       <div className={styles.infoGrid}>
         <div>
-          <Form.Item label="Tên hàng" name="name" rules={[{ required: true, whitespace: true, message: "Nhập tên hàng" }]}>
+          <Form.Item label="Tên sản phẩm" name="name" rules={[{ required: true, whitespace: true, message: "Nhập tên sản phẩm" }]}>
             <Input maxLength={255} />
           </Form.Item>
           <div className={styles.f2}>
             <div>
               <div className={styles.fieldLabel}>
-                <span>Nhóm hàng</span>
+                <span>Danh mục</span>
                 <button type="button" className={styles.fieldLink} onClick={() => setCategoryDialog(true)}>
                   Tạo mới
                 </button>
@@ -326,50 +284,41 @@ function ProductEditorForm({
                   showSearch
                   treeNodeFilterProp="title"
                   allowClear
-                  placeholder="Chọn nhóm hàng"
+                  placeholder="Chọn danh mục"
                   loading={categories.isPending}
                 />
               </Form.Item>
             </div>
-            <div>
-              <div className={styles.fieldLabel}>
-                <span>Thương hiệu</span>
-                <button type="button" className={styles.fieldLink} onClick={() => setBrandDialog(true)}>
-                  Tạo mới
-                </button>
-              </div>
-              <Form.Item name="brandId">
-                <Select options={brandOptions} showSearch optionFilterProp="label" allowClear placeholder="Chọn thương hiệu" loading={brands.isPending} />
-              </Form.Item>
-            </div>
+            <Form.Item
+              label="Mã sản phẩm"
+              name={["skus", 0, "code"]}
+              rules={[{ required: true, whitespace: true, message: "Nhập mã sản phẩm" }]}
+            >
+              <Input maxLength={60} disabled={!isManager && !isNew} />
+            </Form.Item>
           </div>
           <div className={styles.f2}>
-            <Form.Item label="Dòng thông số" name="specLine">
-              <Input maxLength={255} placeholder="VD: 465 tờ, 4 lớp" />
+            <Form.Item label="Giá" name={["skus", 0, "price"]} extra="Để trống thì web hiện Liên hệ.">
+              <InputNumber<number>
+                min={1}
+                max={999999999999}
+                precision={0}
+                suffix="đ"
+                style={{ width: "100%" }}
+                disabled={!isManager}
+                formatter={(value) => `${value ?? ""}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
+                parser={(value) => (value ?? "").replace(/\./g, "") as unknown as number}
+              />
             </Form.Item>
-            <Form.Item label="Đường dẫn ảnh" name="imageUrl">
-              <Input maxLength={500} placeholder="/uploads/... hoặc https://..." />
+            <Form.Item label="Thông tin ngắn" name="specLine" extra="Hiện dưới tên sản phẩm.">
+              <Input maxLength={255} />
             </Form.Item>
           </div>
         </div>
-        <div>
-          <div style={{ fontSize: 14, marginBottom: 8 }}>Ảnh sản phẩm</div>
-          <div className={styles.imgBox}>
-            {/* Admin preview of an arbitrary URL; next/image would need every host whitelisted. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={imageUrl || PLACEHOLDER_IMAGE} alt="" />
-          </div>
-          {!imageUrl && <div className={styles.imgWarn}>Chưa có ảnh</div>}
-        </div>
+        <Form.Item label="Ảnh sản phẩm (tối đa 5)" name="images">
+          <ImageGalleryUpload />
+        </Form.Item>
       </div>
-
-      <SectionCard title="Quy cách & giá" subtitle="Mã hàng là mã duy nhất. Giá đã gồm VAT. Đơn giá/gói tự tính.">
-        <SkuPriceTable rows={rows} canEditPrice={isManager} warnings={liveWarnings} />
-        <PriceWarningBox warnings={liveWarnings} serverMessages={serverMessages} thresholdPct={threshold} />
-        {!isManager && (
-          <Alert type="info" showIcon style={{ marginTop: 10 }} title="Chỉ quản lý được sửa giá, khuyến mại, quy cách và cờ xác nhận." />
-        )}
-      </SectionCard>
 
       <SectionCard title="Ghi chú nội bộ" subtitle="Chỉ quản trị thấy, không hiện trên web">
         <Form.Item name="internalNote" style={{ marginBottom: 0 }}>
@@ -377,18 +326,6 @@ function ProductEditorForm({
         </Form.Item>
       </SectionCard>
 
-      {!isNew && (
-        <SectionCard title="Lịch sử giá" subtitle="50 thay đổi gần nhất" defaultOpen={false}>
-          <Table
-            size="small"
-            pagination={false}
-            rowKey={(r) => `${r.skuCode}-${r.field}-${r.changedAt}`}
-            dataSource={product.priceHistory}
-            columns={historyColumns}
-            locale={{ emptyText: "Chưa có thay đổi giá" }}
-          />
-        </SectionCard>
-      )}
     </>
   );
 
@@ -435,21 +372,6 @@ function ProductEditorForm({
               </Form.Item>
             ),
           },
-          {
-            key: "seo",
-            label: "SEO",
-            forceRender: true,
-            children: (
-              <div style={{ marginTop: 12 }}>
-                <Form.Item label="Tiêu đề SEO" name="seoTitle">
-                  <Input maxLength={255} />
-                </Form.Item>
-                <Form.Item label="Mô tả SEO" name="seoDescription">
-                  <Input.TextArea rows={3} maxLength={500} />
-                </Form.Item>
-              </div>
-            ),
-          },
         ]}
       />
       <div className={styles.footer}>
@@ -460,7 +382,7 @@ function ProductEditorForm({
           <Tooltip
             title={
               isManager
-                ? "Chỉ hiện khi có nhóm hàng và ít nhất một quy cách đang hiện có giá"
+                ? "Sản phẩm cần có danh mục để hiện trên web"
                 : "Chỉ quản lý được đổi trạng thái hiển thị"
             }
           >
@@ -484,9 +406,6 @@ function ProductEditorForm({
           onClose={() => setCategoryDialog(false)}
           onSaved={(created) => form.setFieldValue("categoryId", created.id)}
         />
-      )}
-      {brandDialog && (
-        <BrandDialog open onClose={() => setBrandDialog(false)} onSaved={(created) => form.setFieldValue("brandId", created.id)} />
       )}
     </Form>
   );

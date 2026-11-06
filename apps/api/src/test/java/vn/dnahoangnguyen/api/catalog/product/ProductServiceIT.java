@@ -43,6 +43,29 @@ class ProductServiceIT extends CatalogIntegrationTest {
                 stored.seoDescription(), stored.internalNote(), stored.published(), stored.status(), skus, null, null);
     }
 
+    private AdminProduct withGallery(long id, List<String> urls) {
+        AdminProduct s = reader.get(id);
+        return new AdminProduct(s.id(), s.version(), s.name(), s.slug(), s.brandId(), s.categoryId(), s.descriptionMd(),
+                s.specLine(), s.imageUrl(), s.seoTitle(), s.seoDescription(), s.internalNote(), s.published(), s.status(),
+                s.skus(), null, null, urls);
+    }
+
+    @Test
+    void galleryKeepsItsOrderSurvivesOtherEditsAndIsLimitedToFourExtraImages() {
+        long id = create("Có nhiều ảnh", null, null, sku("G1", "Cái", 1, true, null));
+        List<String> urls = List.of("/uploads/images/b.jpg", "/uploads/images/a.jpg", "/uploads/images/c.jpg", "/uploads/images/d.jpg");
+
+        productService.saveAggregate(id, withGallery(id, urls), MANAGER, ChangeSource.MANUAL);
+        assertThat(reader.get(id).galleryUrls()).containsExactlyElementsOf(urls);
+
+        productService.saveAggregate(id, edit(id, s -> s), MANAGER, ChangeSource.MANUAL);
+        assertThat(reader.get(id).galleryUrls()).containsExactlyElementsOf(urls);
+
+        List<String> tooMany = List.of("/a", "/b", "/c", "/d", "/e");
+        assertThatThrownBy(() -> productService.saveAggregate(id, withGallery(id, tooMany), MANAGER, ChangeSource.MANUAL))
+                .isInstanceOf(DomainException.class);
+    }
+
     private static AdminSku withPrice(AdminSku s, Long price) {
         return new AdminSku(s.id(), s.version(), s.code(), s.name(), s.unitName(), s.conversion(), s.isBase(), price,
                 s.priceVisible(), s.needsConfirmation(), s.promoPrice(), s.promoFrom(), s.promoTo(), s.visible(),
@@ -214,7 +237,7 @@ class ProductServiceIT extends CatalogIntegrationTest {
     }
 
     @Test
-    void publishNeedsACategoryAndAPricedVisibleSku() {
+    void publishNeedsACategoryButNotAPrice() {
         long noCategory = create("Chưa có nhóm", null, null, sku("P1", "Gói", 1, true, 1_000L));
         assertThatThrownBy(() -> productService.publish(noCategory, MANAGER)).satisfies(t -> {
             assertDomain(t, HttpStatus.UNPROCESSABLE_ENTITY, ProblemCode.PUBLISH_REQUIREMENTS_UNMET);
@@ -222,8 +245,8 @@ class ProductServiceIT extends CatalogIntegrationTest {
         });
 
         long noPrice = create("Chưa có giá", null, newCategory(), sku("P2", "Gói", 1, true, null));
-        assertThatThrownBy(() -> productService.publish(noPrice, MANAGER))
-                .satisfies(t -> assertDomain(t, HttpStatus.UNPROCESSABLE_ENTITY, ProblemCode.PUBLISH_REQUIREMENTS_UNMET));
+        productService.publish(noPrice, MANAGER);
+        assertThat(count("select count(*) from product where published and name = 'Chưa có giá'")).isEqualTo(1);
     }
 
     @Test

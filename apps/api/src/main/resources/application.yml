@@ -18,6 +18,11 @@ spring:
           time_zone: Asia/Ho_Chi_Minh
   jackson:
     time-zone: Asia/Ho_Chi_Minh
+  servlet:
+    multipart:
+      # above the service's own 5 MB limit, so that limit answers with a readable message
+      max-file-size: 10MB
+      max-request-size: 11MB
   mvc:
     problemdetails:
       enabled: true
@@ -49,6 +54,7 @@ management:
 dna:
   client-ip-header: CF-Connecting-IP
   site-url: ${DNA_SITE_URL:http://localhost:8000}
+  uploads-dir: ${DNA_UPLOADS_DIR:uploads}
   seed:
     catalogue:
       enabled: ${DNA_SEED_CATALOGUE_ENABLED:false}

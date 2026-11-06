@@ -93,6 +93,7 @@ function product(overrides: Partial<PublicProduct> = {}): PublicProduct {
     related: [card(2), card(3)],
     seoTitle: null,
     seoDescription: null,
+    galleryUrls: [],
     ...overrides,
   };
 }
@@ -103,7 +104,7 @@ function listing(overrides: Partial<CategoryListing> = {}): CategoryListing {
     page: 1,
     pageSize: 24,
     total: 50,
-    category: { id: 1, name: "Giấy", slug: "giay", description: null, parent: null },
+    category: { id: 1, name: "Giấy", slug: "giay", description: null, imageUrl: null, parent: null },
     breadcrumb: [],
     children: [],
     facets: { brands: [{ name: "Sen Vàng", slug: "sen-vang", count: 30 }, { name: "Phong Lan", slug: "phong-lan", count: 20 }] },
@@ -127,31 +128,34 @@ beforeEach(() => {
 });
 
 describe("home page", () => {
-  it("renders the banner, trust strip, tiles and one section per category", async () => {
+  it("shows the banner, category tiles, one priced row per category and the company sections", async () => {
     const home: HomeData = {
-      categories: [{ name: "Giấy", slug: "giay", productCount: 3 }],
-      brands: [{ name: "Sen Vàng", slug: "sen-vang", productCount: 3 }],
+      categories: [{ name: "Giấy", slug: "giay", productCount: 3, description: null, imageUrl: "/uploads/images/a.jpg" }],
+      brands: [],
       sections: [{ category: { name: "Giấy", slug: "giay" }, products: [card(1), card(2)] }],
     };
-    respond({ "/api/public/home": home, "/api/public/settings": settings });
+    respond({ "/api/public/home": home, "/api/public/nav": nav, "/api/public/settings": settings });
     const html = renderToStaticMarkup(await HomePage());
-    expect(html).toContain("Giấy tiêu dùng, pin, học cụ");
-    expect(html).toContain("Hotline 0366 985 679");
-    expect(html).toContain('href="/danh-muc/giay"');
-    expect(html).toContain('href="/thuong-hieu/sen-vang"');
+    expect(html).toContain("cho mọi");
+    expect(html).toContain('src="/uploads/images/a.jpg"');
     expect(html).toContain("Xem thêm sản phẩm");
-    expect(html).toContain("Từ 8.570đ");
+    expect(html).toContain("8.570");
+    expect(html).toContain("Liên hệ ngay");
+    expect(html).toContain('href="/san-pham"');
+    expect(html).toContain("Hợp tác trong 5 bước");
     expect(html).toContain("application/ld+json");
   });
 });
 
 describe("product page", () => {
-  it("renders breadcrumb, purchase panel, description, related cards and escaped structured data", async () => {
-    respond({ "/api/public/products/": product() });
+  it("renders breadcrumb, contact panel, description, related cards and escaped structured data", async () => {
+    respond({ "/api/public/products/": product(), "/api/public/settings": settings });
     const html = renderToStaticMarkup(await ProductPage({ params: params("giay-an") }));
-    expect(html).toContain("Cùng nhóm");
+    expect(html).toContain("Cùng danh mục");
     expect(html).toContain("<strong>đậm</strong>");
-    expect(html).toContain("Thêm báo giá");
+    expect(html).toContain("Liên hệ để nhận báo giá");
+    expect(html).toContain('href="tel:0366985679"');
+    expect(html).not.toContain("Thêm báo giá");
     expect(html).toContain('aria-label="Breadcrumb"');
     const jsonLd = html.match(/<script type="application\/ld\+json">([^<]*)<\/script>/)?.[1] ?? "";
     expect(jsonLd).toContain("\\u003c/script>");
@@ -162,34 +166,36 @@ describe("product page", () => {
   it("shows a notice instead of prices and buttons when discontinued", async () => {
     respond({
       "/api/public/products/": product({ status: "DISCONTINUED", skus: [sku({ price: 424242, effectivePrice: 424242 })] }),
+      "/api/public/settings": settings,
     });
     const html = renderToStaticMarkup(await ProductPage({ params: params("giay-an") }));
     expect(html).toContain("Sản phẩm đã ngừng kinh doanh.");
-    expect(html).not.toContain("Thêm báo giá");
+    expect(html).not.toContain("Liên hệ để nhận báo giá");
     expect(html).not.toContain("424.242đ");
     expect(html).not.toContain("application/ld+json");
   });
 });
 
 describe("category page", () => {
-  it("renders hero, brand filter with facet counts, sort chips and pagination links", async () => {
-    respond({ "/api/public/categories/": listing(), "/api/public/nav": nav });
-    const html = renderToStaticMarkup(await CategoryPage({ params: params("giay"), searchParams: search({ sort: "price_asc" }) }));
+  it("renders the category header and pagination, without price sorting or brand filters", async () => {
+    const category = { id: 1, name: "Giấy", slug: "giay", description: "Mô tả nhóm", imageUrl: "/uploads/images/a.jpg", parent: null };
+    respond({ "/api/public/categories/": listing({ category }), "/api/public/nav": nav });
+    const html = renderToStaticMarkup(await CategoryPage({ params: params("giay"), searchParams: search() }));
     expect(html).toContain("50 sản phẩm");
-    expect(html).toContain('name="brand"');
-    expect(html).toContain('type="hidden" name="sort" value="price_asc"');
-    expect(html).toContain("Tên A-Z");
-    expect(html).toContain("Giá cao xuống thấp");
-    expect(html).toContain('href="/danh-muc/giay?sort=price_asc&amp;page=2"');
+    expect(html).toContain("Mô tả nhóm");
+    expect(html).toContain('src="/uploads/images/a.jpg"');
+    expect(html).toContain('href="/danh-muc/giay?page=2"');
     expect(html).toContain('rel="next"');
-    expect(html).toContain("Xem 50 sản phẩm");
+    expect(html).toContain('aria-current="page" href="/danh-muc/giay"');
+    expect(html).not.toContain('name="brand"');
+    expect(html).not.toContain("Giá cao xuống thấp");
   });
 
-  it("passes brand, sort and page through to the api", async () => {
+  it("passes only the page through to the api", async () => {
     respond({ "/api/public/categories/": listing(), "/api/public/nav": nav });
     await CategoryPage({ params: params("giay"), searchParams: search({ brand: ["sen-vang", "gp"], sort: "name_desc", page: "2" }) });
     const called = vi.mocked(apiGet).mock.calls.map((c) => c[0]);
-    expect(called).toContain("/api/public/categories/giay?brand=sen-vang&brand=gp&sort=name_desc&page=2");
+    expect(called).toContain("/api/public/categories/giay?page=2");
   });
 
   it("canonicalises filtered and sorted views to the plain listing and keeps only the page number", async () => {
@@ -203,7 +209,7 @@ describe("category page", () => {
   it("shows an empty state when nothing matches", async () => {
     respond({ "/api/public/categories/": listing({ items: [], total: 0 }), "/api/public/nav": nav });
     const html = renderToStaticMarkup(await CategoryPage({ params: params("giay"), searchParams: search() }));
-    expect(html).toContain("Không có sản phẩm phù hợp");
+    expect(html).toContain("Chưa có sản phẩm");
   });
 });
 

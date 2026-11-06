@@ -62,7 +62,7 @@
 }
 
 .bell:hover {
-  color: #0070f4;
+  color: #B4551F;
 }
 
 .user {
@@ -81,8 +81,8 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #e8f1ff;
-  color: #0070f4;
+  background: #F5E6DC;
+  color: #B4551F;
   display: grid;
   place-items: center;
 }
@@ -101,7 +101,7 @@
 }
 
 .mbar {
-  background: #0041c5;
+  background: #1C1917;
 }
 
 .mbarInner {
@@ -145,15 +145,15 @@
   padding: 0 16px;
   border-radius: 4px;
   background: #fff;
-  color: #0041c5;
+  color: #1C1917;
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
 }
 
 .go:hover {
-  color: #0041c5;
-  background: #e8f1ff;
+  color: #1C1917;
+  background: #F5E6DC;
 }
 
 .page {

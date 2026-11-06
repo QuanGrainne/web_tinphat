@@ -3,19 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Nav } from "@/lib/api/types";
-import { countLines, useCart } from "@/lib/cart/cart-store";
-
-/** Pages that carry their own sticky action bar instead of the dock. */
-function hidesDock(pathname: string): boolean {
-  return pathname.startsWith("/san-pham/") || pathname === "/gio-hang";
-}
 
 /** Bottom dock (mobile) plus the Danh mục bottom sheet it opens (CSS :target, no client state). */
 export function MobileDock({ nav }: { nav: Nav | null }) {
   const pathname = usePathname();
-  const cart = useCart();
-  if (hidesDock(pathname)) return null;
-  const quote = countLines(cart, "quote");
   const cls = (on: boolean) => (on ? "on" : undefined);
   return (
     <>
@@ -28,14 +19,13 @@ export function MobileDock({ nav }: { nav: Nav | null }) {
           <i className="i i-home" aria-hidden="true" />
           Trang chủ
         </Link>
-        <Link href="/tra-cuu-don" className={cls(pathname === "/tra-cuu-don" || pathname.startsWith("/don-hang/"))}>
-          <i className="i i-box" aria-hidden="true" />
-          Tra cứu đơn
-        </Link>
-        <Link href="/bao-gia" className={cls(pathname === "/bao-gia")} aria-label={quote > 0 ? `Báo giá, ${quote} sản phẩm` : "Báo giá"}>
+        <Link href="/gioi-thieu" className={cls(pathname === "/gioi-thieu")}>
           <i className="i i-doc" aria-hidden="true" />
-          Báo giá
-          {quote > 0 && <em>{quote}</em>}
+          Giới thiệu
+        </Link>
+        <Link href="/lien-he" className={cls(pathname === "/lien-he")}>
+          <i className="i i-phone" aria-hidden="true" />
+          Liên hệ
         </Link>
       </nav>
       {nav && (
@@ -50,8 +40,8 @@ export function MobileDock({ nav }: { nav: Nav | null }) {
             </div>
             <div className="sheet-b">
               <div className="blk">
-                <span className="blk-t">Nhóm hàng</span>
-                <nav className="cats" aria-label="Nhóm hàng">
+                <span className="blk-t">Danh mục</span>
+                <nav className="cats" aria-label="Danh mục sản phẩm">
                   {nav.categories.map((category) => (
                     <div key={category.id}>
                       <a href={`/danh-muc/${category.slug}`}>
@@ -68,19 +58,6 @@ export function MobileDock({ nav }: { nav: Nav | null }) {
                   ))}
                 </nav>
               </div>
-              {nav.brands.length > 0 && (
-                <div className="blk">
-                  <span className="blk-t">Thương hiệu</span>
-                  <nav className="cats" aria-label="Thương hiệu">
-                    {nav.brands.map((brand) => (
-                      <a key={brand.slug} href={`/thuong-hieu/${brand.slug}`}>
-                        {brand.name}
-                        <small>{brand.productCount}</small>
-                      </a>
-                    ))}
-                  </nav>
-                </div>
-              )}
             </div>
           </div>
         </div>

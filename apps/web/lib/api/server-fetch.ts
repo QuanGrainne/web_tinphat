@@ -30,12 +30,13 @@ export function qs(params: Record<string, string | number | boolean | (string | 
  * Pages that call this must render per request (`export const dynamic = "force-dynamic"`),
  * so `next build` never needs the API.
  */
-export async function apiGet<T>(path: string, options: { revalidate?: number } = {}): Promise<T> {
+export async function apiGet<T>(path: string): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`${API_BASE}${path}`, {
       headers: { Accept: "application/json" },
-      next: { revalidate: options.revalidate ?? 60 },
+      // never cached: a price or image changed in the admin must show on the next page load
+      cache: "no-store",
     });
   } catch {
     throw new ApiError(0, `API unreachable: ${path}`);

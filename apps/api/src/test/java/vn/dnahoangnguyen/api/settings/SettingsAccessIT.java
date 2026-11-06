@@ -45,11 +45,11 @@ class SettingsAccessIT extends IntegrationTest {
     void publicSettingsAreReadableWithoutSignIn() throws Exception {
         mvc.perform(get("/api/public/settings"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.company.taxCode").value("5400533724"))
-                .andExpect(jsonPath("$.company.name").value("CÔNG TY TNHH DNA HOÀNG NGUYÊN"))
-                .andExpect(jsonPath("$.hotline").value("0366 985 679"))
-                .andExpect(jsonPath("$.zalo").value("0366985679"))
-                .andExpect(jsonPath("$.trustStrip[0]").value("Giá đã gồm VAT"))
+                .andExpect(jsonPath("$.company.email").value("tinphatdecord@gmail.com"))
+                .andExpect(jsonPath("$.company.name").value("CÔNG TY TNHH SẢN XUẤT TÍN PHÁT"))
+                .andExpect(jsonPath("$.hotline").value("0914 794 472"))
+                .andExpect(jsonPath("$.zalo").value("0914794472"))
+                .andExpect(jsonPath("$.trustStrip[0]").value("Sản xuất & Phân phối"))
                 .andExpect(jsonPath("$.bank").doesNotExist());
     }
 
@@ -59,8 +59,8 @@ class SettingsAccessIT extends IntegrationTest {
 
         mvc.perform(get("/api/admin/settings").with(TestAuth.as(manager)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.company.taxCode").value("5400533724"))
-                .andExpect(jsonPath("$.notifyOwnerEmail").value("congtydnahoangnguyen@gmail.com"))
+                .andExpect(jsonPath("$.company.email").value("tinphatdecord@gmail.com"))
+                .andExpect(jsonPath("$.notifyOwnerEmail").value("tinphatdecord@gmail.com"))
                 .andExpect(jsonPath("$.pricingMismatchThresholdPct").value(2.0))
                 .andExpect(jsonPath("$.discountTiers").isEmpty())
                 .andExpect(jsonPath("$.bank.accountNo").exists());

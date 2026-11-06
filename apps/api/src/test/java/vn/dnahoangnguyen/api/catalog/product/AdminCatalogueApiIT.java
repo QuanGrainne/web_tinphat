@@ -155,8 +155,8 @@ class AdminCatalogueApiIT extends CatalogIntegrationTest {
         mvc.perform(post("/api/admin/products/" + nothing + "/publish").with(TestAuth.as(manager))
                         .with(TestAuth.xsrf(AdminLogin.XSRF)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.missing[0]").value("CATEGORY"))
-                .andExpect(jsonPath("$.missing[1]").value("VISIBLE_PRICED_SKU"));
+                .andExpect(jsonPath("$.missing.length()").value(1))
+                .andExpect(jsonPath("$.missing[0]").value("CATEGORY"));
 
         long ready = create("Sẵn sàng", null, categoryService.create(
                 new vn.dnahoangnguyen.api.catalog.category.CategoryService.CategoryCreate("Nhóm", null)).id(),

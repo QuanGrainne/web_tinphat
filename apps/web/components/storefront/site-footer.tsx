@@ -9,14 +9,18 @@ export function SiteFooter({ settings }: { settings: PublicSettings | null }) {
       <div className="wrap">
         <div>
           <Link className="logo" href="/">
-            <b>DNA</b>
-            <span>Hoàng Nguyên</span>
+            <b>TÍN PHÁT</b>
+            <span>DECORD</span>
           </Link>
           {company && (
             <p style={{ marginTop: 8 }}>
               {company.name}
-              <br />
-              Mã số doanh nghiệp: {company.taxCode}
+              {company.taxCode && (
+                <>
+                  <br />
+                  Mã số doanh nghiệp: {company.taxCode}
+                </>
+              )}
             </p>
           )}
         </div>
@@ -24,9 +28,13 @@ export function SiteFooter({ settings }: { settings: PublicSettings | null }) {
           <div>
             <h3>Địa chỉ</h3>
             <p>
-              Trụ sở: {company.address}
-              <br />
-              Kho: {company.warehouse}
+              {company.address}
+              {company.warehouse && (
+                <>
+                  <br />
+                  Kho: {company.warehouse}
+                </>
+              )}
             </p>
           </div>
         )}
@@ -41,13 +49,13 @@ export function SiteFooter({ settings }: { settings: PublicSettings | null }) {
           </div>
         )}
         <div>
-          <h3>Hỗ trợ</h3>
+          <h3>Khám phá</h3>
           <ul>
             <li>
               <Link href="/gioi-thieu">Giới thiệu</Link>
             </li>
             <li>
-              <Link href="/chinh-sach">Chính sách</Link>
+              <Link href="/san-pham">Sản phẩm</Link>
             </li>
             <li>
               <Link href="/lien-he">Liên hệ</Link>
@@ -55,7 +63,7 @@ export function SiteFooter({ settings }: { settings: PublicSettings | null }) {
           </ul>
         </div>
       </div>
-      <div className="ft-b">© {new Date().getFullYear()} DNA Hoàng Nguyên · Giá đã gồm VAT</div>
+      <div className="ft-b">© {new Date().getFullYear()} TÍN PHÁT DECORD</div>
     </footer>
   );
 }

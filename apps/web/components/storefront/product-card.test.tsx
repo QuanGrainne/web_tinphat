@@ -6,65 +6,48 @@ import { ProductCard } from "./product-card";
 function card(overrides: Partial<ProductCardData> = {}): ProductCardData {
   return {
     id: 1,
-    slug: "giay-an-gau-truc",
-    name: "Giấy ăn rút Sen Vàng khăn giấy lụa Gấu trúc",
-    brand: { name: "Sen Vàng", slug: "sen-vang" },
+    slug: "long-den-trung-thu",
+    name: "Lồng đèn Trung Thu",
+    brand: null,
     imageUrl: null,
     specLine: null,
     fromPrice: 8570,
-    fromUnitName: "Gói",
-    hasMultipleUnits: true,
-    units: [
-      { name: "Gói", priceVisible: true },
-      { name: "Dây", priceVisible: true },
-      { name: "Thùng", priceVisible: true },
-    ],
+    fromUnitName: "Cái",
+    hasMultipleUnits: false,
+    units: [{ name: "Cái", priceVisible: true }],
     ...overrides,
   };
 }
 
 describe("ProductCard", () => {
-  it("prefixes the base-unit price with Từ for multi-unit products", () => {
+  it("shows the price and links the name to the product page", () => {
     const html = renderToStaticMarkup(<ProductCard card={card()} />);
-    expect(html).toContain("Từ 8.570đ");
-    expect(html).toContain("/ gói");
-    expect(html).toContain("Chọn mua");
-    expect(html).toContain('href="/san-pham/giay-an-gau-truc"');
+    expect(html).toContain("8.570");
+    expect(html).toContain('href="/san-pham/long-den-trung-thu"');
   });
 
-  it("drops Từ for single-unit products", () => {
-    const html = renderToStaticMarkup(
-      <ProductCard card={card({ fromPrice: 94440, fromUnitName: "Hộp", hasMultipleUnits: false, units: [{ name: "Hộp", priceVisible: true }] })} />,
-    );
-    expect(html).toContain("94.440đ");
-    expect(html).not.toContain("Từ ");
-  });
-
-  it("labels hidden units as Liên hệ in the chips", () => {
-    const html = renderToStaticMarkup(
-      <ProductCard
-        card={card({
-          units: [
-            { name: "Gói", priceVisible: true },
-            { name: "Dây", priceVisible: false },
-            { name: "Thùng", priceVisible: false },
-          ],
-        })}
-      />,
-    );
-    expect(html).toContain("Dây: Liên hệ");
-    expect(html).toContain("Thùng: Liên hệ");
-    expect(html).toContain(">Gói<");
-  });
-
-  it("shows only Liên hệ when no unit has a visible price", () => {
-    const html = renderToStaticMarkup(<ProductCard card={card({ fromPrice: null, units: [{ name: "Gói", priceVisible: false }] })} />);
+  it("shows Liên hệ when there is no public price", () => {
+    const html = renderToStaticMarkup(<ProductCard card={card({ fromPrice: null })} />);
     expect(html).toContain("<b>Liên hệ</b>");
-    expect(html).not.toMatch(/\d\.\d{3}đ/);
   });
 
-  it("renders a plain image when the product has one and a placeholder otherwise", () => {
-    expect(renderToStaticMarkup(<ProductCard card={card({ imageUrl: "/uploads/a.jpg" })} />)).toContain('src="/uploads/a.jpg"');
-    expect(renderToStaticMarkup(<ProductCard card={card()} />)).toContain("i-image");
+  it("has a contact button instead of a cart button", () => {
+    const html = renderToStaticMarkup(<ProductCard card={card()} contactHref="https://zalo.me/0914794472" />);
+    expect(html).toContain('href="https://zalo.me/0914794472"');
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain("Liên hệ ngay");
+    expect(html).not.toContain("Chọn mua");
+  });
+
+  it("falls back to the contact page in the same tab", () => {
+    const html = renderToStaticMarkup(<ProductCard card={card()} />);
+    expect(html).toContain('href="/lien-he"');
+    expect(html).not.toContain('target="_blank"');
+  });
+
+  it("shows the image and the spec line when present", () => {
+    const html = renderToStaticMarkup(<ProductCard card={card({ imageUrl: "/uploads/images/a.jpg", specLine: "Nhiều mẫu" })} />);
+    expect(html).toContain('src="/uploads/images/a.jpg"');
+    expect(html).toContain("Nhiều mẫu");
   });
 });

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./(storefront)/storefront.css";
 
 export const metadata: Metadata = {
-  title: "Không tìm thấy trang | DNA Hoàng Nguyên",
+  title: "Không tìm thấy trang | TÍN PHÁT DECORD",
   robots: { index: false, follow: false },
 };
 

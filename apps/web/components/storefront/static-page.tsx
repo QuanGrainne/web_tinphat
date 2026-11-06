@@ -30,7 +30,7 @@ export function PageFrame({ crumbs, children }: { crumbs: Crumb[]; children: Rea
 /** Text page: h1 plus content blocks. */
 export function StaticPage({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="pg">
+    <div className="spage">
       <h1>{title}</h1>
       {children}
     </div>
@@ -77,9 +77,9 @@ export function CompanyFacts({ company, hotline }: { company: CompanyInfo; hotli
     <FactList
       rows={[
         { label: "Công ty", value: company.name },
-        { label: "Mã số thuế", value: company.taxCode },
-        { label: "Trụ sở", value: company.address },
-        { label: "Kho", value: company.warehouse },
+        ...(company.taxCode ? [{ label: "Mã số thuế", value: company.taxCode }] : []),
+        { label: "Địa chỉ", value: company.address },
+        ...(company.warehouse ? [{ label: "Kho", value: company.warehouse }] : []),
         { label: "Điện thoại", value: <a href={telHref(phone)}>{formatPhone(phone)}</a> },
         { label: "Email", value: <a href={`mailto:${company.email}`}>{company.email}</a> },
       ]}

@@ -4,6 +4,7 @@ import { Breadcrumb } from "@/components/storefront/breadcrumb";
 import { first, listingHref, parsePage, type RawParams } from "@/components/storefront/listing-url";
 import { Pagination } from "@/components/storefront/pagination";
 import { ProductGrid } from "@/components/storefront/product-grid";
+import { contactHref, loadSettings } from "@/components/storefront/shell-data";
 import { apiGet, qs } from "@/lib/api/server-fetch";
 import type { SearchResult } from "@/lib/api/types";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -43,7 +44,10 @@ export default async function SearchPage({ searchParams }: Props) {
     );
   }
 
-  const data = await apiGet<SearchResult>(`/api/public/search${qs({ q, page: page > 1 ? page : undefined })}`);
+  const [data, settings] = await Promise.all([
+    apiGet<SearchResult>(`/api/public/search${qs({ q, page: page > 1 ? page : undefined })}`),
+    loadSettings(),
+  ]);
 
   return (
     <main className="wrap">
@@ -55,7 +59,7 @@ export default async function SearchPage({ searchParams }: Props) {
       {data.items.length > 0 ? (
         <>
           <h2 className="sr">Danh sách sản phẩm</h2>
-          <ProductGrid cards={data.items} variant="grid-4" />
+          <ProductGrid cards={data.items} variant="grid-4" contactHref={contactHref(settings)} />
           <Pagination
             page={data.page}
             pageSize={data.pageSize}

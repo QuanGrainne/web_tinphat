@@ -73,7 +73,7 @@ export function organizationJsonLd(settings: PublicSettings, baseUrl: string): J
     url: absolute(baseUrl, "/"),
     telephone: hotline,
     email: company.email,
-    taxID: company.taxCode,
+    ...(company.taxCode ? { taxID: company.taxCode } : {}),
     address: { "@type": "PostalAddress", streetAddress: company.address, addressCountry: "VN" },
   };
 }

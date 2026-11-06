@@ -37,6 +37,7 @@ class PublicPriceLeakIT extends CatalogIntegrationTest {
                     "/api/public/categories/chong-ro-ri?sort=price_asc", "/api/public/categories/chong-ro-ri?sort=price_desc",
                     "/api/public/categories/chong-ro-ri?brand=sen-vang"),
             "/api/public/brands/{slug}", List.of("/api/public/brands/sen-vang", "/api/public/brands/sen-vang?category=chong-ro-ri"),
+            "/api/public/products", List.of("/api/public/products"),
             "/api/public/products/{slug}", List.of("/api/public/products/giay-co-gia-an"),
             "/api/public/search", List.of("/api/public/search?q=giay", "/api/public/search?q=LEAK-2", "/api/public/search?q=leak"),
             "/api/public/search/suggest", List.of("/api/public/search/suggest?q=leak", "/api/public/search/suggest?q=gi"),

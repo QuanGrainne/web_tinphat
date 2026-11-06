@@ -1,4 +1,4 @@
-import { adminFetch } from "./api-client";
+import { adminDownload, adminFetch } from "./api-client";
 import type {
   AdminBrand,
   AdminCategory,
@@ -31,8 +31,21 @@ export interface ProductListQuery {
   size: number;
 }
 
-export interface CategoryCreate { name: string; parentId?: number | null }
-export interface CategoryUpdate { name: string; description: string | null; visible: boolean; sortOrder: number }
+export interface ImportPreviewRow {
+  row: number; code: string; name: string; category: string; price: number | null; unit: string;
+  imageUrl: string | null; imageCount: number; action: "CREATE" | "UPDATE" | "SKIP" | "ERROR"; message: string | null;
+}
+export interface ImportPreview { rows: ImportPreviewRow[]; create: number; update: number; skip: number; error: number }
+export interface ImportResult { created: number; updated: number; skipped: number; errors: { row: number; code: string; message: string }[] }
+
+function fileForm(file: File): FormData {
+  const multipart = new FormData();
+  multipart.append("file", file);
+  return multipart;
+}
+
+export interface CategoryCreate { name: string; parentId?: number | null; description: string | null; imageUrl: string | null }
+export interface CategoryUpdate { name: string; description: string | null; imageUrl: string | null; visible: boolean; sortOrder: number }
 export interface BrandUpdate { name: string; visible: boolean }
 
 export const catalogueApi = {
@@ -58,6 +71,21 @@ export const catalogueApi = {
     adminFetch<AdminProduct>(`/api/admin/products/${id}/discontinue`, { method: "POST" }),
   reactivateProduct: (id: number) => adminFetch<AdminProduct>(`/api/admin/products/${id}/reactivate`, { method: "POST" }),
 
+  uploadImage: (file: File) => {
+    const multipart = new FormData();
+    multipart.append("file", file);
+    return adminFetch<{ url: string }>("/api/admin/uploads/images", { multipart });
+  },
+  deleteProducts: (ids: number[]) =>
+    adminFetch<{ deleted: number; blocked: { id: number; message: string }[] }>("/api/admin/products/delete", { method: "POST", body: { ids } }),
+  exportProducts: (ids: number[]) => adminDownload("/api/admin/exports/products", { ids }, "san-pham-tin-phat.xlsx"),
+  previewImport: (file: File, categoryId: number | null) =>
+    adminFetch<ImportPreview>(`/api/admin/imports/products/preview${categoryId ? `?categoryId=${categoryId}` : ""}`, { multipart: fileForm(file) }),
+  runImport: (file: File, options: { categoryId: number | null; publish: boolean; update: boolean }) => {
+    const query = new URLSearchParams({ publish: String(options.publish), update: String(options.update) });
+    if (options.categoryId) query.set("categoryId", String(options.categoryId));
+    return adminFetch<ImportResult>(`/api/admin/imports/products?${query}`, { multipart: fileForm(file) });
+  },
   listCategories: () => adminFetch<AdminCategory[]>("/api/admin/categories"),
   createCategory: (body: CategoryCreate) => adminFetch<AdminCategory>("/api/admin/categories", { method: "POST", body }),
   updateCategory: (id: number, body: CategoryUpdate) =>

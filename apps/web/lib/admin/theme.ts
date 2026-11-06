@@ -3,8 +3,8 @@ import type { ThemeConfig } from "antd";
 /** KiotViet-style tokens shared with the storefront (docs/design-guidelines.md s.1.1). */
 export const adminTheme: ThemeConfig = {
   token: {
-    colorPrimary: "#0070F4",
-    colorLink: "#0070F4",
+    colorPrimary: "#B4551F",
+    colorLink: "#B4551F",
     colorSuccess: "#16A34A",
     colorError: "#DC2626",
     colorWarning: "#B45309",
@@ -18,9 +18,9 @@ export const adminTheme: ThemeConfig = {
     fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', sans-serif",
   },
   components: {
-    Table: { headerBg: "#E1E9F5", rowHoverBg: "#E8F1FF", cellPaddingBlock: 9 },
+    Table: { headerBg: "#E1E9F5", rowHoverBg: "#F5E6DC", cellPaddingBlock: 9 },
     Modal: { borderRadiusLG: 8 },
   },
 };
 
-export const NAV_BLUE = "#0041C5";
+export const NAV_BLUE = "#1C1917";

@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/** What a product needs before it can go on the storefront. A missing image never blocks publishing. */
+/** What a product needs before it can go on the storefront. A missing image or price never blocks publishing: the site is a catalogue and shows "Liên hệ". */
 public final class ProductPublishRules {
 
     /** Codes of the {@code missing} extension of a refused publish; the admin UI maps them to Vietnamese. */
     public static final String MISSING_CATEGORY = "CATEGORY";
-    public static final String MISSING_VISIBLE_PRICED_SKU = "VISIBLE_PRICED_SKU";
+    public static final String MISSING_VISIBLE_SKU = "VISIBLE_SKU";
 
     private ProductPublishRules() {
     }
@@ -24,8 +24,8 @@ public final class ProductPublishRules {
         if (categoryId == null) {
             missing.add(MISSING_CATEGORY);
         }
-        if (skus.stream().noneMatch(s -> s.visible() && s.price() != null)) {
-            missing.add(MISSING_VISIBLE_PRICED_SKU);
+        if (skus.stream().noneMatch(SkuState::visible)) {
+            missing.add(MISSING_VISIBLE_SKU);
         }
         return missing;
     }
@@ -40,8 +40,8 @@ public final class ProductPublishRules {
         if (missing.contains(MISSING_CATEGORY)) {
             parts.add("chưa chọn nhóm hàng");
         }
-        if (missing.contains(MISSING_VISIBLE_PRICED_SKU)) {
-            parts.add("chưa có quy cách nào đang hiển thị và có giá");
+        if (missing.contains(MISSING_VISIBLE_SKU)) {
+            parts.add("chưa có quy cách nào đang hiển thị");
         }
         return String.join("; ", parts);
     }

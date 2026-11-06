@@ -44,6 +44,30 @@
 		import api_proxy
 	}
 
+	# catalogue site: ordering and quote requests are switched off at the edge
+	handle /api/public/orders* {
+		respond "Not Found" 404
+	}
+
+	handle /api/public/quotes* {
+		respond "Not Found" 404
+	}
+
+	# admin image upload; the API itself refuses files over 5 MB
+	handle /api/admin/imports/* {
+		request_body {
+			max_size 8MB
+		}
+		import api_proxy
+	}
+
+	handle /api/admin/uploads/* {
+		request_body {
+			max_size 8MB
+		}
+		import api_proxy
+	}
+
 	handle /api/* {
 		request_body {
 			max_size 2MB

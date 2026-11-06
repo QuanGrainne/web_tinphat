@@ -32,6 +32,9 @@ public class Category {
     @Column(name = "description", columnDefinition = "text")
     private String description;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @Column(name = "seo_title")
     private String seoTitle;
 
@@ -63,6 +66,14 @@ public class Category {
         this.name = name;
         this.slug = slug;
         this.parentId = parentId;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Long getId() {

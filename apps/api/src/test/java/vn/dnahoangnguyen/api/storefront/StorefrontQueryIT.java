@@ -53,7 +53,7 @@ class StorefrontQueryIT extends CatalogIntegrationTest {
                 .andExpect(jsonPath("$.brands.length()").value(5));
         mvc.perform(get("/api/public/home"))
                 .andExpect(jsonPath("$.sections.length()").value(6))
-                .andExpect(jsonPath("$.sections[0].products.length()").value(5));
+                .andExpect(jsonPath("$.sections[0].products.length()").value(8));
         // 12 products in "Giấy ăn & giấy vệ sinh" fit one page of 24
         mvc.perform(get("/api/public/categories/giay-an-giay-ve-sinh"))
                 .andExpect(jsonPath("$.items.length()").value(12))

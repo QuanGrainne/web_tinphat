@@ -9,7 +9,7 @@
 #                        admin login (default: bootstrap manager from deploy/.env)
 #   SMOKE_ENV_FILE       env file to read (default deploy/.env)
 #   SMOKE_WAIT_SECONDS   how long to wait for the stack to answer (default 240)
-#   SMOKE_PRODUCT_SLUG   slug of the SV465 product (default: looked up through public search)
+#   SMOKE_PRODUCT_SLUG   product to open (default: first product in the sitemap)
 #
 # Needs bash and curl only (Git Bash, WSL, Linux, macOS).
 
@@ -82,27 +82,6 @@ probe() {
   code="$(curl -s -m 5 --noproxy 'localhost,127.0.0.1,::1' -o /dev/null -w '%{http_code}' "$BASE$1" 2>/dev/null)" || true
   printf '%s' "${code:-000}"
 }
-
-# Slug of the SV465 product via public search, empty when it is not found.
-find_sv465_slug() {
-  local path slug
-  for path in "/api/public/search/suggest?q=SV465" "/api/public/search?q=SV465"; do
-    req GET "$path"
-    [ "$STATUS" = 200 ] || continue
-    for slug in $(grep -Eo '"slug"[[:space:]]*:[[:space:]]*"[^"]*"' "$BODY" | cut -d'"' -f4 | head -n 8); do
-      req GET "/api/public/products/$slug"
-      if [ "$STATUS" = 200 ] && body_has '"baseCode"[[:space:]]*:[[:space:]]*"SV465'; then
-        printf '%s' "$slug"
-        return 0
-      fi
-    done
-  done
-  return 0
-}
-
-# Numbers of the hidden SV465 prices (Thung 426.400d, Day 8 42.640d) in any common spelling.
-# Neighbours must not be alphanumeric, so ids and chunk hashes do not match by accident.
-LEAK_RE='(^|[^0-9A-Za-z.,])(426400|42640|426\.400|42\.640)([^0-9A-Za-z]|$)'
 
 LOGIN_USER="${SMOKE_USER:-$(env_value DNA_BOOTSTRAP_MANAGER_USERNAME)}"
 LOGIN_PASS="${SMOKE_PASSWORD:-$(env_value DNA_BOOTSTRAP_MANAGER_PASSWORD)}"
@@ -216,33 +195,32 @@ else
   fi
 fi
 
-# --- hidden prices -----------------------------------------------------------------------------
-SLUG="${SMOKE_PRODUCT_SLUG:-$(find_sv465_slug)}"
+# --- catalogue ---------------------------------------------------------------------------------
+req GET "/sitemap.xml"
+SLUG="${SMOKE_PRODUCT_SLUG:-$(grep -Eo '/san-pham/[^<]+' "$BODY" | head -n 1 | cut -d/ -f3)}"
 if [ -z "$SLUG" ]; then
-  fail "SV465 hidden prices" "product not found through public search (seeded and published?)"
+  fail "product page" "no product in the sitemap (run scripts/seed-tinphat.mjs?)"
 else
-  req GET "/api/public/products/$SLUG"
-  if [ "$STATUS" != 200 ]; then
-    fail "GET /api/public/products/$SLUG hides SV465 Thung/Day 8 prices" "status $STATUS"
-  elif LC_ALL=C grep -Eq -- "$LEAK_RE" "$BODY"; then
-    fail "GET /api/public/products/$SLUG hides SV465 Thung/Day 8 prices" \
-      "found '$(LC_ALL=C grep -Eo -- "$LEAK_RE" "$BODY" | head -n 1)' in the response"
-  elif ! body_has '"priceVisible"[[:space:]]*:[[:space:]]*false'; then
-    fail "GET /api/public/products/$SLUG hides SV465 Thung/Day 8 prices" \
-      "no SKU with priceVisible=false in the response, so nothing was checked"
-  else
-    pass "GET /api/public/products/$SLUG hides SV465 Thung/Day 8 prices"
-  fi
-
   req GET "/san-pham/$SLUG"
-  if [ "$STATUS" != 200 ]; then
-    fail "GET /san-pham/$SLUG hides SV465 Thung/Day 8 prices" "status $STATUS"
-  elif LC_ALL=C grep -Eq -- "$LEAK_RE" "$BODY"; then
-    fail "GET /san-pham/$SLUG hides SV465 Thung/Day 8 prices" \
-      "found '$(LC_ALL=C grep -Eo -- "$LEAK_RE" "$BODY" | head -n 1)' in the page"
+  if [ "$STATUS" = 200 ] && body_has 'Liên hệ để nhận báo giá'; then
+    pass "GET /san-pham/$SLUG shows the contact panel"
   else
-    pass "GET /san-pham/$SLUG hides SV465 Thung/Day 8 prices"
+    fail "GET /san-pham/$SLUG shows the contact panel" "status $STATUS"
   fi
+fi
+
+req POST "/api/public/orders" -H 'Content-Type: application/json' -d '{}'
+if [ "$STATUS" = 404 ]; then
+  pass "POST /api/public/orders is closed (404)"
+else
+  fail "POST /api/public/orders is closed (404)" "status $STATUS"
+fi
+
+req GET "/gio-hang"
+if [ "$STATUS" = 307 ]; then
+  pass "GET /gio-hang redirects to contact"
+else
+  fail "GET /gio-hang redirects to contact" "status $STATUS"
 fi
 
 echo "$((TOTAL - FAILED))/$TOTAL checks passed"

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.dnahoangnguyen.api.admin.audit.AuditService;
@@ -47,6 +48,7 @@ public class ProductService {
     private static final int MAX_SEO_TITLE = 200;
     private static final int MAX_SEO_DESCRIPTION = 400;
     private static final int MAX_IMAGE_URL = 500;
+    private static final int MAX_GALLERY = 4;
     // keeps price * conversion far below Long.MAX_VALUE in every pricing calculation
     private static final int MAX_CONVERSION = 1_000_000;
     private static final long MAX_PRICE = 1_000_000_000_000L;
@@ -57,9 +59,11 @@ public class ProductService {
     private final CategoryRepository categories;
     private final PriceHistoryRepository history;
     private final AuditService audit;
+    private final JdbcTemplate jdbc;
 
     public ProductService(ProductRepository products, SkuRepository skus, BrandRepository brands,
-                          CategoryRepository categories, PriceHistoryRepository history, AuditService audit) {
+                          CategoryRepository categories, PriceHistoryRepository history, AuditService audit, JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
         this.products = products;
         this.skus = skus;
         this.brands = brands;
@@ -153,6 +157,28 @@ public class ProductService {
         audit.recordAs(actor.audit(), "UNPUBLISH", "PRODUCT", id, Map.of("published", true), Map.of("published", false));
     }
 
+    /**
+     * Removes a product for good, with its SKUs, price history and photos. A product that appears on an order or a quote
+     * stays: those records must keep pointing at what was sold, so it can only be discontinued.
+     */
+    @Transactional
+    public void delete(long id, ChangeActor actor) {
+        actor.requireManager("delete", "Chỉ quản lý được xóa sản phẩm.");
+        Product product = require(id);
+        List<Sku> list = skus.findByProductId(id);
+        Integer used = jdbc.queryForObject("""
+                select (select count(*) from order_item i join sku s on s.id = i.sku_id where s.product_id = ?)
+                     + (select count(*) from quote_item i join sku s on s.id = i.sku_id where s.product_id = ?)""", Integer.class, id, id);
+        if (used != null && used > 0) {
+            throw DomainException.conflict(ProblemCode.CONFLICT_STATE, "Sản phẩm đã có trong đơn hàng hoặc báo giá, chỉ có thể ngừng kinh doanh.");
+        }
+        Map<String, Object> before = snapshot(product, list);
+        jdbc.update("delete from price_history where sku_id in (select id from sku where product_id = ?)", id);
+        jdbc.update("delete from sku where product_id = ?", id);
+        products.delete(product);
+        audit.recordAs(actor.audit(), "PRODUCT_DELETE", "PRODUCT", id, before, null);
+    }
+
     @Transactional
     public void discontinue(long id, ChangeActor actor) {
         changeStatus(id, ProductStatus.DISCONTINUED, "DISCONTINUE", actor);
@@ -211,6 +237,12 @@ public class ProductService {
         maxLength(in.seoTitle(), "Tiêu đề SEO", MAX_SEO_TITLE);
         maxLength(in.seoDescription(), "Mô tả SEO", MAX_SEO_DESCRIPTION);
         maxLength(in.imageUrl(), "Ảnh", MAX_IMAGE_URL);
+        if (in.galleryUrls() != null) {
+            if (in.galleryUrls().size() > MAX_GALLERY) {
+                throw invalid("Mỗi sản phẩm tối đa " + (MAX_GALLERY + 1) + " ảnh.");
+            }
+            in.galleryUrls().forEach(url -> maxLength(url, "Ảnh", MAX_IMAGE_URL));
+        }
     }
 
     private List<Draft> resolveDrafts(List<AdminSku> rows, List<Sku> existing) {
@@ -374,6 +406,9 @@ public class ProductService {
         product.setDescriptionMd(blankToNull(in.descriptionMd()));
         product.setSpecLine(blankToNull(in.specLine()));
         product.setImageUrl(blankToNull(in.imageUrl()));
+        if (in.galleryUrls() != null) {
+            product.setGalleryUrls(in.galleryUrls().stream().filter(url -> url != null && !url.isBlank()).toList());
+        }
         product.setSeoTitle(blankToNull(in.seoTitle()));
         product.setSeoDescription(blankToNull(in.seoDescription()));
         product.setInternalNote(blankToNull(in.internalNote()));
@@ -490,6 +525,7 @@ public class ProductService {
         map.put("descriptionMd", p.getDescriptionMd());
         map.put("specLine", p.getSpecLine());
         map.put("imageUrl", p.getImageUrl());
+        map.put("galleryUrls", List.copyOf(p.getGalleryUrls()));
         map.put("seoTitle", p.getSeoTitle());
         map.put("seoDescription", p.getSeoDescription());
         map.put("internalNote", p.getInternalNote());

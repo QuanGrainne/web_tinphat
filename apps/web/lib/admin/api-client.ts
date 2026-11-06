@@ -51,6 +51,8 @@ export interface AdminRequestInit {
   body?: unknown;
   /** Form-urlencoded body (login). */
   form?: Record<string, string>;
+  /** Multipart body (image upload); the browser sets the content type and boundary. */
+  multipart?: FormData;
   /** Do not redirect to the login page on 401 (login form, session probe). */
   noRedirect?: boolean;
 }
@@ -60,12 +62,14 @@ export interface AdminRequestInit {
  * 401 sends the user to /admin/login?next=... unless `noRedirect`. 204 resolves to undefined.
  */
 export async function adminFetch<T = void>(path: string, init: AdminRequestInit = {}): Promise<T> {
-  const method = init.method ?? (init.body !== undefined || init.form ? "POST" : "GET");
+  const method = init.method ?? (init.body !== undefined || init.form || init.multipart ? "POST" : "GET");
   const headers: Record<string, string> = { Accept: "application/json" };
   if (method !== "GET") headers["X-XSRF-TOKEN"] = await ensureCsrf();
 
   let body: BodyInit | undefined;
-  if (init.form) {
+  if (init.multipart) {
+    body = init.multipart;
+  } else if (init.form) {
     headers["Content-Type"] = "application/x-www-form-urlencoded";
     body = new URLSearchParams(init.form).toString();
   } else if (init.body !== undefined) {
@@ -87,6 +91,24 @@ export async function adminFetch<T = void>(path: string, init: AdminRequestInit 
   if (!res.ok) throw await toProblem(res);
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
+}
+
+/** POST that answers with a file: saves it through the browser under the given name. */
+export async function adminDownload(path: string, body: unknown, filename: string): Promise<void> {
+  const res = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-XSRF-TOKEN": await ensureCsrf() },
+    body: JSON.stringify(body),
+    credentials: "same-origin",
+    cache: "no-store",
+  });
+  if (!res.ok) throw await toProblem(res);
+  const url = URL.createObjectURL(await res.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 export const adminApi = {

@@ -1,5 +1,7 @@
 package vn.dnahoangnguyen.api.catalog.product;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import vn.dnahoangnguyen.api.common.error.DomainException;
 import vn.dnahoangnguyen.api.catalog.product.ProductDtos.AdminProduct;
 import vn.dnahoangnguyen.api.catalog.product.ProductDtos.AdminProductList;
 
@@ -36,6 +39,35 @@ public class ProductAdminController {
                                  @RequestParam(name = "page", defaultValue = "1") int page,
                                  @RequestParam(name = "size", defaultValue = "30") int size) {
         return reader.list(q, categoryId, brandId, published, needsAttention, page, size);
+    }
+
+    public record BulkIds(List<Long> ids) {
+    }
+
+    public record BlockedProduct(long id, String message) {
+    }
+
+    public record BulkDeleteResult(int deleted, List<BlockedProduct> blocked) {
+    }
+
+    /** Each product is its own transaction, so one that cannot go does not keep the others. */
+    @PostMapping("/delete")
+    public BulkDeleteResult delete(@RequestBody BulkIds body) {
+        ChangeActor actor = ChangeActor.current();
+        int deleted = 0;
+        List<BlockedProduct> blocked = new ArrayList<>();
+        for (long id : body.ids() == null ? List.<Long>of() : body.ids()) {
+            try {
+                service.delete(id, actor);
+                deleted++;
+            } catch (DomainException e) {
+                if (e.status() == HttpStatus.FORBIDDEN) {
+                    throw e;
+                }
+                blocked.add(new BlockedProduct(id, e.getMessage()));
+            }
+        }
+        return new BulkDeleteResult(deleted, blocked);
     }
 
     @GetMapping("/{id}")

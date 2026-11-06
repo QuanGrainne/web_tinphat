@@ -31,6 +31,7 @@ function product(skus: PublicSku[], overrides: Partial<PublicProduct> = {}): Pub
     category: { name: "Giấy", slug: "giay" },
     breadcrumb: [],
     imageUrl: null,
+    galleryUrls: [],
     specLine: null,
     descriptionMd: null,
     baseCode: "SV320-3L-Gói",

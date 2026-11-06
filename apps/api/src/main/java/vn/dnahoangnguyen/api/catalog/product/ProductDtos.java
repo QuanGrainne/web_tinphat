@@ -58,7 +58,17 @@ public final class ProductDtos {
             ProductStatus status,
             List<AdminSku> skus,
             List<ProductWarning> warnings,
-            List<PriceHistoryRow> priceHistory) {
+            List<PriceHistoryRow> priceHistory,
+            List<String> galleryUrls) {
+
+        /** Without gallery changes: a null list keeps the stored photos. */
+        public AdminProduct(Long id, Long version, String name, String slug, Long brandId, Long categoryId, String descriptionMd,
+                            String specLine, String imageUrl, String seoTitle, String seoDescription, String internalNote,
+                            Boolean published, ProductStatus status, List<AdminSku> skus, List<ProductWarning> warnings,
+                            List<PriceHistoryRow> priceHistory) {
+            this(id, version, name, slug, brandId, categoryId, descriptionMd, specLine, imageUrl, seoTitle, seoDescription,
+                    internalNote, published, status, skus, warnings, priceHistory, null);
+        }
     }
 
     public record ProductWarning(String type, String message) {
@@ -81,7 +91,8 @@ public final class ProductDtos {
             Long basePrice,
             boolean needsAttention,
             boolean needsConfirmation,
-            String updatedAt) {
+            String updatedAt,
+            List<String> images) {
     }
 
     public record Totals(long products, long skus, long visibleSkus) {

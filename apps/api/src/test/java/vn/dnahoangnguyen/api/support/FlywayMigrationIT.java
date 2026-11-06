@@ -37,12 +37,12 @@ class FlywayMigrationIT extends IntegrationTest {
 
     @Test
     void seededSettingsAreReadable() {
-        assertThat(settings.company().taxCode()).isEqualTo("5400533724");
-        assertThat(settings.company().name()).isEqualTo("CÔNG TY TNHH DNA HOÀNG NGUYÊN");
+        assertThat(settings.company().taxCode()).isEmpty();
+        assertThat(settings.company().name()).isEqualTo("CÔNG TY TNHH SẢN XUẤT TÍN PHÁT");
         assertThat(settings.mismatchThresholdPct()).isEqualTo(2.0);
         assertThat(settings.discountTiers()).isEmpty();
-        assertThat(settings.trustStrip()).containsExactly("Giá đã gồm VAT", "Hotline 0366 985 679");
-        assertThat(settings.hotline()).isEqualTo("0366 985 679");
-        assertThat(settings.zalo()).contains("0366985679");
+        assertThat(settings.trustStrip()).containsExactly("Sản xuất & Phân phối", "Hotline 0914 794 472");
+        assertThat(settings.hotline()).isEqualTo("0914 794 472");
+        assertThat(settings.zalo()).contains("0914794472");
     }
 }

@@ -19,19 +19,23 @@ import vn.dnahoangnguyen.api.common.error.ProblemCode;
 @Service
 public class CategoryService {
 
-    public record AdminCategory(long id, String name, String slug, Long parentId, String description, boolean visible,
-                                int sortOrder, long productCount, List<AdminCategory> children) {
+    public record AdminCategory(long id, String name, String slug, Long parentId, String description, String imageUrl,
+                                boolean visible, int sortOrder, long productCount, List<AdminCategory> children) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record CategoryCreate(String name, Long parentId) {
+    public record CategoryCreate(String name, Long parentId, String description, String imageUrl) {
+        public CategoryCreate(String name, Long parentId) {
+            this(name, parentId, null, null);
+        }
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record CategoryUpdate(String name, String description, Boolean visible, Integer sortOrder) {
+    public record CategoryUpdate(String name, String description, String imageUrl, Boolean visible, Integer sortOrder) {
     }
 
     private static final int MAX_NAME = 200;
+    private static final int MAX_IMAGE_URL = 500;
 
     private final CategoryRepository categories;
     private final ProductRepository products;
@@ -66,6 +70,8 @@ public class CategoryService {
     @Transactional
     public AdminCategory create(CategoryCreate in) {
         Category category = createCategory(in.name(), in.parentId());
+        category.setDescription(blankToNull(in.description()));
+        category.setImageUrl(imageUrl(in.imageUrl()));
         return toDto(category, 0, List.of());
     }
 
@@ -82,7 +88,8 @@ public class CategoryService {
             ensureNameFree(name, category.getParentId(), category.getId());
             category.setName(name);
         }
-        category.setDescription(in.description() == null || in.description().isBlank() ? null : in.description());
+        category.setDescription(blankToNull(in.description()));
+        category.setImageUrl(imageUrl(in.imageUrl()));
         if (in.visible() != null) {
             category.setVisible(in.visible());
         }
@@ -138,12 +145,24 @@ public class CategoryService {
         return name.strip();
     }
 
+    private static String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.strip();
+    }
+
+    private static String imageUrl(String value) {
+        String url = blankToNull(value);
+        if (url != null && url.length() > MAX_IMAGE_URL) {
+            throw DomainException.badRequest(ProblemCode.VALIDATION_FAILED, "Đường dẫn ảnh tối đa " + MAX_IMAGE_URL + " ký tự.");
+        }
+        return url;
+    }
+
     private static Comparator<Category> order() {
         return Comparator.comparingInt(Category::getSortOrder).thenComparing(Category::getName);
     }
 
     private static AdminCategory toDto(Category c, long productCount, List<AdminCategory> children) {
-        return new AdminCategory(c.getId(), c.getName(), c.getSlug(), c.getParentId(), c.getDescription(), c.isVisible(),
-                c.getSortOrder(), productCount, children);
+        return new AdminCategory(c.getId(), c.getName(), c.getSlug(), c.getParentId(), c.getDescription(), c.getImageUrl(),
+                c.isVisible(), c.getSortOrder(), productCount, children);
     }
 }

@@ -2,10 +2,10 @@ import Link from "next/link";
 import type { ProductCard as ProductCardData } from "@/lib/api/types";
 import { formatVnd } from "@/lib/format/money";
 
-/** Catalogue card: name (2 lines), "Từ 8.570đ / gói" or "Liên hệ", unit chips (desktop), one button. */
-export function ProductCard({ card }: { card: ProductCardData }) {
+/** Catalogue card: image, name (2 lines), price or "Liên hệ", and a direct contact button instead of a cart. */
+export function ProductCard({ card, contactHref = "/lien-he" }: { card: ProductCardData; contactHref?: string }) {
   const href = `/san-pham/${card.slug}`;
-  const unit = card.fromUnitName?.toLowerCase();
+  const external = contactHref.startsWith("http");
   return (
     <article className="card">
       <Link className="ph" href={href} prefetch={false} tabIndex={-1} aria-hidden="true">
@@ -22,29 +22,18 @@ export function ProductCard({ card }: { card: ProductCardData }) {
             {card.name}
           </Link>
         </h3>
+        {card.specLine && <p className="tp-spec">{card.specLine}</p>}
         <div className="pr">
-          {card.fromPrice !== null ? (
-            <>
-              <b>
-                {card.hasMultipleUnits ? "Từ " : ""}
-                {formatVnd(card.fromPrice)}
-              </b>
-              {unit && <small>/ {unit}</small>}
-            </>
-          ) : (
-            <b>Liên hệ</b>
-          )}
+          <b>{card.fromPrice !== null ? `${card.hasMultipleUnits ? "Từ " : ""}${formatVnd(card.fromPrice)}` : "Liên hệ"}</b>
         </div>
-        {card.units.length > 0 && (
-          <div className="chips">
-            {card.units.map((u) => (
-              <i key={u.name}>{u.priceVisible ? u.name : `${u.name}: Liên hệ`}</i>
-            ))}
-          </div>
-        )}
-        <Link className="btn btn-pri" href={href} prefetch={false} aria-label={`Chọn mua ${card.name}`}>
-          Chọn mua
-        </Link>
+        <a
+          className="btn btn-pri"
+          href={contactHref}
+          aria-label={`Liên hệ ngay về ${card.name}`}
+          {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        >
+          Liên hệ ngay
+        </a>
       </div>
     </article>
   );

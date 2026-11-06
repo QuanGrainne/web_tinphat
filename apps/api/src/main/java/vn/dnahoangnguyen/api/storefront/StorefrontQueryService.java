@@ -30,6 +30,7 @@ import vn.dnahoangnguyen.api.storefront.StorefrontDtos.HomeData;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.HomeSection;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.Nav;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.NavCategory;
+import vn.dnahoangnguyen.api.storefront.StorefrontDtos.ProductListing;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.NavChild;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.NameSlug;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.ProductCard;
@@ -43,7 +44,7 @@ import vn.dnahoangnguyen.api.storefront.StorefrontDtos.SitemapSlug;
 public class StorefrontQueryService {
 
     public static final int PAGE_SIZE = 24;
-    private static final int HOME_SECTION_SIZE = 5;
+    private static final int HOME_SECTION_SIZE = 8;
     private static final int RELATED_SIZE = 5;
 
     private final CatalogReader reader;
@@ -88,12 +89,20 @@ public class StorefrontQueryService {
             if (inRoot.isEmpty()) {
                 continue;
             }
-            categories.add(new CategoryCount(root.getName(), root.getSlug(), inRoot.size()));
+            categories.add(new CategoryCount(root.getName(), root.getSlug(), inRoot.size(), root.getDescription(), root.getImageUrl()));
             List<ProductCard> cards = inRoot.stream().sorted(comparator("name_asc")).limit(HOME_SECTION_SIZE)
                     .map(ProductView::card).toList();
             sections.add(new HomeSection(new NameSlug(root.getName(), root.getSlug()), cards));
         }
         return new HomeData(categories, brandCounts(catalog), sections);
+    }
+
+    /** Every listable product, for the "Tất cả sản phẩm" view of the catalogue. */
+    @Transactional(readOnly = true)
+    public ProductListing products(int page) {
+        List<ProductView> views = reader.load().views();
+        Paged paged = page(views, "name_asc", page);
+        return new ProductListing(paged.items(), paged.page(), PAGE_SIZE, views.size());
     }
 
     @Transactional(readOnly = true)
@@ -121,13 +130,13 @@ public class StorefrontQueryService {
         }
         breadcrumb.add(categoryCrumb(category));
         List<CategoryCount> children = catalog.childrenOf(category).stream()
-                .map(c -> new CategoryCount(c.getName(), c.getSlug(), catalog.productsIn(c).size()))
+                .map(c -> new CategoryCount(c.getName(), c.getSlug(), catalog.productsIn(c).size(), c.getDescription(), c.getImageUrl()))
                 .filter(c -> c.productCount() > 0)
                 .toList();
 
         Paged paged = page(filtered, sort, page);
         return new CategoryListing(paged.items(), paged.page(), PAGE_SIZE, filtered.size(),
-                new CategoryInfo(category.getId(), category.getName(), category.getSlug(), category.getDescription(),
+                new CategoryInfo(category.getId(), category.getName(), category.getSlug(), category.getDescription(), category.getImageUrl(),
                         parent == null ? null : new NameSlug(parent.getName(), parent.getSlug())),
                 breadcrumb, children, new BrandFacets(brandFacets));
     }
@@ -192,7 +201,7 @@ public class StorefrontQueryService {
         return new PublicProduct(product.getId(), product.getSlug(), product.getName(), product.getStatus().name(),
                 StorefrontMapper.nameSlug(view.brand()), category == null ? null : new NameSlug(category.getName(), category.getSlug()),
                 breadcrumb, product.getImageUrl(), product.getSpecLine(), product.getDescriptionMd(), baseCode,
-                view.skus(), related, product.getSeoTitle(), product.getSeoDescription());
+                view.skus(), related, product.getSeoTitle(), product.getSeoDescription(), List.copyOf(product.getGalleryUrls()));
     }
 
     @Transactional(readOnly = true)

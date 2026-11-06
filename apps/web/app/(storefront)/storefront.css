@@ -1,9 +1,8 @@
-/* DNA storefront: LAYOUT = pinhongngoc.com, STYLE = KiotViet tokens (same as admin.css). Mobile-first; desktop >= 960px.
-   nav #0041C5 | primary #0070F4 | text #1F2937 | muted #6B7280 | line #D1D5DB | selected #E8F1FF | 4px radius | Inter. See docs/design-guidelines.md section 2. */
+/* Storefront base layout. Colours follow the Tín Phát Decord palette; brand sections live in tinphat.css. */
 :root{
-  --nav:#0041C5; --pri:#0070F4; --pri-d:#005BC4; --text:#1F2937; --muted:#6B7280; --line:#D1D5DB; --line-s:#E5E7EB;
-  --page:#F3F4F6; --sel:#E8F1FF; --danger:#DC2626; --ok:#16A34A; --ok-bg:#DCFCE7; --warn:#B45309; --warn-bg:#FEF3C7;
-  --dark:#111827; --r:4px;
+  --nav:#1C1917; --pri:#B4551F; --pri-d:#96441A; --text:#1C1917; --muted:#57534E; --line:#E7E2DA; --line-s:#EFE9E0;
+  --page:#F2EFE9; --sel:#F5E6DC; --bg:#FAF8F5; --danger:#DC2626; --ok:#16A34A; --ok-bg:#DCFCE7; --warn:#B45309; --warn-bg:#FEF3C7;
+  --dark:#1C1917; --r:4px;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}

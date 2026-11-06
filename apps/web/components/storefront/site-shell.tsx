@@ -8,8 +8,7 @@ import { SiteHeader } from "./site-header";
 
 /**
  * Header, footer, mobile dock and contact bubble around every storefront page.
- * Pages render their own <main>. Rendered per request (connection) so `next build` never calls the API;
- * the data itself comes from 60 s cached fetches.
+ * Pages render their own <main>. Rendered per request (connection) so `next build` never calls the API.
  */
 export async function SiteShell({ children }: { children: ReactNode }) {
   await connection();

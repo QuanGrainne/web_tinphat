@@ -46,18 +46,19 @@ export interface PublicProduct {
   baseCode: string; skus: PublicSku[];      // visible SKUs only, base first then by conversion
   related: ProductCard[];                   // up to 5 from the same category
   seoTitle: string | null; seoDescription: string | null;
+  galleryUrls: string[];                    // photos after the cover, product page only
 }
 export interface NavCategory { id: number; name: string; slug: string; productCount: number; children: { id: number; name: string; slug: string; productCount: number }[] }
 export interface Nav { categories: NavCategory[]; brands: { name: string; slug: string; productCount: number }[] }
 export interface HomeData {
-  categories: { name: string; slug: string; productCount: number }[];
+  categories: { name: string; slug: string; productCount: number; description: string | null; imageUrl: string | null }[];
   brands: { name: string; slug: string; productCount: number }[];
-  sections: { category: { name: string; slug: string }; products: ProductCard[] }[];   // 5 per level-1 category
+  sections: { category: { name: string; slug: string }; products: ProductCard[] }[];   // up to 8 per level-1 category
 }
 export interface CategoryListing extends Page<ProductCard> {
-  category: { id: number; name: string; slug: string; description: string | null; parent: { name: string; slug: string } | null };
+  category: { id: number; name: string; slug: string; description: string | null; imageUrl: string | null; parent: { name: string; slug: string } | null };
   breadcrumb: Crumb[];
-  children: { name: string; slug: string; productCount: number }[];
+  children: { name: string; slug: string; productCount: number; description: string | null; imageUrl: string | null }[];
   facets: { brands: { name: string; slug: string; count: number }[] };
 }
 export interface BrandListing extends Page<ProductCard> {
@@ -105,6 +106,7 @@ export interface AdminProductRow {
   id: number; name: string; slug: string; brandName: string | null; categoryName: string | null;
   published: boolean; status: "ACTIVE" | "DISCONTINUED"; skuCount: number; baseCode: string | null; basePrice: number | null;
   needsAttention: boolean; needsConfirmation: boolean; updatedAt: string;
+  images: string[];                                 // cover first
 }
 export interface AdminProductList { items: AdminProductRow[]; page: number; size: number; total: number; totals: { products: number; skus: number; visibleSkus: number } }
 export interface AdminSku {
@@ -118,13 +120,14 @@ export interface AdminSku {
 export interface AdminProduct {
   id: number | null; version: number | null; name: string; slug: string;
   brandId: number | null; categoryId: number | null; descriptionMd: string | null; specLine: string | null; imageUrl: string | null;
+  galleryUrls: string[];
   seoTitle: string | null; seoDescription: string | null; internalNote: string | null;
   published: boolean; status: "ACTIVE" | "DISCONTINUED";
   skus: AdminSku[];
   warnings: { type: "NO_IMAGE" | "NEEDS_CONFIRMATION" | "NOT_PUBLISHABLE"; message: string }[];   // read-only
   priceHistory: { skuCode: string; field: "PRICE" | "PROMO"; oldPrice: number | null; newPrice: number | null; changedBy: string | null; changedAt: string }[];   // read-only, last 50
 }
-export interface AdminCategory { id: number; name: string; slug: string; parentId: number | null; description: string | null; visible: boolean; sortOrder: number; productCount: number; children: AdminCategory[] }
+export interface AdminCategory { id: number; name: string; slug: string; parentId: number | null; description: string | null; imageUrl: string | null; visible: boolean; sortOrder: number; productCount: number; children: AdminCategory[] }
 export interface AdminBrand { id: number; name: string; slug: string; visible: boolean; productCount: number }
 
 export interface RequestRow {

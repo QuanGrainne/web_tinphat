@@ -29,7 +29,7 @@ function writableFields(s: AdminSku): Omit<AdminSku, "perBaseUnit" | "warnings">
 
 const loaded: AdminProduct = {
   id: 7, version: 5, name: "Giấy khăn giấy rút", slug: "giay-khan-giay-rut",
-  brandId: 2, categoryId: 4, descriptionMd: null, specLine: "465 tờ", imageUrl: null,
+  brandId: 2, categoryId: 4, descriptionMd: null, specLine: "465 tờ", imageUrl: null, galleryUrls: [],
   seoTitle: null, seoDescription: null, internalNote: null, published: false, status: "ACTIVE",
   skus: [
     sku({}),
@@ -72,10 +72,19 @@ describe("buildProductPayload", () => {
     expect(thung.visible).toBe(false); // visibility is not a protected field
   });
 
+  it("splits the images into the cover and the gallery, and joins them back", () => {
+    const values = toFormValues({ ...loaded, imageUrl: "/a.jpg", galleryUrls: ["/b.jpg", "/c.jpg"] });
+    expect(values.images).toEqual(["/a.jpg", "/b.jpg", "/c.jpg"]);
+    values.images = ["/c.jpg", "/a.jpg"];
+    const payload = buildProductPayload(values, loaded, true);
+    expect(payload.imageUrl).toBe("/c.jpg");
+    expect(payload.galleryUrls).toEqual(["/a.jpg"]);
+  });
+
   it("turns blank optional text into null and keeps published/status as loaded", () => {
     const values = toFormValues(loaded);
     values.specLine = "   ";
-    values.imageUrl = "";
+    values.images = [];
     values.internalNote = null;
     const payload = buildProductPayload(values, loaded, true);
     expect(payload.specLine).toBeNull();
@@ -110,12 +119,12 @@ describe("parseFieldPath", () => {
 
 describe("publish requirements", () => {
   it("labels known codes and passes server text through", () => {
-    expect(describeMissing("CATEGORY")).toBe("Nhóm hàng");
+    expect(describeMissing("CATEGORY")).toBe("Danh mục");
     expect(describeMissing("Cần ít nhất một quy cách có giá")).toBe("Cần ít nhất một quy cách có giá");
   });
 
   it("reads the missing extension and ignores anything else", () => {
-    expect(readMissing({ missing: ["CATEGORY", "x", 5] })).toEqual(["Nhóm hàng", "x"]);
+    expect(readMissing({ missing: ["CATEGORY", "x", 5] })).toEqual(["Danh mục", "x"]);
     expect(readMissing({ missing: "CATEGORY" })).toEqual([]);
     expect(readMissing({})).toEqual([]);
   });

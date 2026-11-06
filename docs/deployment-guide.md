@@ -1,5 +1,7 @@
 # Deployment guide: Docker stack
 
+> The site now runs as the Tín Phát Decord catalogue. Read [tinphat-catalogue.md](tinphat-catalogue.md) first: seeding, smoke checks and the sales flow differ from what is described below.
+
 Local and demo stack for the DNA web MVP: storefront, admin, API, PostgreSQL and a mail catcher behind Caddy. Production hardening (VPS, Cloudflare, off-site backups, automatic revert) is not part of it, see [Known limits](#11-known-limits-and-what-is-cut).
 
 ```

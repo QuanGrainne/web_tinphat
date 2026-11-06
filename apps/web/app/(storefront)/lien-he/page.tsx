@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Liên hệ",
-  description: "Địa chỉ, kho, số điện thoại và email của DNA Hoàng Nguyên.",
+  description: "Địa chỉ, số điện thoại, Zalo và email của TÍN PHÁT DECORD.",
   alternates: { canonical: "/lien-he" },
 };
 

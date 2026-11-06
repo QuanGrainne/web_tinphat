@@ -1,4 +1,4 @@
-# DNA web: local Docker stack (db, api, web, caddy, mailpit).
+# Tín Phát Decord catalogue: local Docker stack (db, api, web, caddy, mailpit).
 #
 #   docker compose -f deploy/compose.yml up -d --build
 #
@@ -20,8 +20,8 @@ services:
       # PostgreSQL 18 images keep the cluster under /var/lib/postgresql/<major>/docker
       - pgdata:/var/lib/postgresql
     ports:
-      # debugging only: psql -h 127.0.0.1 -p 55432
-      - "127.0.0.1:55432:5432"
+      # debugging only: psql -h 127.0.0.1 -p 55432 (DB_PORT in deploy/.env overrides the host port)
+      - "127.0.0.1:${DB_PORT:-55432}:5432"
     healthcheck:
       # -h 127.0.0.1 skips the init-time server that only listens on the unix socket
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
@@ -55,7 +55,7 @@ services:
       # only used while app_user is empty; may be removed once the first account exists
       DNA_BOOTSTRAP_MANAGER_USERNAME: ${DNA_BOOTSTRAP_MANAGER_USERNAME:-}
       DNA_BOOTSTRAP_MANAGER_PASSWORD: ${DNA_BOOTSTRAP_MANAGER_PASSWORD:-}
-      DNA_SEED_CATALOGUE_ENABLED: ${DNA_SEED_CATALOGUE_ENABLED:-true}
+      DNA_SEED_CATALOGUE_ENABLED: ${DNA_SEED_CATALOGUE_ENABLED:-false}
       DNA_SEED_CATALOGUE_PUBLISH: ${DNA_SEED_CATALOGUE_PUBLISH:-false}
       DNA_SITE_URL: ${DNA_SITE_URL:-http://localhost:8000}
       DNA_MAIL_FROM: ${DNA_MAIL_FROM:-no-reply@dnahoangnguyen.vn}
@@ -63,7 +63,7 @@ services:
       DNA_ORDER_RATE_LIMIT: ${DNA_ORDER_RATE_LIMIT:-5}
       DNA_QUOTE_RATE_LIMIT: ${DNA_QUOTE_RATE_LIMIT:-5}
       DNA_LOOKUP_RATE_LIMIT: ${DNA_LOOKUP_RATE_LIMIT:-10}
-      # reserved for image upload; the API does not read it yet
+      # admin image uploads; Caddy serves the same volume under /uploads/
       DNA_UPLOADS_DIR: /app/uploads
       DNA_TURNSTILE_ENABLED: "false"
       DNA_SEPAY_ENABLED: ${DNA_SEPAY_ENABLED:-true}

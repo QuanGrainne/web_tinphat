@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { Nav } from "@/lib/api/types";
 
-/** DANH MỤC button with the category / brand mega menu (desktop). Closes on navigation, outside click and Escape. */
+/** DANH MỤC button with the category mega menu (desktop). Closes on navigation, outside click and Escape. */
 export function CategoryMenu({ nav }: { nav: Nav }) {
   const pathname = usePathname();
   // Keyed by path so every navigation starts with the menu closed.
@@ -63,21 +63,6 @@ function CategoryMenuPanel({ nav }: { nav: Nav }) {
               </ul>
             </div>
           ))}
-          {nav.brands.length > 0 && (
-            <div>
-              <h3>Thương hiệu</h3>
-              <ul>
-                {nav.brands.map((brand) => (
-                  <li key={brand.slug}>
-                    <Link href={`/thuong-hieu/${brand.slug}`}>
-                      {brand.name}
-                      <small>{brand.productCount}</small>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       )}
     </div>
