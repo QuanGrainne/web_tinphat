@@ -21,7 +21,7 @@ import vn.dnahoangnguyen.api.admin.auth.PasswordService;
 @Component
 public class BootstrapManagerRunner implements ApplicationRunner {
 
-    static final int MIN_PASSWORD_LENGTH = 12;
+    static final int MIN_PASSWORD_LENGTH = 8;
     private static final Pattern USERNAME = Pattern.compile("[A-Za-z0-9._@-]{3,80}");
     private static final Logger log = LoggerFactory.getLogger(BootstrapManagerRunner.class);
 
@@ -31,17 +31,20 @@ public class BootstrapManagerRunner implements ApplicationRunner {
     private final String username;
     private final String password;
     private final String displayName;
+    private final String email;
 
     public BootstrapManagerRunner(AppUserRepository users, PasswordEncoder encoder, AuditService audit,
                                   @Value("${dna.bootstrap.manager.username:}") String username,
                                   @Value("${dna.bootstrap.manager.password:}") String password,
-                                  @Value("${dna.bootstrap.manager.display-name:Quản lý}") String displayName) {
+                                  @Value("${dna.bootstrap.manager.display-name:Quản lý}") String displayName,
+                                  @Value("${dna.bootstrap.manager.email:}") String email) {
         this.users = users;
         this.encoder = encoder;
         this.audit = audit;
         this.username = username == null ? "" : username.trim();
         this.password = password == null ? "" : password;
         this.displayName = displayName;
+        this.email = email == null || email.isBlank() ? null : email.strip();
     }
 
     @Override
@@ -70,7 +73,10 @@ public class BootstrapManagerRunner implements ApplicationRunner {
                     + "no account created", PasswordService.MAX_PASSWORD_BYTES);
             return;
         }
-        AppUser manager = users.save(new AppUser(username, encoder.encode(password), displayName, Role.MANAGER));
+        AppUser created = new AppUser(username, encoder.encode(password), displayName, Role.MANAGER);
+        // optional recovery address for "Quên mật khẩu"; it can also be set later in the admin
+        created.setEmail(email);
+        AppUser manager = users.save(created);
         audit.recordAs(AuditActor.system("BOOTSTRAP"), "USER_BOOTSTRAP", "USER", manager.getId(), null,
                 Map.of("username", manager.getUsername(), "role", Role.MANAGER.name()));
         log.info("Created the first MANAGER account '{}'", manager.getUsername());

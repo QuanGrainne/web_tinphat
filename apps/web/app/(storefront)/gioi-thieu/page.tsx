@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import { Breadcrumb } from "@/components/storefront/breadcrumb";
-import { loadSettings } from "@/components/storefront/shell-data";
-import { CompanyFacts, InfoSection } from "@/components/storefront/static-page";
-import { AboutSection, CapabilitySection, ContactCta, ProcessSection, SeasonsSection } from "@/components/storefront/tinphat-sections";
+import {
+  AboutSection,
+  CapabilitySection,
+  ProcessSection,
+  SeasonsSection,
+} from "@/components/storefront/tinphat-sections";
 import { BRAND, IMAGES } from "@/lib/tinphat/content";
+import { CatalogImage } from "@/components/catalog-image";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +17,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/gioi-thieu" },
 };
 
-export default async function AboutPage() {
-  const settings = await loadSettings();
+export default function AboutPage() {
   return (
     <main>
       <div className="wrap">
@@ -25,23 +28,20 @@ export default async function AboutPage() {
           ]}
         />
         <h1 className="sr">Giới thiệu {BRAND.name}</h1>
-        {/* eslint-disable-next-line @next/next/no-img-element -- plain img by design: no image optimiser on the small VPS */}
-        <img className="tp-hero-i" src={IMAGES.hero} alt="Văn phòng TÍN PHÁT DECORD" width={1400} height={788} fetchPriority="high" decoding="async" />
+        <CatalogImage
+          className="tp-hero-i"
+          src={IMAGES.hero}
+          alt="Văn phòng TÍN PHÁT DECOR"
+          width={1400}
+          height={788}
+          priority
+          sizes="(min-width: 1344px) 1320px, 100vw"
+        />
       </div>
       <AboutSection />
       <SeasonsSection />
       <CapabilitySection />
       <ProcessSection />
-      {settings && (
-        <div className="tp-sec wrap">
-          <div className="spage">
-            <InfoSection title="Thông tin công ty">
-              <CompanyFacts company={settings.company} hotline={settings.hotline} />
-            </InfoSection>
-          </div>
-        </div>
-      )}
-      <ContactCta settings={settings} />
     </main>
   );
 }

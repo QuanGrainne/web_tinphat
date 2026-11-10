@@ -7,7 +7,7 @@ import { AdminProviders } from "@/components/admin/providers";
 const inter = Inter({ subsets: ["latin", "vietnamese"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "Quản trị Tín Phát Decord", template: "%s | Quản trị Tín Phát Decord" },
+  title: { default: "Quản trị Tín Phát Decor", template: "%s | Quản trị Tín Phát Decor" },
   robots: { index: false, follow: false },
 };
 

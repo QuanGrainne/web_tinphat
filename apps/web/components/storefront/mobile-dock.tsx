@@ -49,7 +49,11 @@ export function MobileDock({ nav }: { nav: Nav | null }) {
                         <small>{category.productCount}</small>
                       </a>
                       {category.children.map((child) => (
-                        <a key={child.id} className="sub" href={`/danh-muc/${child.slug}`}>
+                        <a
+                          key={child.id}
+                          className="sub"
+                          href={`/danh-muc/${child.slug}`}
+                        >
                           {child.name}
                           <small>{child.productCount}</small>
                         </a>

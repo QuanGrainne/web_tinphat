@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,9 +24,28 @@ public class MeController {
     private final PasswordService passwords;
     private final Clock clock;
 
-    public MeController(PasswordService passwords, Clock clock) {
+    private final PasswordResetService resets;
+
+    public MeController(PasswordService passwords, Clock clock, PasswordResetService resets) {
         this.passwords = passwords;
         this.clock = clock;
+        this.resets = resets;
+    }
+
+    public record RecoveryEmail(String email) {
+    }
+
+    public record RecoveryEmailUpdate(String email, String currentPassword) {
+    }
+
+    @GetMapping("/recovery-email")
+    public RecoveryEmail recoveryEmail() {
+        return new RecoveryEmail(resets.recoveryEmail(requireUser().id()));
+    }
+
+    @PutMapping("/recovery-email")
+    public RecoveryEmail setRecoveryEmail(@RequestBody RecoveryEmailUpdate body) {
+        return new RecoveryEmail(resets.setRecoveryEmail(requireUser().id(), body.email(), body.currentPassword()));
     }
 
     @GetMapping

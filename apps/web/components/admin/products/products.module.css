@@ -348,3 +348,35 @@
 .problem {
   margin: 8px 24px 0;
 }
+
+/* "Hiển thị [15 dòng]" sits at the left of the table footer, the page buttons at the right */
+.pager.pager:global(.ant-pagination) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* everything after the row-count selector is pushed to the right edge */
+.pager.pager :global(.ant-pagination-prev) {
+  margin-inline-start: auto;
+}
+
+.pager.pager :global(.ant-pagination-options)::before {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pager.pager :global(.ant-pagination-options) {
+  order: -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-inline-start: 0;
+  margin-inline-end: 12px;
+}
+
+.pager.pager :global(.ant-pagination-options)::before {
+  content: "Hiển thị";
+  color: #57534e;
+  font-size: 13px;
+}

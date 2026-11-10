@@ -71,7 +71,7 @@ public class StorefrontQueryService {
                     .map(c -> new NavChild(c.getId(), c.getName(), c.getSlug(), catalog.productsIn(c).size()))
                     .filter(c -> c.productCount() > 0)
                     .toList();
-            categories.add(new NavCategory(root.getId(), root.getName(), root.getSlug(), total, children));
+            categories.add(new NavCategory(root.getId(), root.getName(), root.getSlug(), total, root.getImageUrl(), children));
         }
         return new Nav(categories, brandCounts(catalog));
     }
@@ -208,6 +208,7 @@ public class StorefrontQueryService {
     public SitemapData sitemap() {
         Catalog catalog = reader.load();
         List<SitemapProduct> productRows = catalog.views().stream()
+                .filter(v -> !v.card().discontinued())
                 .sorted(Comparator.comparing((ProductView v) -> v.product().getSlug()))
                 .map(v -> new SitemapProduct(v.product().getSlug(), CatalogTime.iso(v.product().getUpdatedAt())))
                 .toList();
@@ -243,20 +244,24 @@ public class StorefrontQueryService {
         return new Paged(sorted.subList(from, to).stream().map(ProductView::card).toList(), page);
     }
 
-    /** name_asc (default), name_desc, price_asc, price_desc; products without a public price always sort last. */
+    /**
+     * name_asc (default), name_desc, price_asc, price_desc; products without a public price always sort last, and
+     * discontinued products come after all others.
+     */
     static Comparator<ProductView> comparator(String sort) {
         Comparator<ProductView> byName = Comparator.comparing(ProductView::foldedName)
                 .thenComparing((ProductView v) -> v.product().getName())
                 .thenComparing((ProductView v) -> v.product().getId());
         String key = sort == null ? "" : sort;
-        return switch (key) {
+        // discontinued products a manager chose to keep on the site come after everything that can still be ordered
+        return Comparator.comparing((ProductView v) -> v.card().discontinued()).thenComparing(switch (key) {
             case "name_desc" -> byName.reversed();
             case "price_asc" -> Comparator.comparing((ProductView v) -> v.card().fromPrice(),
                     Comparator.nullsLast(Comparator.<Long>naturalOrder())).thenComparing(byName);
             case "price_desc" -> Comparator.comparing((ProductView v) -> v.card().fromPrice(),
                     Comparator.nullsLast(Comparator.<Long>reverseOrder())).thenComparing(byName);
             default -> byName;
-        };
+        });
     }
 
 }

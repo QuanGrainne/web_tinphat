@@ -1,4 +1,4 @@
-# Tín Phát Decord catalogue: local Docker stack (db, api, web, caddy, mailpit).
+# Tín Phát Decor catalogue: local Docker stack (db, api, web, caddy, mailpit).
 #
 #   docker compose -f deploy/compose.yml up -d --build
 #
@@ -48,13 +48,19 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      SPRING_MAIL_HOST: mailpit
-      SPRING_MAIL_PORT: "1025"
+      # Mailpit by default; set SMTP_* in deploy/.env to send real mail (Gmail: see deploy/.env.example)
+      SPRING_MAIL_HOST: ${SMTP_HOST:-mailpit}
+      SPRING_MAIL_PORT: ${SMTP_PORT:-1025}
+      SPRING_MAIL_USERNAME: ${SMTP_USERNAME:-}
+      SPRING_MAIL_PASSWORD: ${SMTP_PASSWORD:-}
+      DNA_SMTP_AUTH: ${SMTP_AUTH:-false}
+      DNA_SMTP_STARTTLS: ${SMTP_STARTTLS:-false}
       # an SMTP outage must not turn the API health check red
       MANAGEMENT_HEALTH_MAIL_ENABLED: "false"
       # only used while app_user is empty; may be removed once the first account exists
       DNA_BOOTSTRAP_MANAGER_USERNAME: ${DNA_BOOTSTRAP_MANAGER_USERNAME:-}
       DNA_BOOTSTRAP_MANAGER_PASSWORD: ${DNA_BOOTSTRAP_MANAGER_PASSWORD:-}
+      DNA_BOOTSTRAP_MANAGER_EMAIL: ${DNA_BOOTSTRAP_MANAGER_EMAIL:-}
       DNA_SEED_CATALOGUE_ENABLED: ${DNA_SEED_CATALOGUE_ENABLED:-false}
       DNA_SEED_CATALOGUE_PUBLISH: ${DNA_SEED_CATALOGUE_PUBLISH:-false}
       DNA_SITE_URL: ${DNA_SITE_URL:-http://localhost:8000}
@@ -90,6 +96,9 @@ services:
     depends_on:
       api:
         condition: service_healthy
+    volumes:
+      # resized product photos (next/image); safe to delete, they are rebuilt on demand
+      - web_image_cache:/app/.next/cache/images
     environment:
       NODE_ENV: production
       NODE_OPTIONS: --max-old-space-size=384
@@ -136,6 +145,7 @@ services:
 
 volumes:
   pgdata:
+  web_image_cache:
   uploads:
   caddy_data:
   caddy_config:

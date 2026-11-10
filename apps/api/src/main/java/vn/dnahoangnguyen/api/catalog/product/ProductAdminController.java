@@ -70,6 +70,14 @@ public class ProductAdminController {
         return new BulkDeleteResult(deleted, blocked);
     }
 
+    public record NextCode(String code) {
+    }
+
+    @GetMapping("/next-code")
+    public NextCode nextCode() {
+        return new NextCode(service.nextCode());
+    }
+
     @GetMapping("/{id}")
     public AdminProduct get(@PathVariable("id") long id) {
         return reader.get(id);

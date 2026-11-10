@@ -1,6 +1,6 @@
-# Tín Phát Decord catalogue
+# Tín Phát Decor catalogue
 
-The site is a product catalogue for Tín Phát Decord. The home page has a banner, category tiles, one product row per category beside a category list, then the company sections. Cards show the price, or "Liên hệ" when none is set, and a "Liên hệ ngay" button that opens Zalo. There is no cart or checkout on the storefront. This replaces the sales flow described in `mvp-status.md`; the run and operate steps in `deployment-guide.md` still apply.
+The site is a product catalogue for Tín Phát Decor. The home page has a banner, category tiles, one product row per category beside a category list, then the company sections. Cards show the price, or "Liên hệ" when none is set, and a "Liên hệ ngay" button that opens Zalo. There is no cart or checkout on the storefront. This replaces the sales flow described in `mvp-status.md`; the run and operate steps in `deployment-guide.md` still apply.
 
 ## Run it
 
@@ -40,7 +40,31 @@ The export writes the same column names for the whole catalogue, or for the cate
 
 ## Ticking products
 
+The product popup also has a "Xóa" button (managers only) for the product being edited. The category filter in the list starts at "Tất cả".
+
 Ticking rows in `/admin/products` offers "Xuất đã chọn" and "Xóa". Delete is permanent, needs a manager and a confirmation, and also removes the product's SKUs, price history and photo links. A product on an order or a quote cannot be deleted, only discontinued. Uploaded image files stay in the `uploads` volume.
+
+## Photos on the storefront
+
+Product, category and banner photos go through `next/image` (`apps/web/components/catalog-image.tsx`): each slot gets a WebP copy at its own width, for example about 30 to 50 KB for a card instead of a 1.5 to 3.5 MB original. Uploads (`/uploads/...`, read from Caddy through a rewrite in `next.config.ts`) and KiotViet photos are optimised; links to any other host are shown unchanged. Copies are kept in the `web_image_cache` volume, so only the very first view of a photo waits for it to be made.
+
+## Deleting categories
+
+"Xóa" on a category row deletes it for good (managers only, with a confirmation). A category that still has products or sub-categories is refused and the message says which; move or delete those first.
+
+## Discontinued products and passwords
+
+A discontinued product can still be shown on the site ("Hiển thị trên web" stays available). It is then listed after all other products with a "Ngừng kinh doanh" label, no price and no contact button, and its page says it is no longer sold. It is left out of the sitemap. Untick "Hiển thị trên web" to remove it from the site.
+
+Admins change their own password from the account menu (top right, "Đổi mật khẩu"): current password, then the new one twice, 8 characters or more. The current session stays signed in; other sessions of the account end.
+
+## Forgotten password
+
+"Quên mật khẩu?" on the login page asks for the account's recovery email and mails a link to `/admin/reset-password`. The link works once, expires after 30 minutes, and setting the new password signs the account out everywhere. The page answers the same whether or not the address belongs to an account. Requests are limited to 5 per client IP and 3 per account every 15 minutes.
+
+Each admin sets the recovery email in the account menu ("Email lấy lại mật khẩu", current password required). A fresh install can set it for the first account with `DNA_BOOTSTRAP_MANAGER_EMAIL`.
+
+Mail goes to Mailpit locally. For a server, fill the `SMTP_*` block of `deploy/.env` (Gmail: `smtp.gmail.com`, port 587, auth and STARTTLS on, an App password from a Google account with 2-Step Verification) and set `DNA_MAIL_FROM` to the same Gmail address and `DNA_SITE_URL` to the public address, since the link is built from it. Then `docker compose -f deploy/compose.yml up -d`.
 
 ## What is switched off
 

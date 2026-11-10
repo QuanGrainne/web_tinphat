@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { Crumb } from "@/lib/api/types";
 
-export const SITE_NAME = "TÍN PHÁT DECORD";
+export const SITE_NAME = "TÍN PHÁT DECOR";
 const DEFAULT_SITE_URL = "http://localhost:8000";
 
 /** Public origin, read at request time from DNA_SITE_URL (no trailing slash). */

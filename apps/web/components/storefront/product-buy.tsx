@@ -1,9 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+} from "react";
 import type { PublicSku } from "@/lib/api/types";
-import { addLine, getCart, MAX_LINES, MAX_QTY, type BasketKind } from "@/lib/cart/cart-store";
+import {
+  addLine,
+  getCart,
+  MAX_LINES,
+  MAX_QTY,
+  type BasketKind,
+} from "@/lib/cart/cart-store";
 import { formatNumber, formatVnd } from "@/lib/format/money";
 import { SavingBadge } from "./saving-badge";
 
@@ -30,7 +42,10 @@ interface Toast {
   linkText?: string;
 }
 
-const BASKETS: Record<BasketKind, { label: string; href: string; linkText: string }> = {
+const BASKETS: Record<
+  BasketKind,
+  { label: string; href: string; linkText: string }
+> = {
   quote: { label: "báo giá", href: "/bao-gia", linkText: "Xem báo giá" },
   order: { label: "giỏ hàng", href: "/gio-hang", linkText: "Xem giỏ hàng" },
 };
@@ -44,7 +59,13 @@ export function ProductBuy({ brand, skus }: ProductBuyProps) {
     );
   }
   // Keyed by the SKU set so a different product (or a changed unit list) never reuses a stale selection.
-  return <PurchasePanel key={skus.map((s) => s.id).join("-")} brand={brand} skus={skus} />;
+  return (
+    <PurchasePanel
+      key={skus.map((s) => s.id).join("-")}
+      brand={brand}
+      skus={skus}
+    />
+  );
 }
 
 function PurchasePanel({ brand, skus }: ProductBuyProps) {
@@ -73,16 +94,26 @@ function PurchasePanel({ brand, skus }: ProductBuyProps) {
     const stored = getCart()[kind].some((line) => line.skuId === sel.id);
     setToast(
       stored
-        ? { text: `Đã thêm ${qty} ${unitName} vào ${target.label}.`, href: target.href, linkText: target.linkText }
-        : { text: `Danh sách ${target.label} đã đủ ${MAX_LINES} dòng. Hãy bớt một dòng rồi thêm lại.`, href: target.href, linkText: target.linkText },
+        ? {
+            text: `Đã thêm ${qty} ${unitName} vào ${target.label}.`,
+            href: target.href,
+            linkText: target.linkText,
+          }
+        : {
+            text: `Danh sách ${target.label} đã đủ ${MAX_LINES} dòng. Hãy bớt một dòng rồi thêm lại.`,
+            href: target.href,
+            linkText: target.linkText,
+          },
     );
   }
 
   function onTileKeyDown(event: KeyboardEvent<HTMLButtonElement>, i: number) {
     const last = skus.length - 1;
     let next: number;
-    if (event.key === "ArrowRight" || event.key === "ArrowDown") next = i === last ? 0 : i + 1;
-    else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = i === 0 ? last : i - 1;
+    if (event.key === "ArrowRight" || event.key === "ArrowDown")
+      next = i === last ? 0 : i + 1;
+    else if (event.key === "ArrowLeft" || event.key === "ArrowUp")
+      next = i === 0 ? last : i - 1;
     else return;
     event.preventDefault();
     setIndex(next);
@@ -91,7 +122,11 @@ function PurchasePanel({ brand, skus }: ProductBuyProps) {
 
   const buttons = (
     <>
-      <button type="button" className={`btn ${priced ? "btn-out" : "btn-pri"}`} onClick={() => add("quote")}>
+      <button
+        type="button"
+        className={`btn ${priced ? "btn-out" : "btn-pri"}`}
+        onClick={() => add("quote")}
+      >
         Thêm báo giá
       </button>
       <button
@@ -127,9 +162,11 @@ function PurchasePanel({ brand, skus }: ProductBuyProps) {
           <>
             <b>{formatVnd(sel.effectivePrice)}</b>
             <small>/ {unitName}</small>
-            {sel.promoActive && sel.price !== null && sel.price !== sel.effectivePrice && (
-              <span className="was">{formatVnd(sel.price)}</span>
-            )}
+            {sel.promoActive &&
+              sel.price !== null &&
+              sel.price !== sel.effectivePrice && (
+                <span className="was">{formatVnd(sel.price)}</span>
+              )}
             {sel.promoActive && <span className="sale">Sale</span>}
             <SavingBadge saving={sel.saving} />
           </>
@@ -145,7 +182,12 @@ function PurchasePanel({ brand, skus }: ProductBuyProps) {
       <span className="lbl-s" id="unit-label">
         Quy cách
       </span>
-      <div className="units" style={{ "--n": skus.length } as CSSProperties} role="radiogroup" aria-labelledby="unit-label">
+      <div
+        className="units"
+        style={{ "--n": skus.length } as CSSProperties}
+        role="radiogroup"
+        aria-labelledby="unit-label"
+      >
         {skus.map((s, i) => {
           const tilePriced = isPriced(s);
           return (
@@ -172,7 +214,8 @@ function PurchasePanel({ brand, skus }: ProductBuyProps) {
       <p className="unit-note">
         {priced && !sel.isBase && sel.perBaseUnit !== null ? (
           <>
-            1 {unitName} = <b>{`${sel.conversion} ${baseName}`}</b> · {formatVnd(sel.perBaseUnit)} / {baseName}
+            1 {unitName} = <b>{`${sel.conversion} ${baseName}`}</b> ·{" "}
+            {formatVnd(sel.perBaseUnit)} / {baseName}
           </>
         ) : (
           " "
@@ -181,7 +224,11 @@ function PurchasePanel({ brand, skus }: ProductBuyProps) {
 
       <div className="qty">
         <div className="step">
-          <button type="button" aria-label="Giảm" onClick={() => setQtyText(String(Math.max(1, qty - 1)))}>
+          <button
+            type="button"
+            aria-label="Giảm"
+            onClick={() => setQtyText(String(Math.max(1, qty - 1)))}
+          >
             <i className="i i-minus" aria-hidden="true" />
           </button>
           <input
@@ -190,15 +237,25 @@ function PurchasePanel({ brand, skus }: ProductBuyProps) {
             pattern="[0-9]*"
             aria-label="Số lượng"
             value={qtyText}
-            onChange={(event) => setQtyText(event.target.value.replace(/\D/g, "").slice(0, 4))}
+            onChange={(event) =>
+              setQtyText(event.target.value.replace(/\D/g, "").slice(0, 4))
+            }
             onBlur={() => setQtyText(String(qty))}
           />
-          <button type="button" aria-label="Tăng" onClick={() => setQtyText(String(Math.min(MAX_QTY, qty + 1)))}>
+          <button
+            type="button"
+            aria-label="Tăng"
+            onClick={() => setQtyText(String(Math.min(MAX_QTY, qty + 1)))}
+          >
             <i className="i i-plus" aria-hidden="true" />
           </button>
         </div>
         <div className="sum" aria-live="polite">
-          <small>{priced ? `${formatNumber(qty * sel.conversion)} ${baseName}` : `${qty} ${unitName}`}</small>
+          <small>
+            {priced
+              ? `${formatNumber(qty * sel.conversion)} ${baseName}`
+              : `${qty} ${unitName}`}
+          </small>
           <b>{priced ? formatVnd(qty * sel.effectivePrice) : "Liên hệ"}</b>
         </div>
       </div>
@@ -216,7 +273,12 @@ function PurchasePanel({ brand, skus }: ProductBuyProps) {
           </span>
         </div>
         {skus.map((s, i) => (
-          <div key={s.id} className={`qrow${i === index ? " on" : ""}`} role="row" onClick={() => setIndex(i)}>
+          <div
+            key={s.id}
+            className={`qrow${i === index ? " on" : ""}`}
+            role="row"
+            onClick={() => setIndex(i)}
+          >
             <span className="uq">
               <b role="rowheader">{s.unitName}</b>{" "}
               <span className="q" role="cell">

@@ -58,9 +58,9 @@ class ContractShapeTest {
 
     @Test
     void publicCatalogueShapes() {
-        ProductCard card = new ProductCard(1, "s", "n", null, null, null, null, null, false, List.of());
+        ProductCard card = new ProductCard(1, "s", "n", null, null, null, null, null, false, List.of(), false);
         assertThat(keys(card)).containsExactlyInAnyOrder("id", "slug", "name", "brand", "imageUrl", "specLine",
-                "fromPrice", "fromUnitName", "hasMultipleUnits", "units");
+                "fromPrice", "fromUnitName", "hasMultipleUnits", "units", "discontinued");
 
         PublicProduct product = new PublicProduct(1, "s", "n", "ACTIVE", null, null, List.of(), null, null, null, "C",
                 List.of(), List.of(), null, null, List.of());
@@ -69,8 +69,8 @@ class ContractShapeTest {
                 "seoDescription", "galleryUrls");
 
         assertThat(keys(new Nav(List.of(), List.of()))).containsExactlyInAnyOrder("categories", "brands");
-        assertThat(keys(new NavCategory(1, "n", "s", 0, List.of())))
-                .containsExactlyInAnyOrder("id", "name", "slug", "productCount", "children");
+        assertThat(keys(new NavCategory(1, "n", "s", 0, null, List.of())))
+                .containsExactlyInAnyOrder("id", "name", "slug", "productCount", "imageUrl", "children");
         assertThat(keys(new BrandCount("n", "s", 1))).containsExactlyInAnyOrder("name", "slug", "productCount");
         assertThat(keys(new HomeData(List.of(), List.of(), List.of())))
                 .containsExactlyInAnyOrder("categories", "brands", "sections");

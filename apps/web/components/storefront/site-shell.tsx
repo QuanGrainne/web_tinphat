@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { connection } from "next/server";
 import { ContactBubble } from "./contact-bubble";
+import { ContactCta } from "./tinphat-sections";
 import { MobileDock } from "./mobile-dock";
 import { loadNav, loadSettings } from "./shell-data";
 import { SiteFooter } from "./site-footer";
@@ -17,7 +18,8 @@ export async function SiteShell({ children }: { children: ReactNode }) {
     <>
       <SiteHeader nav={nav} settings={settings} />
       {children}
-      <SiteFooter settings={settings} />
+      <ContactCta settings={settings} />
+      <SiteFooter nav={nav} settings={settings} />
       <ContactBubble settings={settings} />
       <MobileDock nav={nav} />
     </>

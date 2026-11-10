@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Alert, Button, Table } from "antd";
+import { Alert, App, Button, Table } from "antd";
 import type { TableColumnsType } from "antd";
-import { EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { useCategories } from "@/lib/admin/catalogue-queries";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { useQueryClient } from "@tanstack/react-query";
+import { ApiProblem } from "@/lib/admin/api-client";
+import { catalogueApi } from "@/lib/admin/catalogue-api";
+import { catalogueKeys, useCategories } from "@/lib/admin/catalogue-queries";
+import { useSession } from "@/lib/admin/use-session";
 import { formatNumber } from "@/lib/format/money";
 import type { AdminCategory } from "@/lib/api/types";
 import { VisibleBadge } from "../products/status-badge";
@@ -41,25 +45,62 @@ const columns: TableColumnsType<CategoryRow> = [
 /** `/admin/categories`: two-level tree with product counts, create and edit dialogs. */
 export function CategoriesPage() {
   const categories = useCategories();
+  const queryClient = useQueryClient();
+  const { isManager } = useSession();
+  const { message, modal } = App.useApp();
+
+  function confirmDelete(row: CategoryRow) {
+    modal.confirm({
+      title: `Xóa danh mục "${row.name}"?`,
+      content: "Danh mục sẽ bị xóa hẳn, không khôi phục được. Chỉ xóa được danh mục không còn sản phẩm và danh mục con.",
+      okText: "Xóa danh mục",
+      cancelText: "Bỏ qua",
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          await catalogueApi.deleteCategory(row.id);
+          message.success("Đã xóa danh mục");
+          await queryClient.invalidateQueries({ queryKey: catalogueKeys.categories });
+        } catch (error) {
+          message.error(error instanceof ApiProblem ? error.message : "Không xóa được danh mục.", 6);
+        }
+      },
+    });
+  }
   // undefined = closed, null = create, otherwise edit that group.
   const [dialog, setDialog] = useState<CategoryRow | null | undefined>(undefined);
   const editColumn: TableColumnsType<CategoryRow>[number] = {
     title: "",
     key: "edit",
-    width: 96,
+    width: 180,
     align: "right",
     render: (_, row) => (
-      <Button
-        size="small"
-        icon={<EditOutlined />}
-        aria-label={`Sửa ${row.name}`}
-        onClick={(event) => {
-          event.stopPropagation();
-          setDialog(row);
-        }}
-      >
-        Sửa
-      </Button>
+      <span style={{ display: "inline-flex", gap: 6 }}>
+        <Button
+          size="small"
+          icon={<EditOutlined />}
+          aria-label={`Sửa ${row.name}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            setDialog(row);
+          }}
+        >
+          Sửa
+        </Button>
+        <Button
+          size="small"
+          danger
+          icon={<DeleteOutlined />}
+          disabled={!isManager}
+          aria-label={`Xóa ${row.name}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            confirmDelete(row);
+          }}
+        >
+          Xóa
+        </Button>
+      </span>
     ),
   };
 

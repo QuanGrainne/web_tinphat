@@ -1,4 +1,3 @@
-
 interface CategoryFacetProps {
   categories: { name: string; slug: string; count: number }[];
   activeSlug: string | undefined;
@@ -8,7 +7,12 @@ interface CategoryFacetProps {
 }
 
 /** Brand page filter column / "Lọc sản phẩm" sheet: pick one category (plain links). */
-export function CategoryFacet({ categories, activeSlug, total, hrefFor }: CategoryFacetProps) {
+export function CategoryFacet({
+  categories,
+  activeSlug,
+  total,
+  hrefFor,
+}: CategoryFacetProps) {
   return (
     <div className="sheet" id="filter" aria-label="Bộ lọc">
       <a className="scrim" href="#x" aria-label="Đóng" />
@@ -35,7 +39,9 @@ export function CategoryFacet({ categories, activeSlug, total, hrefFor }: Catego
                   key={category.slug}
                   href={hrefFor(category.slug)}
                   className={category.slug === activeSlug ? "on" : undefined}
-                  aria-current={category.slug === activeSlug ? "true" : undefined}
+                  aria-current={
+                    category.slug === activeSlug ? "true" : undefined
+                  }
                 >
                   {category.name}
                   <small>{category.count}</small>

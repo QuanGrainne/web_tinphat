@@ -10,8 +10,8 @@ const playfair = Playfair_Display({ subsets: ["latin", "vietnamese"], display: "
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.DNA_SITE_URL ?? "http://localhost:8000"),
-  title: { default: "TÍN PHÁT DECORD | Sản xuất & Phân phối sản phẩm Decor", template: "%s | TÍN PHÁT DECORD" },
-  description: "TÍN PHÁT DECORD chuyên sản xuất và phân phối các sản phẩm trang trí theo mùa và quanh năm.",
+  title: { default: "TÍN PHÁT DECOR | Sản xuất & Phân phối sản phẩm Decor", template: "%s | TÍN PHÁT DECOR" },
+  description: "TÍN PHÁT DECOR chuyên sản xuất và phân phối các sản phẩm trang trí theo mùa và quanh năm.",
 };
 
 export default function StorefrontRootLayout({ children }: { children: ReactNode }) {

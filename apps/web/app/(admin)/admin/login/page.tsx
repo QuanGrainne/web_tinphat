@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Alert, Button, Card, Form, Input } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
@@ -57,9 +58,12 @@ export default function AdminLoginPage() {
           <Form.Item label="Tên đăng nhập" name="username" rules={[{ required: true, whitespace: true, message: "Nhập tên đăng nhập" }]}>
             <Input prefix={<UserOutlined />} autoComplete="username" autoFocus />
           </Form.Item>
-          <Form.Item label="Mật khẩu" name="password" rules={[{ required: true, message: "Nhập mật khẩu" }]}>
+          <Form.Item label="Mật khẩu" name="password" rules={[{ required: true, message: "Nhập mật khẩu" }]} style={{ marginBottom: 8 }}>
             <Input.Password prefix={<LockOutlined />} autoComplete="current-password" />
           </Form.Item>
+          <div style={{ textAlign: "right", marginBottom: 16 }}>
+            <Link href="/admin/forgot-password">Quên mật khẩu?</Link>
+          </div>
           <Button type="primary" htmlType="submit" block loading={submitting} style={{ marginTop: 8 }}>
             Đăng nhập
           </Button>

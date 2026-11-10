@@ -24,6 +24,10 @@ public class AppUser {
     @Column(name = "username", nullable = false, columnDefinition = "citext")
     private String username;
 
+    /** Recovery address for a forgotten password; case-insensitive and unique when set. */
+    @Column(name = "email", columnDefinition = "citext")
+    private String email;
+
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
@@ -73,6 +77,14 @@ public class AppUser {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPasswordHash() {

@@ -9,7 +9,12 @@ interface PaginationProps {
 }
 
 /** Plain-link pagination (server rendered, crawlable). */
-export function Pagination({ page, pageSize, total, hrefFor }: PaginationProps) {
+export function Pagination({
+  page,
+  pageSize,
+  total,
+  hrefFor,
+}: PaginationProps) {
   const pages = Math.max(1, Math.ceil(total / Math.max(pageSize, 1)));
   if (pages <= 1) return null;
   return (

@@ -10,7 +10,13 @@ export interface Crumb {
 }
 
 /** Page wrapper used by every page in this slice: main landmark + breadcrumb. */
-export function PageFrame({ crumbs, children }: { crumbs: Crumb[]; children: ReactNode }) {
+export function PageFrame({
+  crumbs,
+  children,
+}: {
+  crumbs: Crumb[];
+  children: ReactNode;
+}) {
   return (
     <main className="wrap">
       <nav className="bc" aria-label="Breadcrumb">
@@ -28,7 +34,13 @@ export function PageFrame({ crumbs, children }: { crumbs: Crumb[]; children: Rea
 }
 
 /** Text page: h1 plus content blocks. */
-export function StaticPage({ title, children }: { title: string; children: ReactNode }) {
+export function StaticPage({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
   return (
     <div className="spage">
       <h1>{title}</h1>
@@ -37,7 +49,15 @@ export function StaticPage({ title, children }: { title: string; children: React
   );
 }
 
-export function InfoSection({ id, title, children }: { id?: string; title: string; children: ReactNode }) {
+export function InfoSection({
+  id,
+  title,
+  children,
+}: {
+  id?: string;
+  title: string;
+  children: ReactNode;
+}) {
   return (
     <section id={id} aria-labelledby={id ? `${id}-t` : undefined}>
       <h2 id={id ? `${id}-t` : undefined}>{title}</h2>
@@ -57,7 +77,11 @@ export function Bullets({ items }: { items: string[] }) {
 }
 
 /** Label/value list in the style of the order page. */
-export function FactList({ rows }: { rows: { label: string; value: ReactNode }[] }) {
+export function FactList({
+  rows,
+}: {
+  rows: { label: string; value: ReactNode }[];
+}) {
   return (
     <dl className="kv">
       {rows.map((r) => (
@@ -71,17 +95,33 @@ export function FactList({ rows }: { rows: { label: string; value: ReactNode }[]
 }
 
 /** Legal and contact facts of the company, exactly as stored in the public settings. */
-export function CompanyFacts({ company, hotline }: { company: CompanyInfo; hotline: string }) {
+export function CompanyFacts({
+  company,
+  hotline,
+}: {
+  company: CompanyInfo;
+  hotline: string;
+}) {
   const phone = company.phone || hotline;
   return (
     <FactList
       rows={[
         { label: "Công ty", value: company.name },
-        ...(company.taxCode ? [{ label: "Mã số thuế", value: company.taxCode }] : []),
+        ...(company.taxCode
+          ? [{ label: "Mã số thuế", value: company.taxCode }]
+          : []),
         { label: "Địa chỉ", value: company.address },
-        ...(company.warehouse ? [{ label: "Kho", value: company.warehouse }] : []),
-        { label: "Điện thoại", value: <a href={telHref(phone)}>{formatPhone(phone)}</a> },
-        { label: "Email", value: <a href={`mailto:${company.email}`}>{company.email}</a> },
+        ...(company.warehouse
+          ? [{ label: "Kho", value: company.warehouse }]
+          : []),
+        {
+          label: "Điện thoại",
+          value: <a href={telHref(phone)}>{formatPhone(phone)}</a>,
+        },
+        {
+          label: "Email",
+          value: <a href={`mailto:${company.email}`}>{company.email}</a>,
+        },
       ]}
     />
   );

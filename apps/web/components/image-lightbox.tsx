@@ -49,8 +49,18 @@ export function ImageLightbox({ images, start = 0, onClose }: { images: string[]
         event.stopPropagation();
         onClose();
       }}
+      className="tp-lb"
       style={{ position: "fixed", inset: 0, zIndex: 3000, display: "flex", flexDirection: "column", background: "rgba(20,20,20,.96)", color: "#fff" }}
     >
+      <style>{`
+        .tp-lb{animation:tp-lb-in .2s cubic-bezier(.22,1,.36,1)}
+        .tp-lb-img{animation:tp-lb-img .25s cubic-bezier(.22,1,.36,1)}
+        .tp-lb button{transition:background-color .15s,border-color .15s,transform .15s}
+        .tp-lb button:active{transform:scale(.96)}
+        @keyframes tp-lb-in{from{opacity:0}}
+        @keyframes tp-lb-img{from{opacity:0;transform:scale(.97)}}
+        @media (prefers-reduced-motion:reduce){.tp-lb,.tp-lb-img{animation:none}}
+      `}</style>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", fontSize: 15 }}>
         <span>
           {index + 1} / {images.length}
@@ -62,6 +72,8 @@ export function ImageLightbox({ images, start = 0, onClose }: { images: string[]
       <div style={{ position: "relative", flex: 1, minHeight: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px" }}>
         {/* eslint-disable-next-line @next/next/no-img-element -- full-size view of an uploaded or linked photo */}
         <img
+          key={index}
+          className="tp-lb-img"
           src={images[index]}
           alt={`Ảnh ${index + 1}`}
           onClick={(event) => event.stopPropagation()}

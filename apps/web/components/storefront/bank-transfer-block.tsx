@@ -35,12 +35,17 @@ export function BankTransferBlock({ order }: { order: OrderView }) {
         {mode === "qr" && order.qrAmount !== null ? (
           <>
             <VietQrSvg bank={order.bank} amount={order.qrAmount} />
-            <p className="note">Vui lòng chuyển đúng số tiền và nội dung để đơn được ghi nhận.</p>
+            <p className="note">
+              Vui lòng chuyển đúng số tiền và nội dung để đơn được ghi nhận.
+            </p>
           </>
         ) : (
           <>
             <BankKv bank={order.bank} />
-            <p className="note">Số tiền cần chuyển và mã QR hiển thị sau khi nhân viên xác nhận đơn.</p>
+            <p className="note">
+              Số tiền cần chuyển và mã QR hiển thị sau khi nhân viên xác nhận
+              đơn.
+            </p>
           </>
         )}
       </div>

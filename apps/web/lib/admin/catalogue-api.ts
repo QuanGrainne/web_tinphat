@@ -61,6 +61,7 @@ export const catalogueApi = {
         size: query.size,
       }),
     ),
+  nextProductCode: () => adminFetch<{ code: string }>("/api/admin/products/next-code"),
   getProduct: (id: number) => adminFetch<AdminProduct>(`/api/admin/products/${id}`),
   createProduct: (body: AdminProduct) => adminFetch<AdminProduct>("/api/admin/products", { method: "POST", body }),
   updateProduct: (id: number, body: AdminProduct) =>
@@ -88,6 +89,7 @@ export const catalogueApi = {
   },
   listCategories: () => adminFetch<AdminCategory[]>("/api/admin/categories"),
   createCategory: (body: CategoryCreate) => adminFetch<AdminCategory>("/api/admin/categories", { method: "POST", body }),
+  deleteCategory: (id: number) => adminFetch<void>(`/api/admin/categories/${id}`, { method: "DELETE" }),
   updateCategory: (id: number, body: CategoryUpdate) =>
     adminFetch<AdminCategory>(`/api/admin/categories/${id}`, { method: "PUT", body }),
 

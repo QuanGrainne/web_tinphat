@@ -1,4 +1,4 @@
-// Loads the Tín Phát Decord categories and products through the admin API, uploading the images from the landing page.
+// Loads the Tín Phát Decor categories and products through the admin API, uploading the images from the landing page.
 // Usage: node scripts/seed-tinphat.mjs   (env: BASE_URL, ADMIN_USER, ADMIN_PASS, IMAGES_DIR)
 // Safe to run again: categories and products that already exist (same name) are skipped.
 import { readFile } from "node:fs/promises";

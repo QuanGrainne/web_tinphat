@@ -1,7 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useId, useState, type FormEvent, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
 import type { Suggest } from "@/lib/api/types";
 
 const MIN_CHARS = 2;
@@ -26,10 +32,13 @@ export function SearchBox() {
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/public/search/suggest?q=${encodeURIComponent(term)}`, {
-          signal: controller.signal,
-          headers: { Accept: "application/json" },
-        });
+        const res = await fetch(
+          `/api/public/search/suggest?q=${encodeURIComponent(term)}`,
+          {
+            signal: controller.signal,
+            headers: { Accept: "application/json" },
+          },
+        );
         if (!res.ok) throw new Error(`suggest ${res.status}`);
         const data = (await res.json()) as Suggest;
         setItems(data.items);
@@ -78,10 +87,17 @@ export function SearchBox() {
     <div
       className="srch-w"
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false);
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null))
+          setOpen(false);
       }}
     >
-      <form className="srch" role="search" action="/tim-kiem" method="get" onSubmit={onSubmit}>
+      <form
+        className="srch"
+        role="search"
+        action="/tim-kiem"
+        method="get"
+        onSubmit={onSubmit}
+      >
         <label className="sr" htmlFor="site-q">
           Tìm sản phẩm
         </label>
@@ -103,14 +119,21 @@ export function SearchBox() {
           aria-expanded={visible}
           aria-controls={listId}
           aria-autocomplete="list"
-          aria-activedescendant={visible && active >= 0 ? `${listId}-${active}` : undefined}
+          aria-activedescendant={
+            visible && active >= 0 ? `${listId}-${active}` : undefined
+          }
         />
         <button type="submit" aria-label="Tìm">
           <i className="i i-search" aria-hidden="true" />
         </button>
       </form>
       {visible && (
-        <ul className="sug" id={listId} role="listbox" aria-label="Gợi ý sản phẩm">
+        <ul
+          className="sug"
+          id={listId}
+          role="listbox"
+          aria-label="Gợi ý sản phẩm"
+        >
           {items.length === 0 ? (
             <li className="none" role="presentation">
               Không có gợi ý. Nhấn Enter để tìm.

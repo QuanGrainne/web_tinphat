@@ -11,7 +11,7 @@ import { useSession } from "@/lib/admin/use-session";
 import { ImportDialog } from "./import-dialog";
 import { ProductEditorModal } from "./product-editor-modal";
 import { ProductFilterColumn, type ProductFilters } from "./product-filter-column";
-import { PRODUCT_PAGE_SIZE, ProductTable } from "./product-table";
+import { DEFAULT_PAGE_SIZE, PAGE_SIZES, ProductTable } from "./product-table";
 import styles from "./products.module.css";
 
 const INITIAL_FILTERS: ProductFilters = { categoryId: undefined, brandId: undefined, published: "all", needsAttention: false };
@@ -25,6 +25,18 @@ function useDebounced<T>(value: T, delayMs: number): T {
   return debounced;
 }
 
+const PAGE_SIZE_KEY = "dna.admin.products.pageSize";
+
+/** The row count chosen last time, if it is still one of the offered values. */
+function readPageSize(): number {
+  try {
+    const saved = Number(window.localStorage.getItem(PAGE_SIZE_KEY));
+    return (PAGE_SIZES as readonly number[]).includes(saved) ? saved : DEFAULT_PAGE_SIZE;
+  } catch {
+    return DEFAULT_PAGE_SIZE;
+  }
+}
+
 /** `/admin/products`: filter column, search, table and the editor modal. */
 export function ProductsPage() {
   const queryClient = useQueryClient();
@@ -36,6 +48,7 @@ export function ProductsPage() {
   const { message, modal } = App.useApp();
   const [filters, setFilters] = useState<ProductFilters>(INITIAL_FILTERS);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(readPageSize);
   // undefined = closed, null = new product, number = existing product.
   const [editing, setEditing] = useState<number | null | undefined>(undefined);
   const q = useDebounced(search.trim(), 300);
@@ -47,7 +60,7 @@ export function ProductsPage() {
     published: filters.published === "all" ? undefined : filters.published === "yes",
     needsAttention: filters.needsAttention ? true : undefined,
     page,
-    size: PRODUCT_PAGE_SIZE,
+    size: pageSize,
   };
   const list = useQuery({
     queryKey: ["admin", "products", params],
@@ -156,7 +169,22 @@ export function ProductsPage() {
             data={list.data}
             loading={list.isFetching}
             page={page}
-            onPageChange={setPage}
+            pageSize={pageSize}
+            onPageChange={(nextPage, nextSize) => {
+              if (nextSize !== pageSize) {
+                // a new row count starts from the first page, like a new filter
+                setPageSize(nextSize);
+                setPage(1);
+                try {
+                  window.localStorage.setItem(PAGE_SIZE_KEY, String(nextSize));
+                } catch {
+                  // private window or blocked storage: the choice just is not remembered
+                }
+              } else {
+                setPage(nextPage);
+              }
+              setSelected([]);
+            }}
             onOpen={(id) => setEditing(id)}
             selected={selected}
             onSelect={setSelected}

@@ -15,7 +15,11 @@ interface LookupFormProps {
 }
 
 /** Order code + phone. The phone is kept for this tab only so the order page can look the order up. */
-export function LookupForm({ initialCode = "", onDone, idPrefix = "lookup" }: LookupFormProps) {
+export function LookupForm({
+  initialCode = "",
+  onDone,
+  idPrefix = "lookup",
+}: LookupFormProps) {
   const router = useRouter();
   const [code, setCode] = useState(initialCode);
   const [phone, setPhone] = useState("");
@@ -25,12 +29,16 @@ export function LookupForm({ initialCode = "", onDone, idPrefix = "lookup" }: Lo
     event.preventDefault();
     const normalized = normalizeOrderCode(code);
     const found: { code?: string; phone?: string } = {};
-    if (!isOrderCode(normalized)) found.code = "Mã đơn gồm DNA và 6 ký tự, ví dụ DNA7K2M9Q.";
+    if (!isOrderCode(normalized))
+      found.code = "Mã đơn gồm DNA và 6 ký tự, ví dụ DNA7K2M9Q.";
     if (!phone.trim()) found.phone = "Vui lòng nhập số điện thoại.";
-    else if (!isValidPhone(phone)) found.phone = "Số điện thoại chưa đúng. Ví dụ: 0912 345 678.";
+    else if (!isValidPhone(phone))
+      found.phone = "Số điện thoại chưa đúng. Ví dụ: 0912 345 678.";
     setErrors(found);
     if (found.code || found.phone) {
-      document.getElementById(`${idPrefix}-${found.code ? "code" : "phone"}`)?.focus();
+      document
+        .getElementById(`${idPrefix}-${found.code ? "code" : "phone"}`)
+        ?.focus();
       return;
     }
     rememberOrder(normalized, phone);

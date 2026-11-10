@@ -3,12 +3,15 @@ import Link from "next/link";
 import { CatalogueSidebar } from "@/components/storefront/catalogue-sidebar";
 import { JsonLdScript } from "@/components/storefront/json-ld-script";
 import { ProductGrid } from "@/components/storefront/product-grid";
-import { contactHref, loadNav, loadSettings } from "@/components/storefront/shell-data";
+import {
+  contactHref,
+  loadNav,
+  loadSettings,
+} from "@/components/storefront/shell-data";
 import {
   AboutSection,
   CapabilitySection,
   CategoryTiles,
-  ContactCta,
   ProcessSection,
   SeasonsSection,
 } from "@/components/storefront/tinphat-sections";
@@ -17,32 +20,48 @@ import type { HomeData } from "@/lib/api/types";
 import { organizationJsonLd } from "@/lib/seo/json-ld";
 import { SITE_NAME, siteUrl } from "@/lib/seo/metadata";
 import { BRAND, HIGHLIGHTS, IMAGES } from "@/lib/tinphat/content";
+import { CatalogImage } from "@/components/catalog-image";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
-  openGraph: { type: "website", locale: "vi_VN", siteName: SITE_NAME, title: SITE_NAME, description: BRAND.description, url: "/" },
+  openGraph: {
+    type: "website",
+    locale: "vi_VN",
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: BRAND.description,
+    url: "/",
+  },
 };
 
 /** Banner, category tiles, one product row per category beside the side list, then the company sections. */
 export default async function HomePage() {
-  const [home, nav, settings] = await Promise.all([apiGet<HomeData>("/api/public/home"), loadNav(), loadSettings()]);
-  const sections = home.sections.filter((section) => section.products.length > 0);
+  const [home, nav, settings] = await Promise.all([
+    apiGet<HomeData>("/api/public/home"),
+    loadNav(),
+    loadSettings(),
+  ]);
+  const sections = home.sections.filter(
+    (section) => section.products.length > 0,
+  );
   const contact = contactHref(settings);
   const featured = sections.map((section) => section.products[0]).slice(0, 5);
 
   return (
     <main>
       <section className="tp-banner">
-        {/* eslint-disable-next-line @next/next/no-img-element -- plain img by design: no image optimiser on the small VPS */}
-        <img src={IMAGES.hero} alt="" width={1400} height={788} fetchPriority="high" decoding="async" />
+        <CatalogImage src={IMAGES.hero} fill priority sizes="100vw" />
         <div className="wrap">
           <span>Sản xuất &amp; Phân phối</span>
           <h1>
             Decor <em>cho mọi</em> mùa.
           </h1>
-          <p>Sản phẩm trang trí theo mùa và quanh năm cho cửa hàng, đại lý và khách nhập số lượng lớn.</p>
+          <p>
+            Sản phẩm trang trí theo mùa và quanh năm cho cửa hàng, đại lý và
+            khách nhập số lượng lớn.
+          </p>
           <div className="tp-acts">
             <Link className="btn btn-pri btn-lg" href="/san-pham">
               Xem tất cả sản phẩm
@@ -75,7 +94,9 @@ export default async function HomePage() {
           <CatalogueSidebar nav={nav} settings={settings} featured={featured} />
           <div>
             {sections.map((section) => {
-              const info = home.categories.find((category) => category.slug === section.category.slug);
+              const info = home.categories.find(
+                (category) => category.slug === section.category.slug,
+              );
               const href = `/danh-muc/${section.category.slug}`;
               return (
                 <section key={section.category.slug} className="tp-rowsec">
@@ -86,12 +107,19 @@ export default async function HomePage() {
                   </h2>
                   {info?.imageUrl && (
                     <Link className="tp-catband" href={href} prefetch={false}>
-                      {/* eslint-disable-next-line @next/next/no-img-element -- plain img by design: no image optimiser on the small VPS */}
-                      <img src={info.imageUrl} alt="" width={1000} height={260} loading="lazy" decoding="async" />
+                      <CatalogImage
+                        src={info.imageUrl}
+                        fill
+                        sizes="(min-width: 960px) 900px, 100vw"
+                      />
                       {info.description && <span>{info.description}</span>}
                     </Link>
                   )}
-                  <ProductGrid cards={section.products} variant="grid-4" contactHref={contact} />
+                  <ProductGrid
+                    cards={section.products}
+                    variant="grid-4"
+                    contactHref={contact}
+                  />
                   <div className="more">
                     <Link className="btn" href={href} prefetch={false}>
                       Xem thêm sản phẩm
@@ -114,9 +142,10 @@ export default async function HomePage() {
       <AboutSection />
       <CapabilitySection />
       <ProcessSection />
-      <ContactCta settings={settings} />
 
-      {settings && <JsonLdScript data={organizationJsonLd(settings, siteUrl())} />}
+      {settings && (
+        <JsonLdScript data={organizationJsonLd(settings, siteUrl())} />
+      )}
     </main>
   );
 }

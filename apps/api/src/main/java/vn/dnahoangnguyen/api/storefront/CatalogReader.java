@@ -16,7 +16,6 @@ import vn.dnahoangnguyen.api.catalog.category.CategoryRepository;
 import vn.dnahoangnguyen.api.catalog.pricing.PriceRules;
 import vn.dnahoangnguyen.api.catalog.product.Product;
 import vn.dnahoangnguyen.api.catalog.product.ProductRepository;
-import vn.dnahoangnguyen.api.catalog.product.ProductStatus;
 import vn.dnahoangnguyen.api.catalog.sku.Sku;
 import vn.dnahoangnguyen.api.catalog.sku.SkuRepository;
 import vn.dnahoangnguyen.api.catalog.text.TextFold;
@@ -35,7 +34,7 @@ class CatalogReader {
                        String foldedName) {
     }
 
-    /** Visible categories and brands plus every product that may appear in lists (published and active). */
+    /** Visible categories and brands plus every product that may appear in lists: published, active or discontinued. */
     record Catalog(LocalDate today, List<Category> categories, Map<Long, Category> categoryById,
                    List<Brand> brands, Map<Long, Brand> brandById, List<ProductView> views) {
 
@@ -90,7 +89,7 @@ class CatalogReader {
                 .filter(Brand::isVisible).sorted(BRAND_ORDER).toList();
         Map<Long, Brand> brandById = brands.stream().collect(Collectors.toMap(Brand::getId, b -> b));
 
-        List<Product> products = productRepository.findByPublishedTrueAndStatus(ProductStatus.ACTIVE).stream()
+        List<Product> products = productRepository.findByPublishedTrue().stream()
                 .filter(p -> p.getCategoryId() != null && categoryById.containsKey(p.getCategoryId()))
                 .toList();
         Map<Long, List<Sku>> skusByProduct = skuRepository

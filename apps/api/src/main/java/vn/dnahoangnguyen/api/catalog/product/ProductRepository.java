@@ -13,11 +13,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByBrandId(Long brandId);
 
+    List<Product> findByPublishedTrue();
+
     List<Product> findByPublishedTrueAndStatus(ProductStatus status);
 
     @Query("select new vn.dnahoangnguyen.api.catalog.product.IdCount(p.categoryId, count(p)) "
             + "from Product p where p.categoryId is not null group by p.categoryId")
     List<IdCount> countByCategory();
+
+    long countByCategoryId(Long categoryId);
 
     @Query("select new vn.dnahoangnguyen.api.catalog.product.IdCount(p.brandId, count(p)) "
             + "from Product p where p.brandId is not null group by p.brandId")

@@ -1,4 +1,4 @@
-/* Storefront base layout. Colours follow the Tín Phát Decord palette; brand sections live in tinphat.css. */
+/* Storefront base layout. Colours follow the Tín Phát Decor palette; brand sections live in tinphat.css. */
 :root{
   --nav:#1C1917; --pri:#B4551F; --pri-d:#96441A; --text:#1C1917; --muted:#57534E; --line:#E7E2DA; --line-s:#EFE9E0;
   --page:#F2EFE9; --sel:#F5E6DC; --bg:#FAF8F5; --danger:#DC2626; --ok:#16A34A; --ok-bg:#DCFCE7; --warn:#B45309; --warn-bg:#FEF3C7;
@@ -172,13 +172,6 @@ img{max-width:100%}
 .fab{display:none}
 
 /* footer */
-.ft{margin-top:28px;background:var(--dark);color:#D1D5DB;font-size:13px}
-.ft .wrap{display:grid;gap:16px;padding-top:20px;padding-bottom:20px}
-.ft h3{font-weight:600;font-size:13px;line-height:normal;color:#fff;margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em}
-.ft p,.ft li{line-height:1.6}
-.ft .logo b{color:#fff} .ft .logo span{color:#fff}
-.ft a:hover{color:#fff}
-.ft-b{border-top:1px solid #374151;padding:10px 12px;text-align:center;font-size:12px;color:#9CA3AF}
 
 /* forms */
 .f{display:grid;gap:12px}
@@ -404,9 +397,6 @@ textarea.in{height:76px;padding:10px 12px;resize:vertical}
   .bc{padding:14px 0}
   .fab{position:fixed;z-index:30;right:20px;bottom:24px;width:56px;height:56px;border-radius:50%;background:var(--pri);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-weight:600;font-size:9.5px;line-height:1;box-shadow:0 4px 12px rgba(0,65,197,.35)}
   .fab .i{width:22px;height:22px}
-  .ft{margin-top:48px}
-  .ft .wrap{grid-template-columns:1.4fr 1.4fr 1fr 1fr;gap:32px;padding-top:32px;padding-bottom:32px}
-  .ft-b{padding:12px 24px}
   .fr{grid-template-columns:1fr 1fr}
   .in{height:40px;font-size:14px}
   .btn{height:42px}

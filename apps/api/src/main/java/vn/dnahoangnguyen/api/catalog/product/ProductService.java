@@ -179,6 +179,13 @@ public class ProductService {
         audit.recordAs(actor.audit(), "PRODUCT_DELETE", "PRODUCT", id, before, null);
     }
 
+    /** Next free code in the KiotViet style, SP000001, SP000002, ... (one past the highest SP code stored). */
+    @Transactional(readOnly = true)
+    public String nextCode() {
+        Long highest = jdbc.queryForObject("select max(cast(substring(code from 3) as bigint)) from sku where code ~ '^SP[0-9]{1,15}$'", Long.class);
+        return String.format("SP%06d", (highest == null ? 0 : highest) + 1);
+    }
+
     @Transactional
     public void discontinue(long id, ChangeActor actor) {
         changeStatus(id, ProductStatus.DISCONTINUED, "DISCONTINUE", actor);

@@ -9,7 +9,9 @@ import type { AdminProductList, AdminProductRow } from "@/lib/api/types";
 import { StatusBadge, VisibleBadge } from "./status-badge";
 import styles from "./products.module.css";
 
-export const PRODUCT_PAGE_SIZE = 30;
+/** Row counts offered in "Hiển thị N dòng"; the first one is the default. */
+export const PAGE_SIZES = [15, 20, 30, 50, 100] as const;
+export const DEFAULT_PAGE_SIZE = 15;
 
 const columns: TableColumnsType<AdminProductRow> = [
   {
@@ -70,6 +72,7 @@ export function ProductTable({
   data,
   loading,
   page,
+  pageSize,
   onPageChange,
   onOpen,
   selected,
@@ -79,7 +82,8 @@ export function ProductTable({
   data: AdminProductList | undefined;
   loading: boolean;
   page: number;
-  onPageChange: (page: number) => void;
+  pageSize: number;
+  onPageChange: (page: number, pageSize: number) => void;
   onOpen: (id: number) => void;
   selected: number[];
   onSelect: (ids: number[]) => void;
@@ -134,9 +138,12 @@ export function ProductTable({
         loading={loading}
         pagination={{
           current: page,
-          pageSize: PRODUCT_PAGE_SIZE,
+          pageSize,
           total: data?.total ?? 0,
-          showSizeChanger: false,
+          showSizeChanger: true,
+          pageSizeOptions: PAGE_SIZES.map(String),
+          className: styles.pager,
+          locale: { items_per_page: "dòng" },
           onChange: onPageChange,
           style: { padding: "0 12px" },
         }}

@@ -27,7 +27,7 @@ class BootstrapManagerRunnerTest {
     private BootstrapManagerRunner runner(String username, String password) {
         when(encoder.encode(any())).thenAnswer(invocation -> "{bcrypt}hash-of-" + invocation.getArgument(0));
         when(users.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        return new BootstrapManagerRunner(users, encoder, audit, username, password, "Quản lý");
+        return new BootstrapManagerRunner(users, encoder, audit, username, password, "Quản lý", "");
     }
 
     @Test
@@ -82,14 +82,14 @@ class BootstrapManagerRunnerTest {
 
     private BootstrapManagerRunner runnerKeepingEncoder(String username, String password) {
         when(users.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        return new BootstrapManagerRunner(users, encoder, audit, username, password, "Quản lý");
+        return new BootstrapManagerRunner(users, encoder, audit, username, password, "Quản lý", "");
     }
 
     @Test
-    void rejectsAPasswordShorterThanTwelveCharacters() {
+    void rejectsAPasswordShorterThanEightCharacters() {
         when(users.count()).thenReturn(0L);
 
-        runner("owner", "short-pass1").run(new DefaultApplicationArguments());
+        runner("owner", "short12").run(new DefaultApplicationArguments());
 
         verify(users, never()).save(any());
     }

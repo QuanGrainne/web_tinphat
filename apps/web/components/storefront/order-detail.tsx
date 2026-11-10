@@ -19,7 +19,8 @@ const PAYMENT_LABEL: Record<PaymentMethod, string> = {
   COD: "Thanh toán khi nhận hàng (COD)",
   BANK_TRANSFER: "Chuyển khoản",
 };
-const NOT_FOUND = "Không tìm thấy đơn hàng. Vui lòng kiểm tra mã đơn và số điện thoại.";
+const NOT_FOUND =
+  "Không tìm thấy đơn hàng. Vui lòng kiểm tra mã đơn và số điện thoại.";
 const REFETCH_AFTER_MS = 20_000;
 
 type Failure = { kind: "not-found" } | { kind: "error"; message: string };
@@ -41,7 +42,8 @@ function safeDecode(value: string): string {
 }
 
 function toFailure(err: unknown): Failure {
-  if (err instanceof ProblemError && (err.status === 404 || err.status === 400)) return { kind: "not-found" };
+  if (err instanceof ProblemError && (err.status === 404 || err.status === 400))
+    return { kind: "not-found" };
   return { kind: "error", message: describeProblem(err).message };
 }
 
@@ -67,7 +69,10 @@ export function OrderDetail({ code }: { code: string }) {
     if (!valid || !storedPhone) return;
     let stale = false;
     lastFetch.current = Date.now();
-    postPublic<OrderView>("/api/public/orders/lookup", { code: normalized, phone: storedPhone })
+    postPublic<OrderView>("/api/public/orders/lookup", {
+      code: normalized,
+      phone: storedPhone,
+    })
       .then(({ data }) => {
         if (!stale) setResult({ id, fetchKey, order: data });
       })
@@ -82,7 +87,10 @@ export function OrderDetail({ code }: { code: string }) {
   // Coming back to the tab (for example after paying) refreshes the order.
   useEffect(() => {
     const onVisible = () => {
-      if (document.visibilityState === "visible" && Date.now() - lastFetch.current > REFETCH_AFTER_MS) {
+      if (
+        document.visibilityState === "visible" &&
+        Date.now() - lastFetch.current > REFETCH_AFTER_MS
+      ) {
         setReload((n) => n + 1);
       }
     };
@@ -91,19 +99,31 @@ export function OrderDetail({ code }: { code: string }) {
   }, []);
 
   const refresh = () => setReload((n) => n + 1);
-  const openCode = (next: string) => (next === normalized ? refresh() : router.push(`/don-hang/${next}`));
+  const openCode = (next: string) =>
+    next === normalized ? refresh() : router.push(`/don-hang/${next}`);
   const current = result?.id === id ? result : null;
   const refreshing = current !== null && current.fetchKey !== fetchKey;
 
   if (storedPhone === undefined) return <Loading />;
 
   if (current?.order) {
-    return <OrderBody order={current.order} refreshing={refreshing} onRefresh={refresh} onLookup={openCode} />;
+    return (
+      <OrderBody
+        order={current.order}
+        refreshing={refreshing}
+        onRefresh={refresh}
+        onLookup={openCode}
+      />
+    );
   }
 
   if (!valid || (current?.failure?.kind === "not-found" && !refreshing)) {
     return (
-      <Lookup title="Không tìm thấy đơn" code={valid ? normalized : ""} onLookup={openCode}>
+      <Lookup
+        title="Không tìm thấy đơn"
+        code={valid ? normalized : ""}
+        onLookup={openCode}
+      >
         <Alert tone="err">{NOT_FOUND}</Alert>
       </Lookup>
     );
@@ -112,7 +132,9 @@ export function OrderDetail({ code }: { code: string }) {
   if (storedPhone === null) {
     return (
       <Lookup title="Tra cứu đơn" code={normalized} onLookup={openCode}>
-        <Alert tone="info">Nhập số điện thoại đã dùng khi đặt hàng để xem đơn {normalized}.</Alert>
+        <Alert tone="info">
+          Nhập số điện thoại đã dùng khi đặt hàng để xem đơn {normalized}.
+        </Alert>
       </Lookup>
     );
   }
@@ -182,10 +204,19 @@ function OrderBody({
       <section>
         <div className="ord-h">
           <h1>
-            Đơn <span className="mono" style={{ fontSize: 18 }}>{order.code}</span>
+            Đơn{" "}
+            <span className="mono" style={{ fontSize: 18 }}>
+              {order.code}
+            </span>
           </h1>
           <StatusChip status={order.status} />
-          <button type="button" className="btn-text rf" onClick={onRefresh} disabled={refreshing} aria-busy={refreshing}>
+          <button
+            type="button"
+            className="btn-text rf"
+            onClick={onRefresh}
+            disabled={refreshing}
+            aria-busy={refreshing}
+          >
             {refreshing ? "Đang cập nhật..." : "Làm mới"}
           </button>
         </div>
@@ -197,7 +228,10 @@ function OrderBody({
             </Alert>
           </div>
         ) : (
-          <OrderStatusSteps method={order.paymentMethod} status={order.status} />
+          <OrderStatusSteps
+            method={order.paymentMethod}
+            status={order.status}
+          />
         )}
 
         <BankTransferBlock order={order} />
@@ -210,7 +244,9 @@ function OrderBody({
                 <b>{item.productName}</b>
                 <span>
                   {item.unitName}
-                  {item.conversion > 1 ? ` · quy đổi ${item.conversion}` : ""} × {item.qty}
+                  {item.conversion > 1
+                    ? ` · quy đổi ${item.conversion}`
+                    : ""} × {item.qty}
                 </span>
                 <span className="mono">{item.skuCode}</span>
               </div>
@@ -243,12 +279,18 @@ function OrderBody({
                 <span>Giảm đã áp</span>
                 <b className="disc">-{formatVnd(order.discountTotal)}</b>
               </div>
-              {order.discountNote ? <p className="sum-note">{order.discountNote}</p> : null}
+              {order.discountNote ? (
+                <p className="sum-note">{order.discountNote}</p>
+              ) : null}
             </>
           ) : null}
           <div className="sum-r">
             <span>Phí giao hàng</span>
-            {order.shippingFee !== null ? <b>{formatVnd(order.shippingFee)}</b> : <span className="muted">Nhân viên sẽ báo</span>}
+            {order.shippingFee !== null ? (
+              <b>{formatVnd(order.shippingFee)}</b>
+            ) : (
+              <span className="muted">Nhân viên sẽ báo</span>
+            )}
           </div>
           <div className="sum-r big">
             <span>Khách cần trả</span>
@@ -258,7 +300,9 @@ function OrderBody({
             <small>Giá đã gồm VAT</small>
           </div>
           {order.shippingFee === null && !cancelled ? (
-            <p className="ord-note">Nhân viên xác nhận tồn kho, phí giao và tổng tiền</p>
+            <p className="ord-note">
+              Nhân viên xác nhận tồn kho, phí giao và tổng tiền
+            </p>
           ) : null}
         </div>
         <div style={{ marginTop: 12 }}>

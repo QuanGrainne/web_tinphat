@@ -69,6 +69,17 @@ class ProductDeleteIT extends CatalogIntegrationTest {
     }
 
     @Test
+    void nextCodeFollowsTheHighestSpCodeAndIgnoresOtherCodes() {
+        assertThat(productService.nextCode()).isEqualTo("SP000001");
+        long group = group();
+        create("A", null, group, sku("SP004640", "cái", 1, true, null));
+        create("B", null, group, sku("SP000007", "cái", 1, true, null));
+        create("C", null, group, sku("TP-ABC", "cái", 1, true, null));
+        create("D", null, group, sku("SPX99", "cái", 1, true, null));
+        assertThat(productService.nextCode()).isEqualTo("SP004641");
+    }
+
+    @Test
     void exportOfTickedProductsContainsOnlyThose() throws IOException {
         long group = group();
         long first = create("Chọn A", null, group, sku("Z1", "cái", 1, true, null));

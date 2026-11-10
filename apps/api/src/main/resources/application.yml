@@ -63,10 +63,11 @@ dna:
   security:
     bcrypt-strength: 12
   bootstrap:
-    # first MANAGER account, created once when the user table is empty (password >= 12 characters)
+    # first MANAGER account, created once when the user table is empty (password >= 8 characters)
     manager:
       username: ${DNA_BOOTSTRAP_MANAGER_USERNAME:}
       password: ${DNA_BOOTSTRAP_MANAGER_PASSWORD:}
+      email: ${DNA_BOOTSTRAP_MANAGER_EMAIL:}
     # receiving bank account, stored once when all four are set and none is stored yet
     bank:
       name: ${DNA_BANK_NAME:}

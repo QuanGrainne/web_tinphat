@@ -38,6 +38,7 @@ export interface ProductCard {
   fromUnitName: string | null;              // base unit name
   hasMultipleUnits: boolean;                // true => "Từ 8.570đ / gói"
   units: { name: string; priceVisible: boolean }[];
+  discontinued: boolean;                    // shown on the site by choice, but no longer sold
 }
 export interface PublicProduct {
   id: number; slug: string; name: string; status: "ACTIVE" | "DISCONTINUED";
@@ -48,7 +49,7 @@ export interface PublicProduct {
   seoTitle: string | null; seoDescription: string | null;
   galleryUrls: string[];                    // photos after the cover, product page only
 }
-export interface NavCategory { id: number; name: string; slug: string; productCount: number; children: { id: number; name: string; slug: string; productCount: number }[] }
+export interface NavCategory { id: number; name: string; slug: string; productCount: number; imageUrl: string | null; children: { id: number; name: string; slug: string; productCount: number }[] }
 export interface Nav { categories: NavCategory[]; brands: { name: string; slug: string; productCount: number }[] }
 export interface HomeData {
   categories: { name: string; slug: string; productCount: number; description: string | null; imageUrl: string | null }[];

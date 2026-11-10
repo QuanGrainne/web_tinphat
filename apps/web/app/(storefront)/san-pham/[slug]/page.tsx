@@ -9,6 +9,7 @@ import { apiGet } from "@/lib/api/server-fetch";
 import type { PublicProduct } from "@/lib/api/types";
 import { formatVnd } from "@/lib/format/money";
 import { renderMarkdown } from "@/lib/markdown";
+import { HIGHLIGHTS } from "@/lib/tinphat/content";
 import { formatPhone, telHref, zaloHref } from "@/lib/order/phone";
 import { breadcrumbJsonLd, productJsonLd } from "@/lib/seo/json-ld";
 import { buildTrail, pageMetadata, siteUrl } from "@/lib/seo/metadata";
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await loadProduct(slug);
   return pageMetadata({
     title: product.seoTitle ?? product.name,
-    description: product.seoDescription ?? product.specLine ?? `${product.name} - TÍN PHÁT DECORD.`,
+    description: product.seoDescription ?? product.specLine ?? `${product.name} - TÍN PHÁT DECOR.`,
     path: `/san-pham/${product.slug}`,
     image: product.imageUrl,
     noindex: product.status === "DISCONTINUED",
@@ -69,7 +70,7 @@ export default async function ProductPage({ params }: Props) {
             </p>
           ) : (
             <>
-            <p className="tp-price">{price !== null ? formatVnd(price) : "Liên hệ"}</p>
+            {price !== null && <p className="tp-price">{formatVnd(price)}</p>}
             <div className="tp-contact">
               <b>Liên hệ để nhận báo giá</b>
               <p>Giá theo số lượng dành cho cửa hàng, đại lý và khách nhập số lượng lớn.</p>
@@ -88,24 +89,30 @@ export default async function ProductPage({ params }: Props) {
                 )}
               </div>
             </div>
+            <ul className="tp-pd-trust">
+              {HIGHLIGHTS.slice(1).map((item) => (
+                <li key={item.title}>
+                  <i className="i i-check" aria-hidden="true" />
+                  {item.title}
+                </li>
+              ))}
+            </ul>
             </>
           )}
         </div>
       </div>
 
       {descriptionHtml && (
-        <section className="sec">
-          <h2 className="sec-t">Mô tả</h2>
-          <div className="sec-b desc" dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
+        <section className="tp-pd-sec">
+          <h2 className="tp-block-t">Mô tả sản phẩm</h2>
+          <div className="desc" dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
         </section>
       )}
 
       {product.related.length > 0 && (
-        <section className="sec">
-          <h2 className="sec-t">Cùng danh mục</h2>
-          <div className="sec-b">
-            <ProductGrid cards={product.related} variant="grid-5" contactHref={contactHref(settings)} />
-          </div>
+        <section className="tp-pd-sec">
+          <h2 className="tp-block-t">Sản phẩm cùng danh mục</h2>
+          <ProductGrid cards={product.related} variant="grid-5" contactHref={contactHref(settings)} />
         </section>
       )}
 

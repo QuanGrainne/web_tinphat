@@ -22,6 +22,9 @@ interface Node {
   children: Node[];
 }
 
+/** Value of the "Tất cả" entry: no category filter. */
+const ALL = 0;
+
 function toNodes(list: AdminCategory[]): Node[] {
   return list.map((c) => ({ value: c.id, title: `${c.name} (${c.productCount})`, children: toNodes(c.children) }));
 }
@@ -42,7 +45,7 @@ export function ProductFilterColumn({
 }) {
   const categories = useCategories();
   const [categoryDialog, setCategoryDialog] = useState(false);
-  const nodes = useMemo(() => toNodes(categories.data ?? []), [categories.data]);
+  const nodes = useMemo(() => [{ value: ALL, title: "Tất cả", children: [] }, ...toNodes(categories.data ?? [])], [categories.data]);
 
   return (
     <aside className={styles.fcol} aria-label="Bộ lọc">
@@ -60,11 +63,9 @@ export function ProductFilterColumn({
           treeDefaultExpandAll
           showSearch
           treeNodeFilterProp="title"
-          allowClear
-          placeholder="Chọn danh mục"
           loading={categories.isPending}
-          value={filters.categoryId}
-          onChange={(value) => onChange({ ...filters, categoryId: value ?? undefined })}
+          value={filters.categoryId ?? ALL}
+          onChange={(value) => onChange({ ...filters, categoryId: value ? value : undefined })}
         />
       </div>
       <div className={styles.fb}>

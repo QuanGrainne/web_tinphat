@@ -3,6 +3,7 @@ import type { Nav, ProductCard, PublicSettings } from "@/lib/api/types";
 import { formatVnd } from "@/lib/format/money";
 import { formatPhone, telHref, zaloHref } from "@/lib/order/phone";
 import { IMAGES } from "@/lib/tinphat/content";
+import { CatalogImage } from "@/components/catalog-image";
 
 /** Left column of the catalogue. On phones only the category list stays, as a sideways-scrolling row. */
 export function CatalogueSidebar({
@@ -19,10 +20,23 @@ export function CatalogueSidebar({
 }) {
   const phone = settings ? settings.hotline || settings.company.phone : null;
   const zalo = settings ? zaloHref(settings.zalo) : null;
-  const total = nav?.categories.reduce((sum, category) => sum + category.productCount, 0) ?? 0;
-  const link = (href: string, name: string, count: number, on: boolean, sub = false) => (
+  const total =
+    nav?.categories.reduce((sum, category) => sum + category.productCount, 0) ??
+    0;
+  const link = (
+    href: string,
+    name: string,
+    count: number,
+    on: boolean,
+    sub = false,
+  ) => (
     <li key={href}>
-      <Link href={href} prefetch={false} className={`${on ? "on" : ""}${sub ? " sub" : ""}`.trim() || undefined} aria-current={on ? "page" : undefined}>
+      <Link
+        href={href}
+        prefetch={false}
+        className={`${on ? "on" : ""}${sub ? " sub" : ""}`.trim() || undefined}
+        aria-current={on ? "page" : undefined}
+      >
         <span>{name}</span>
         <small>{count}</small>
       </Link>
@@ -35,8 +49,21 @@ export function CatalogueSidebar({
         <ul>
           {link("/san-pham", "Tất cả sản phẩm", total, activeSlug === null)}
           {nav?.categories.flatMap((category) => [
-            link(`/danh-muc/${category.slug}`, category.name, category.productCount, category.slug === activeSlug),
-            ...category.children.map((child) => link(`/danh-muc/${child.slug}`, child.name, child.productCount, child.slug === activeSlug, true)),
+            link(
+              `/danh-muc/${category.slug}`,
+              category.name,
+              category.productCount,
+              category.slug === activeSlug,
+            ),
+            ...category.children.map((child) =>
+              link(
+                `/danh-muc/${child.slug}`,
+                child.name,
+                child.productCount,
+                child.slug === activeSlug,
+                true,
+              ),
+            ),
           ])}
         </ul>
       </section>
@@ -46,10 +73,18 @@ export function CatalogueSidebar({
           <h2>Sản phẩm tiêu biểu</h2>
           <div className="tp-side-list">
             {featured.map((product) => (
-              <Link key={product.id} href={`/san-pham/${product.slug}`} prefetch={false}>
+              <Link
+                key={product.id}
+                href={`/san-pham/${product.slug}`}
+                prefetch={false}
+              >
                 {product.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- plain img by design: no image optimiser on the small VPS
-                  <img src={product.imageUrl} alt="" width={64} height={64} loading="lazy" decoding="async" />
+                  <CatalogImage
+                    src={product.imageUrl}
+                    width={56}
+                    height={56}
+                    sizes="56px"
+                  />
                 ) : (
                   <span className="ph">
                     <i className="i i-image" aria-hidden="true" />
@@ -57,7 +92,11 @@ export function CatalogueSidebar({
                 )}
                 <span>
                   {product.name}
-                  <b>{product.fromPrice !== null ? formatVnd(product.fromPrice) : "Liên hệ"}</b>
+                  <b>
+                    {product.fromPrice !== null
+                      ? formatVnd(product.fromPrice)
+                      : "Liên hệ"}
+                  </b>
                 </span>
               </Link>
             ))}
@@ -75,7 +114,12 @@ export function CatalogueSidebar({
               {formatPhone(phone)}
             </a>
             {zalo && (
-              <a className="btn btn-out" href={zalo} target="_blank" rel="noopener noreferrer">
+              <a
+                className="btn btn-out"
+                href={zalo}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Nhắn Zalo
               </a>
             )}
@@ -84,8 +128,14 @@ export function CatalogueSidebar({
       )}
 
       {featured.length > 0 && (
-        // eslint-disable-next-line @next/next/no-img-element -- plain img by design: no image optimiser on the small VPS
-        <img className="tp-side-i tp-side-more" src={IMAGES.warehouse} alt="Nhà xưởng TÍN PHÁT DECORD" width={600} height={400} loading="lazy" decoding="async" />
+        <CatalogImage
+          className="tp-side-i tp-side-more"
+          src={IMAGES.warehouse}
+          alt="Nhà xưởng TÍN PHÁT DECOR"
+          width={600}
+          height={400}
+          sizes="250px"
+        />
       )}
     </aside>
   );

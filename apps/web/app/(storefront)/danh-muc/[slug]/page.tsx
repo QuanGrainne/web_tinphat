@@ -10,6 +10,7 @@ import { apiGet, qs } from "@/lib/api/server-fetch";
 import type { CategoryListing } from "@/lib/api/types";
 import { breadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { buildTrail, pageMetadata, siteUrl } from "@/lib/seo/metadata";
+import { CatalogImage } from "@/components/catalog-image";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const { page, data } = await loadListing(props);
   return pageMetadata({
     title: page > 1 ? `${data.category.name} - Trang ${page}` : data.category.name,
-    description: data.category.description ?? `${data.category.name}: ${data.total} sản phẩm của TÍN PHÁT DECORD.`,
+    description: data.category.description ?? `${data.category.name}: ${data.total} sản phẩm của TÍN PHÁT DECOR.`,
     path: listingHref(`/danh-muc/${data.category.slug}`, { page }),
     image: data.category.imageUrl,
   });
@@ -57,8 +58,7 @@ export default async function CategoryPage(props: Props) {
               <small>{data.total} sản phẩm</small>
             </div>
             {data.category.imageUrl && (
-              // eslint-disable-next-line @next/next/no-img-element -- plain img by design: no image optimiser on the small VPS
-              <img src={data.category.imageUrl} alt="" width={800} height={600} fetchPriority="high" decoding="async" />
+              <CatalogImage src={data.category.imageUrl} width={800} height={500} priority sizes="(min-width: 960px) 240px, 100vw" />
             )}
           </div>
           <h2 className="sr">Danh sách sản phẩm</h2>

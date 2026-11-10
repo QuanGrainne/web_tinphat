@@ -116,4 +116,13 @@ export const adminApi = {
     adminFetch<AdminSession>("/api/auth/login", { form: { username, password }, noRedirect: true }),
   logout: () => adminFetch<void>("/api/auth/logout", { method: "POST" }),
   me: () => adminFetch<AdminSession>("/api/admin/me", { noRedirect: true }),
+  requestPasswordReset: (email: string) =>
+    adminFetch<void>("/api/auth/password-reset/request", { method: "POST", body: { email }, noRedirect: true }),
+  confirmPasswordReset: (token: string, newPassword: string) =>
+    adminFetch<void>("/api/auth/password-reset/confirm", { method: "POST", body: { token, newPassword }, noRedirect: true }),
+  getRecoveryEmail: () => adminFetch<{ email: string | null }>("/api/admin/me/recovery-email"),
+  setRecoveryEmail: (email: string, currentPassword: string) =>
+    adminFetch<{ email: string | null }>("/api/admin/me/recovery-email", { method: "PUT", body: { email, currentPassword } }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    adminFetch<void>("/api/admin/me/password", { method: "POST", body: { currentPassword, newPassword } }),
 };

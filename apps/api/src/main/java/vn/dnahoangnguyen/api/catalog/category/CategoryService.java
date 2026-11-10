@@ -100,6 +100,27 @@ public class CategoryService {
         return toDto(category, 0, List.of());
     }
 
+    /**
+     * Deletes a category that holds nothing. One with products or sub-categories is kept and the reason is returned, so
+     * nothing is ever left pointing at a category that no longer exists.
+     */
+    @Transactional
+    public void delete(long id, ChangeActor actor) {
+        actor.requireManager("delete", "Chỉ quản lý mới được xóa danh mục.");
+        Category category = categories.findById(id).orElseThrow(() -> DomainException.notFound("Không tìm thấy danh mục."));
+        long children = categories.countByParentId(id);
+        if (children > 0) {
+            throw DomainException.conflict(ProblemCode.CATEGORY_NOT_EMPTY,
+                    "Danh mục còn " + children + " danh mục con. Hãy xóa hoặc chuyển danh mục con trước.");
+        }
+        long inUse = products.countByCategoryId(id);
+        if (inUse > 0) {
+            throw DomainException.conflict(ProblemCode.CATEGORY_NOT_EMPTY,
+                    "Danh mục còn " + inUse + " sản phẩm. Hãy chuyển hoặc xóa các sản phẩm đó trước.");
+        }
+        categories.delete(category);
+    }
+
     /** Existing category with this name under the parent, else a new one (used by the seed). */
     @Transactional
     public Category findOrCreate(String name, Long parentId) {

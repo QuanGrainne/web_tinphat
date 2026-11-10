@@ -6,8 +6,14 @@ interface BaseProps {
   error?: string;
 }
 
-type InputProps = BaseProps & { multiline?: false; required?: boolean } & Omit<InputHTMLAttributes<HTMLInputElement>, "id">;
-type AreaProps = BaseProps & { multiline: true; required?: boolean } & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "id">;
+type InputProps = BaseProps & { multiline?: false; required?: boolean } & Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    "id"
+  >;
+type AreaProps = BaseProps & { multiline: true; required?: boolean } & Omit<
+    TextareaHTMLAttributes<HTMLTextAreaElement>,
+    "id"
+  >;
 
 /** Label + input (or textarea) + inline error, wired with aria-invalid and aria-describedby. */
 export function TextField(props: InputProps | AreaProps) {
@@ -27,9 +33,15 @@ export function TextField(props: InputProps | AreaProps) {
         {required ? <i aria-hidden="true"> *</i> : null}
       </label>
       {multiline ? (
-        <textarea {...shared} {...(rest as TextareaHTMLAttributes<HTMLTextAreaElement>)} />
+        <textarea
+          {...shared}
+          {...(rest as TextareaHTMLAttributes<HTMLTextAreaElement>)}
+        />
       ) : (
-        <input {...shared} {...(rest as InputHTMLAttributes<HTMLInputElement>)} />
+        <input
+          {...shared}
+          {...(rest as InputHTMLAttributes<HTMLInputElement>)}
+        />
       )}
       {error ? (
         <small id={errorId} className="fe" role="alert">
@@ -41,7 +53,13 @@ export function TextField(props: InputProps | AreaProps) {
 }
 
 /** Hidden trap for bots. Real visitors never see or fill it; the API rejects a non-empty value. */
-export function Honeypot({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+export function Honeypot({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
   return (
     <div className="hp" aria-hidden="true">
       <label htmlFor="hp-website">Website</label>
@@ -73,7 +91,12 @@ export function Alert({
   ref?: Ref<HTMLDivElement>;
 }) {
   return (
-    <div ref={ref} tabIndex={-1} className={`alert alert-${tone}`} role={tone === "err" ? "alert" : "status"}>
+    <div
+      ref={ref}
+      tabIndex={-1}
+      className={`alert alert-${tone}`}
+      role={tone === "err" ? "alert" : "status"}
+    >
       {title ? <b>{title}</b> : null}
       {children}
     </div>

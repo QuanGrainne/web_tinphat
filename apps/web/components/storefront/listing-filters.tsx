@@ -26,12 +26,21 @@ interface BrandFilterProps {
  * `brand` params. Desktop applies on every change; mobile applies with the footer button.
  * Mount it with a key derived from `selected` so it resets when the URL changes.
  */
-export function BrandFilter({ action, sort, brands, selected, total, children }: BrandFilterProps) {
+export function BrandFilter({
+  action,
+  sort,
+  brands,
+  selected,
+  total,
+  children,
+}: BrandFilterProps) {
   const router = useRouter();
   const [checked, setChecked] = useState<string[]>(selected);
 
   function toggle(slug: string) {
-    const next = checked.includes(slug) ? checked.filter((s) => s !== slug) : [...checked, slug];
+    const next = checked.includes(slug)
+      ? checked.filter((s) => s !== slug)
+      : [...checked, slug];
     setChecked(next);
     if (window.matchMedia("(min-width: 960px)").matches) {
       router.push(listingHref(action, { brand: next, sort }));
@@ -40,7 +49,12 @@ export function BrandFilter({ action, sort, brands, selected, total, children }:
 
   // Every product has at most one brand, so the selected facet counts add up exactly.
   const counts = new Map(brands.map((b) => [b.slug, b.count]));
-  const count = checked.length > 0 ? checked.reduce((sum, slug) => sum + (counts.get(slug) ?? 0), 0) : selected.length === 0 ? total : null;
+  const count =
+    checked.length > 0
+      ? checked.reduce((sum, slug) => sum + (counts.get(slug) ?? 0), 0)
+      : selected.length === 0
+        ? total
+        : null;
 
   return (
     <div className="sheet" id="filter" aria-label="Bộ lọc">
@@ -53,7 +67,9 @@ export function BrandFilter({ action, sort, brands, selected, total, children }:
           </a>
         </div>
         <div className="sheet-b">
-          {sort !== DEFAULT_SORT && <input type="hidden" name="sort" value={sort} />}
+          {sort !== DEFAULT_SORT && (
+            <input type="hidden" name="sort" value={sort} />
+          )}
           {brands.length > 0 && (
             <div className="blk">
               <span className="blk-t">Thương hiệu</span>

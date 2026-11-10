@@ -34,7 +34,7 @@ class BootstrapManagerIT extends IntegrationTest {
             jdbc.update("delete from audit_log where actor_id is not null");
             jdbc.update("delete from app_user");
             BootstrapManagerRunner runner =
-                    new BootstrapManagerRunner(users, encoder, audit, "Boot-Owner", PASSWORD, "Quản lý");
+                    new BootstrapManagerRunner(users, encoder, audit, "Boot-Owner", PASSWORD, "Quản lý", "boot-owner@example.com");
 
             runner.run(new DefaultApplicationArguments());
             runner.run(new DefaultApplicationArguments());
@@ -43,6 +43,7 @@ class BootstrapManagerIT extends IntegrationTest {
             AppUser manager = users.findByUsername("boot-owner").orElseThrow();
             assertThat(manager.getRole()).isEqualTo(Role.MANAGER);
             assertThat(manager.isEnabled()).isTrue();
+            assertThat(manager.getEmail()).isEqualTo("boot-owner@example.com");
             assertThat(manager.getPasswordHash()).startsWith("{bcrypt}");
             assertThat(encoder.matches(PASSWORD, manager.getPasswordHash())).isTrue();
 

@@ -31,8 +31,26 @@ describe("ProductBuy (first render)", () => {
         brand={brand}
         skus={[
           sku({}),
-          sku({ id: 2, code: "SV320-3L-Dây 5G", unitName: "Dây", conversion: 5, isBase: false, price: 42850, effectivePrice: 42850, perBaseUnit: 8570 }),
-          sku({ id: 3, code: "SV320-3L-Thùng 50G", unitName: "Thùng", conversion: 50, isBase: false, price: 428500, effectivePrice: 428500, perBaseUnit: 8570 }),
+          sku({
+            id: 2,
+            code: "SV320-3L-Dây 5G",
+            unitName: "Dây",
+            conversion: 5,
+            isBase: false,
+            price: 42850,
+            effectivePrice: 42850,
+            perBaseUnit: 8570,
+          }),
+          sku({
+            id: 3,
+            code: "SV320-3L-Thùng 50G",
+            unitName: "Thùng",
+            conversion: 50,
+            isBase: false,
+            price: 428500,
+            effectivePrice: 428500,
+            perBaseUnit: 8570,
+          }),
         ]}
       />,
     );
@@ -60,13 +78,26 @@ describe("ProductBuy (first render)", () => {
 
   it("shows the regular price struck through with a Sale badge only while the promo is active", () => {
     const promo = renderToStaticMarkup(
-      <ProductBuy brand={null} skus={[sku({ price: 10000, effectivePrice: 8000, promoActive: true, promoPrice: 8000, promoTo: "2026-12-31" })]} />,
+      <ProductBuy
+        brand={null}
+        skus={[
+          sku({
+            price: 10000,
+            effectivePrice: 8000,
+            promoActive: true,
+            promoPrice: 8000,
+            promoTo: "2026-12-31",
+          }),
+        ]}
+      />,
     );
     expect(promo).toContain('class="was"');
     expect(promo).toContain("10.000đ");
     expect(promo).toContain("8.000đ");
     expect(promo).toContain("Sale");
-    const plain = renderToStaticMarkup(<ProductBuy brand={null} skus={[sku({})]} />);
+    const plain = renderToStaticMarkup(
+      <ProductBuy brand={null} skus={[sku({})]} />,
+    );
     expect(plain).not.toContain("Sale");
     expect(plain).not.toContain('class="was"');
   });
@@ -76,7 +107,20 @@ describe("ProductBuy (first render)", () => {
     const html = renderToStaticMarkup(
       <ProductBuy
         brand={brand}
-        skus={[sku({ id: 9, code: "SV465-4L- T80", unitName: "Thùng", conversion: 80, isBase: false, priceVisible: false, price: 987654, effectivePrice: 987654, perBaseUnit: 12345, saving: { kind: "PERCENT", pct: 5 } })]}
+        skus={[
+          sku({
+            id: 9,
+            code: "SV465-4L- T80",
+            unitName: "Thùng",
+            conversion: 80,
+            isBase: false,
+            priceVisible: false,
+            price: 987654,
+            effectivePrice: 987654,
+            perBaseUnit: 12345,
+            saving: { kind: "PERCENT", pct: 5 },
+          }),
+        ]}
       />,
     );
     expect(html).toContain("Liên hệ");

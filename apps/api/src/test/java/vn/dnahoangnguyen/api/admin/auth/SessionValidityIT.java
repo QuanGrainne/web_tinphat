@@ -156,6 +156,21 @@ class SessionValidityIT extends IntegrationTest {
                         .content("{\"currentPassword\":\"" + PASSWORD + "\",\"newPassword\":\"" + PASSWORD + "\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors[0].field").value("newPassword"));
+
+        // the minimum is 8 characters: 7 is refused, 8 is accepted
+        mvc.perform(post("/api/admin/me/password")
+                        .session(session)
+                        .with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"currentPassword\":\"" + PASSWORD + "\",\"newPassword\":\"abcd123\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("newPassword"));
+        mvc.perform(post("/api/admin/me/password")
+                        .session(session)
+                        .with(TestAuth.xsrf(AdminLogin.XSRF))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"currentPassword\":\"" + PASSWORD + "\",\"newPassword\":\"abcd1234\"}"))
+                .andExpect(status().isNoContent());
     }
 
     @Test

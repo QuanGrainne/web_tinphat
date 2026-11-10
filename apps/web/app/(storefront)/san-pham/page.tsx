@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = pageMetadata({
   title: "Sản phẩm",
-  description: "Toàn bộ sản phẩm trang trí theo mùa lễ hội và quanh năm của TÍN PHÁT DECORD.",
+  description: "Toàn bộ sản phẩm trang trí theo mùa lễ hội và quanh năm của TÍN PHÁT DECOR.",
   path: "/san-pham",
 });
 

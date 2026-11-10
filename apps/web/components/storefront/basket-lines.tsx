@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { CartLineIn, PricedLine } from "@/lib/api/types";
-import { MAX_QTY, addLine, removeLine, setQty, type BasketKind } from "@/lib/cart/cart-store";
+import {
+  MAX_QTY,
+  addLine,
+  removeLine,
+  setQty,
+  type BasketKind,
+} from "@/lib/cart/cart-store";
 import { formatVnd } from "@/lib/format/money";
 
 interface BasketLinesProps {
@@ -29,21 +35,47 @@ export function BasketLines({ kind, lines, priced, busy }: BasketLinesProps) {
         <span />
       </div>
       {lines.map((line) => (
-        <BasketRow key={line.skuId} kind={kind} line={line} priced={bySku.get(line.skuId)} />
+        <BasketRow
+          key={line.skuId}
+          kind={kind}
+          line={line}
+          priced={bySku.get(line.skuId)}
+        />
       ))}
     </div>
   );
 }
 
-function RemoveButton({ kind, skuId, label }: { kind: BasketKind; skuId: number; label: string }) {
+function RemoveButton({
+  kind,
+  skuId,
+  label,
+}: {
+  kind: BasketKind;
+  skuId: number;
+  label: string;
+}) {
   return (
-    <button className="del" type="button" aria-label={`Xóa ${label}`} onClick={() => removeLine(kind, skuId)}>
+    <button
+      className="del"
+      type="button"
+      aria-label={`Xóa ${label}`}
+      onClick={() => removeLine(kind, skuId)}
+    >
       <i className="i i-trash" aria-hidden="true" />
     </button>
   );
 }
 
-function BasketRow({ kind, line, priced }: { kind: BasketKind; line: CartLineIn; priced: PricedLine | undefined }) {
+function BasketRow({
+  kind,
+  line,
+  priced,
+}: {
+  kind: BasketKind;
+  line: CartLineIn;
+  priced: PricedLine | undefined;
+}) {
   if (!priced) {
     return (
       <div className="ln sk">
@@ -65,8 +97,12 @@ function BasketRow({ kind, line, priced }: { kind: BasketKind; line: CartLineIn;
   const blocked = !gone && kind === "order" && !priced.orderable;
   const name = gone ? "Sản phẩm không còn bán" : priced.productName;
   const lineTotal = unit !== null ? unit * line.qty : null;
-  const unitText = priced.conversion > 1 ? `${priced.unitName} · quy đổi ${priced.conversion}` : priced.unitName;
-  const hasPromo = unit !== null && priced.listPrice !== null && priced.listPrice > unit;
+  const unitText =
+    priced.conversion > 1
+      ? `${priced.unitName} · quy đổi ${priced.conversion}`
+      : priced.unitName;
+  const hasPromo =
+    unit !== null && priced.listPrice !== null && priced.listPrice > unit;
 
   return (
     <div className={`ln${gone || blocked ? " bad" : ""}`}>
@@ -74,17 +110,29 @@ function BasketRow({ kind, line, priced }: { kind: BasketKind; line: CartLineIn;
         <i className="i i-image" />
       </div>
       <div className="info2">
-        <b>{gone ? name : <Link href={`/san-pham/${priced.productSlug}`} prefetch={false}>{name}</Link>}</b>
+        <b>
+          {gone ? (
+            name
+          ) : (
+            <Link href={`/san-pham/${priced.productSlug}`} prefetch={false}>
+              {name}
+            </Link>
+          )}
+        </b>
         {gone ? null : (
           <>
             <span>{unitText}</span>
             <span className="mono">{priced.code}</span>
           </>
         )}
-        {gone ? <span className="ln-note">Vui lòng xóa khỏi danh sách.</span> : null}
+        {gone ? (
+          <span className="ln-note">Vui lòng xóa khỏi danh sách.</span>
+        ) : null}
         {blocked ? (
           <>
-            <span className="ln-note">Sản phẩm này chỉ báo giá, chưa thể đặt hàng.</span>
+            <span className="ln-note">
+              Sản phẩm này chỉ báo giá, chưa thể đặt hàng.
+            </span>
             <span className="ln-acts">
               <button
                 type="button"
@@ -105,14 +153,26 @@ function BasketRow({ kind, line, priced }: { kind: BasketKind; line: CartLineIn;
           "Liên hệ"
         ) : (
           <>
-            {hasPromo && priced.listPrice !== null ? <s>{formatVnd(priced.listPrice)}</s> : null}
+            {hasPromo && priced.listPrice !== null ? (
+              <s>{formatVnd(priced.listPrice)}</s>
+            ) : null}
             {unit !== null ? formatVnd(unit) : null}
           </>
         )}
       </div>
-      <QtyStepper kind={kind} skuId={line.skuId} qty={line.qty} label={name} disabled={gone} />
+      <QtyStepper
+        kind={kind}
+        skuId={line.skuId}
+        qty={line.qty}
+        label={name}
+        disabled={gone}
+      />
       <div className={`tot${contact || gone ? " contact" : ""}`}>
-        {gone ? "—" : contact || lineTotal === null ? "Liên hệ" : formatVnd(lineTotal)}
+        {gone
+          ? "—"
+          : contact || lineTotal === null
+            ? "Liên hệ"
+            : formatVnd(lineTotal)}
       </div>
       <RemoveButton kind={kind} skuId={line.skuId} label={name} />
     </div>
@@ -155,7 +215,8 @@ function QtyStepper({
         onChange={(e) => {
           setDraft(e.target.value);
           const n = Number(e.target.value);
-          if (Number.isInteger(n) && n >= 1 && n <= MAX_QTY) setQty(kind, skuId, n);
+          if (Number.isInteger(n) && n >= 1 && n <= MAX_QTY)
+            setQty(kind, skuId, n);
         }}
         onBlur={() => setDraft(null)}
       />

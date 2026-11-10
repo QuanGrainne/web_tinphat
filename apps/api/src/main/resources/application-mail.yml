@@ -1,4 +1,15 @@
 spring:
   mail:
+    # Local stack: Mailpit (no login). Gmail: smtp.gmail.com, port 587, SMTP auth and STARTTLS on,
+    # the Gmail address as username and a Google "App password" as password (see docs/tinphat-catalogue.md).
     host: ${SPRING_MAIL_HOST:localhost}
     port: ${SPRING_MAIL_PORT:1025}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${DNA_SMTP_AUTH:false}
+      mail.smtp.starttls.enable: ${DNA_SMTP_STARTTLS:false}
+      mail.smtp.starttls.required: ${DNA_SMTP_STARTTLS:false}
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000

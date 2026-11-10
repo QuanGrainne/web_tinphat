@@ -39,6 +39,18 @@ public class PasswordService {
         return password.getBytes(StandardCharsets.UTF_8).length <= MAX_PASSWORD_BYTES;
     }
 
+    /** Sets a new password after a verified reset link (no current password), and ends every open session. */
+    @Transactional
+    public void reset(AppUser user, String newPassword, Instant now) {
+        if (newPassword == null || !fitsBcrypt(newPassword)) {
+            throw DomainException.badRequest(ProblemCode.VALIDATION_FAILED, DETAIL_PASSWORD_TOO_LONG)
+                    .withFieldError("newPassword", DETAIL_PASSWORD_TOO_LONG);
+        }
+        user.changePassword(encoder.encode(newPassword), now);
+        audit.recordAs(vn.dnahoangnguyen.api.admin.audit.AuditActor.system("PASSWORD_RESET"), "PASSWORD_RESET", "USER",
+                user.getId(), null, null);
+    }
+
     /** Changes the password and stamps {@code now}, which ends every session of this user that started earlier. */
     @Transactional
     public void change(long userId, String currentPassword, String newPassword, Instant now) {

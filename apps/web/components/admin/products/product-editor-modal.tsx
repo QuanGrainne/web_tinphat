@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, App, Button, Checkbox, Form, Input, InputNumber, Modal, Spin, Tabs, Tag, Tooltip, TreeSelect } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiProblem, VERSION_CONFLICT_MESSAGE } from "@/lib/admin/api-client";
 import { catalogueApi } from "@/lib/admin/catalogue-api";
@@ -76,6 +76,13 @@ export function ProductEditorModal({
   });
   const product = activeId === null ? blank : query.data;
 
+  /** The product is gone: drop its cached copy, refresh the list and close the popup. */
+  function handleDeleted() {
+    queryClient.removeQueries({ queryKey: ["admin", "product", activeId] });
+    onChanged();
+    onClose();
+  }
+
   function handleProductChange(saved: AdminProduct) {
     if (saved.id !== null) {
       queryClient.setQueryData(["admin", "product", saved.id], saved);
@@ -120,6 +127,7 @@ export function ProductEditorModal({
           problem={problem}
           onProblem={setProblem}
           onProductChange={handleProductChange}
+          onDeleted={handleDeleted}
           onReload={reload}
           onClose={onClose}
         />
@@ -153,6 +161,7 @@ interface FormProps {
   problem: EditorProblem | null;
   onProblem: (problem: EditorProblem | null) => void;
   onProductChange: (product: AdminProduct) => void;
+  onDeleted: () => void;
   onReload: () => Promise<void>;
   onClose: () => void;
 }
@@ -165,6 +174,7 @@ function ProductEditorForm({
   problem,
   onProblem,
   onProductChange,
+  onDeleted,
   onReload,
   onClose,
 }: FormProps) {
@@ -179,6 +189,21 @@ function ProductEditorForm({
   const [categoryDialog, setCategoryDialog] = useState(false);
 
   const isNew = product.id === null;
+
+  // A new product gets the next free SP code; whatever the user already typed is kept.
+  useEffect(() => {
+    if (!isNew) return;
+    let cancelled = false;
+    catalogueApi
+      .nextProductCode()
+      .then(({ code }) => {
+        if (!cancelled && !form.getFieldValue(["skus", 0, "code"])) form.setFieldValue(["skus", 0, "code"], code);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [isNew, form]);
   const discontinued = product.status === "DISCONTINUED";
 
   const categoryNodes = useMemo(() => toCategoryNodes(categories.data ?? []), [categories.data]);
@@ -259,6 +284,31 @@ function ProductEditorForm({
     });
   }
 
+  function confirmDelete() {
+    if (product.id === null) return;
+    const id = product.id;
+    modal.confirm({
+      title: "Xóa sản phẩm này?",
+      content: `"${product.name}" sẽ bị xóa hẳn khỏi admin và website, không khôi phục được${form.isFieldsTouched() ? ". Các thay đổi chưa lưu cũng sẽ mất" : ""}. Nếu chỉ muốn tạm ẩn, hãy dùng "Ngừng kinh doanh".`,
+      okText: "Xóa sản phẩm",
+      cancelText: "Bỏ qua",
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          const result = await catalogueApi.deleteProducts([id]);
+          if (result.deleted > 0) {
+            message.success("Đã xóa sản phẩm");
+            onDeleted();
+          } else {
+            message.error(result.blocked[0]?.message ?? "Không xóa được sản phẩm.", 6);
+          }
+        } catch (error) {
+          message.error(error instanceof ApiProblem ? error.message : "Không xóa được sản phẩm.", 6);
+        }
+      },
+    });
+  }
+
   const infoTab = (
     <>
       {productNotices.length > 0 && (
@@ -293,8 +343,9 @@ function ProductEditorForm({
               label="Mã sản phẩm"
               name={["skus", 0, "code"]}
               rules={[{ required: true, whitespace: true, message: "Nhập mã sản phẩm" }]}
+              extra="Tự điền mã kế tiếp, có thể sửa."
             >
-              <Input maxLength={60} disabled={!isManager && !isNew} />
+              <Input maxLength={60} placeholder="SP000001" disabled={!isManager && !isNew} />
             </Form.Item>
           </div>
           <div className={styles.f2}>
@@ -376,13 +427,15 @@ function ProductEditorForm({
       />
       <div className={styles.footer}>
         <div className={styles.footLeft}>
-          <Checkbox checked={published} disabled={!isManager || discontinued} onChange={(e) => setPublished(e.target.checked)}>
+          <Checkbox checked={published} disabled={!isManager} onChange={(e) => setPublished(e.target.checked)}>
             Hiển thị trên web
           </Checkbox>
           <Tooltip
             title={
               isManager
-                ? "Sản phẩm cần có danh mục để hiện trên web"
+                ? discontinued
+                  ? "Sản phẩm ngừng kinh doanh vẫn hiện trên web nếu được chọn, kèm nhãn Ngừng kinh doanh"
+                  : "Sản phẩm cần có danh mục để hiện trên web"
                 : "Chỉ quản lý được đổi trạng thái hiển thị"
             }
           >
@@ -391,6 +444,11 @@ function ProductEditorForm({
           {!isNew && isManager && (
             <Button danger={!discontinued} onClick={() => changeStatus(discontinued ? "reactivate" : "discontinue")}>
               {discontinued ? "Kinh doanh lại" : "Ngừng kinh doanh"}
+            </Button>
+          )}
+          {!isNew && isManager && (
+            <Button danger type="primary" icon={<DeleteOutlined />} aria-label="Xóa sản phẩm này" onClick={confirmDelete}>
+              Xóa
             </Button>
           )}
         </div>

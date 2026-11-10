@@ -8,6 +8,7 @@ import vn.dnahoangnguyen.api.catalog.pricing.PriceRules;
 import vn.dnahoangnguyen.api.catalog.pricing.Saving;
 import vn.dnahoangnguyen.api.catalog.pricing.SkuPricing;
 import vn.dnahoangnguyen.api.catalog.product.Product;
+import vn.dnahoangnguyen.api.catalog.product.ProductStatus;
 import vn.dnahoangnguyen.api.catalog.sku.Sku;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.NameSlug;
 import vn.dnahoangnguyen.api.storefront.StorefrontDtos.ProductCard;
@@ -58,7 +59,8 @@ final class StorefrontMapper {
         String fromUnit = skus.stream().filter(PublicSku::isBase).map(PublicSku::unitName).findFirst().orElse(null);
         List<UnitChip> units = skus.stream().map(s -> new UnitChip(s.unitName(), s.priceVisible())).toList();
         return new ProductCard(product.getId(), product.getSlug(), product.getName(), nameSlug(brand),
-                product.getImageUrl(), product.getSpecLine(), from, fromUnit, skus.size() > 1, units);
+                product.getImageUrl(), product.getSpecLine(), from, fromUnit, skus.size() > 1, units,
+                product.getStatus() == ProductStatus.DISCONTINUED);
     }
 
     static NameSlug nameSlug(Brand brand) {

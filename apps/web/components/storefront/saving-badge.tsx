@@ -3,7 +3,8 @@ import { formatPct } from "@/lib/format/money";
 
 /** "Tiết kiệm 1,9%" / "Bằng giá mua lẻ" / nothing; never "0%". */
 export function savingText(saving: PublicSku["saving"]): string | null {
-  if (saving.kind === "PERCENT" && saving.pct !== null) return `Tiết kiệm ${formatPct(saving.pct)}`;
+  if (saving.kind === "PERCENT" && saving.pct !== null)
+    return `Tiết kiệm ${formatPct(saving.pct)}`;
   if (saving.kind === "EQUAL") return "Bằng giá mua lẻ";
   return null;
 }

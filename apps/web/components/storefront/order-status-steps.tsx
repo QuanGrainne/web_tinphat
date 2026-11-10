@@ -16,11 +16,20 @@ export function StatusChip({ status }: { status: OrderStatus }) {
 }
 
 /** Numbered progress bar. Cancelled orders render nothing here; the page shows the "Đã hủy" chip and a notice. */
-export function OrderStatusSteps({ method, status }: { method: PaymentMethod; status: OrderStatus }) {
+export function OrderStatusSteps({
+  method,
+  status,
+}: {
+  method: PaymentMethod;
+  status: OrderStatus;
+}) {
   const steps = orderSteps(method, status);
   if (steps.length === 0) return null;
   return (
-    <ol className={`steps${steps.length > 5 ? " s6" : ""}`} aria-label="Trạng thái đơn hàng">
+    <ol
+      className={`steps${steps.length > 5 ? " s6" : ""}`}
+      aria-label="Trạng thái đơn hàng"
+    >
       {steps.map((step) => (
         <li
           key={step.status}

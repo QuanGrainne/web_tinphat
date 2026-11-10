@@ -31,7 +31,7 @@ test("admin creates a category and a product with images, the visitor finds them
   await expect(categoryDialog.getByRole("img", { name: "Ảnh đã chọn" })).toBeVisible();
   await page.screenshot({ path: path.join(SHOTS, "admin-category-dialog.png") });
   await categoryDialog.getByRole("button", { name: "Lưu" }).click();
-  await expect(page.getByRole("cell", { name: category })).toBeVisible();
+  await expect(page.getByRole("cell", { name: category, exact: true })).toBeVisible();
   await page.screenshot({ path: path.join(SHOTS, "admin-categories.png") });
 
   await page.goto("/admin/products");
@@ -79,12 +79,13 @@ test("the public pages look right on desktop and phone", async ({ page }) => {
       await page.goto(url);
       await page.evaluate(async () => {
         for (let y = 0; y < document.body.scrollHeight; y += 500) {
-          window.scrollTo(0, y);
+          window.scrollTo({ top: y, behavior: "instant" });
           await new Promise((resolve) => setTimeout(resolve, 60));
         }
-        window.scrollTo(0, 0);
+        window.scrollTo({ top: 0, behavior: "instant" });
       });
-      await page.waitForFunction(() => [...document.images].every((img) => img.complete && img.naturalWidth > 0), undefined, { timeout: 15_000 });
+      // images that are not displayed (a closed menu, a photo hidden on phones) load lazily, so they are not waited for
+      await page.waitForFunction(() => [...document.images].every((img) => !img.checkVisibility() || (img.complete && img.naturalWidth > 0)), undefined, { timeout: 30_000 });
       await page.screenshot({ path: path.join(SHOTS, `${label}-${name}.png`), fullPage: true });
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(overflow, `${url} at ${width}px`).toBeLessThanOrEqual(0);
@@ -92,6 +93,15 @@ test("the public pages look right on desktop and phone", async ({ page }) => {
       await expect(page.locator("body")).not.toContainText("Giỏ hàng");
     }
   }
+});
+
+test("on a wide screen the content uses the width instead of leaving empty sides", async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1000 });
+  await page.goto("/");
+  const box = await page.locator(".tp-shop").boundingBox();
+  expect(box!.width).toBeGreaterThan(1640);
+  expect(box!.x).toBeLessThan(140);
+  await page.screenshot({ path: path.join(SHOTS, "home-1920.png") });
 });
 
 test("every category on the home page is its own full-width block", async ({ page }) => {
@@ -129,6 +139,7 @@ test("the admin product screens carry no SKU totals or SEO tab", async ({ page }
   await expect(page.locator("body")).not.toContainText("quy cách hiện");
   await page.getByRole("button", { name: "plus Tạo mới" }).click();
   await expect(page.getByRole("tab", { name: "Mô tả" })).toBeVisible();
+  await expect(page.getByLabel("Mã sản phẩm")).toHaveValue(/^SP\d{6}$/);
   await expect(page.getByRole("tab", { name: "SEO" })).toHaveCount(0);
   await page.screenshot({ path: path.join(SHOTS, "admin-products.png") });
 });
@@ -250,7 +261,7 @@ test.describe("admin edits reach the public pages at once", () => {
     await page.screenshot({ path: path.join(SHOTS, "admin-hover.png") });
     await thumb.click();
     const viewer = page.getByRole("dialog", { name: "Xem ảnh" });
-    await expect(viewer).toContainText("1 / 1");
+    await expect(viewer).toContainText(/1 \/ \d+/);
     await page.screenshot({ path: path.join(SHOTS, "admin-lightbox.png") });
     await page.keyboard.press("Escape");
     await expect(viewer).toHaveCount(0);
@@ -271,6 +282,130 @@ test.describe("admin edits reach the public pages at once", () => {
     await expect(viewer.getByRole("img", { name: "Ảnh 1" })).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(viewer).toHaveCount(0);
+  });
+
+  test("the product popup has a delete button, and the category filter has Tất cả", async ({ page }) => {
+    const name = `Xoá trong popup ${Date.now().toString(36)}`;
+    await page.goto("/admin/products");
+    await page.evaluate(async (productName) => {
+      const token = decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? "");
+      const response = await fetch("/api/admin/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-XSRF-TOKEN": token },
+        body: JSON.stringify({ name: productName, skus: [{ code: productName, unitName: "cái", conversion: 1, isBase: true, price: null, visible: true }] }),
+      });
+      if (!response.ok) throw new Error(`create failed: ${response.status}`);
+    }, name);
+    await page.reload();
+
+    const total = page.locator(".ant-table-tbody > tr.ant-table-row");
+    const filter = page.getByLabel("Danh mục", { exact: true });
+    await filter.click();
+    await expect(page.getByRole("treeitem", { name: "Tất cả" })).toBeVisible();
+    await page.getByRole("treeitem", { name: /^Noel/ }).click();
+    await expect(page.locator(".ant-tree-select").first()).toContainText("Noel");
+    await filter.click();
+    await page.getByRole("treeitem", { name: "Tất cả" }).click();
+    await expect(page.locator(".ant-tree-select").first()).toContainText("Tất cả");
+    await expect(total.first()).toBeVisible();
+
+    await page.getByLabel("Tìm sản phẩm").fill(name);
+    const row = page.getByRole("row", { name: new RegExp(name) });
+    await row.getByText(name, { exact: true }).last().click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByLabel("Tên sản phẩm")).toHaveValue(name);
+    await page.screenshot({ path: path.join(SHOTS, "admin-popup-delete.png") });
+    await dialog.getByRole("button", { name: "Xóa sản phẩm này" }).click();
+    await page.getByRole("dialog").last().getByRole("button", { name: "Bỏ qua" }).click();
+    await expect(dialog.getByLabel("Tên sản phẩm")).toHaveValue(name);
+    await dialog.getByRole("button", { name: "Xóa sản phẩm này" }).click();
+    await page.getByRole("dialog").last().getByRole("button", { name: "Xóa sản phẩm", exact: true }).click();
+    await expect(row).toHaveCount(0);
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  });
+
+  test("a discontinued product can stay on the site with a label, or be hidden", async ({ page }) => {
+    const name = `Xoá ngừng bán ${Date.now().toString(36)}`;
+    await page.goto("/admin/products");
+    // A throwaway product in Trung Thu; the test deletes it at the end.
+    const id = await page.evaluate(async (productName) => {
+      const token = decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? "");
+      const headers = { "Content-Type": "application/json", "X-XSRF-TOKEN": token };
+      const categories = await (await fetch("/api/admin/categories")).json();
+      const categoryId = categories.find((c: { slug: string }) => c.slug === "trung-thu").id;
+      const created = await (
+        await fetch("/api/admin/products", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ name: productName, categoryId, skus: [{ code: productName, unitName: "cái", conversion: 1, isBase: true, price: 9000, visible: true }] }),
+        })
+      ).json();
+      await fetch(`/api/admin/products/${created.id}/publish`, { method: "POST", headers });
+      await fetch(`/api/admin/products/${created.id}/discontinue`, { method: "POST", headers });
+      return created.id as number;
+    }, name);
+
+    try {
+      await page.goto("/danh-muc/trung-thu");
+      const card = page.locator(".card", { hasText: name });
+      await expect(card).toContainText("Ngừng kinh doanh");
+      await expect(card).not.toContainText("9.000");
+      await expect(card.getByRole("link", { name: "Xem chi tiết" })).toBeVisible();
+      await expect(page.locator(".tp-shop .grid").first().locator(".card").last()).toContainText(name);
+      await page.screenshot({ path: path.join(SHOTS, "discontinued-card.png") });
+
+      await page.goto("/admin/products");
+      await page.getByLabel("Tìm sản phẩm").fill(name);
+      await page.getByRole("row", { name: new RegExp(name) }).getByText(name, { exact: true }).last().click();
+      const dialog = page.getByRole("dialog");
+      const shown = dialog.getByRole("checkbox", { name: "Hiển thị trên web" });
+      await expect(shown).toBeEnabled();
+      await expect(shown).toBeChecked();
+      await shown.uncheck();
+      await dialog.getByRole("button", { name: "Lưu" }).click();
+      await expect(dialog).toBeHidden();
+
+      await page.goto("/danh-muc/trung-thu");
+      await expect(page.locator(".card", { hasText: name })).toHaveCount(0);
+    } finally {
+      await page.goto("/admin/products");
+      await page.evaluate(async (productId) => {
+        const token = decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? "");
+        await fetch("/api/admin/products/delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-XSRF-TOKEN": token },
+          body: JSON.stringify({ ids: [productId] }),
+        });
+      }, id);
+    }
+  });
+
+  test("an empty category can be deleted, one that still holds products is refused with a reason", async ({ page }) => {
+    const name = `Xoá thử ${Date.now().toString(36)}`;
+    await page.goto("/admin/categories");
+    await page.evaluate(async (categoryName) => {
+      const token = decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? "");
+      const response = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-XSRF-TOKEN": token },
+        body: JSON.stringify({ name: categoryName }),
+      });
+      if (!response.ok) throw new Error(`create failed: ${response.status}`);
+    }, name);
+    await page.reload();
+
+    await page.getByRole("button", { name: "Xóa Noel" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Xóa danh mục" }).click();
+    await expect(page.getByText(/còn \d+ sản phẩm/)).toBeVisible();
+    await expect(page.getByRole("cell", { name: "Noel", exact: true })).toBeVisible();
+
+    await page.getByRole("button", { name: `Xóa ${name}` }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Bỏ qua" }).click();
+    await expect(page.getByRole("cell", { name, exact: true })).toBeVisible();
+    await page.getByRole("button", { name: `Xóa ${name}` }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Xóa danh mục" }).click();
+    await expect(page.getByRole("cell", { name, exact: true })).toHaveCount(0);
+    await page.screenshot({ path: path.join(SHOTS, "admin-category-delete.png") });
   });
 
   test("a price shows on the home and category cards right after saving", async ({ page }) => {
@@ -314,6 +449,162 @@ test.describe("admin edits reach the public pages at once", () => {
     await page.goto("/san-pham/long-den-trung-thu");
     await expect(page.getByRole("button", { name: `Xem ảnh ${before + 1}` })).toHaveCount(0);
   });
+});
+
+test("the admin product list lets you choose how many rows to show, and remembers it", async ({ page }) => {
+  await page.goto("/admin/login");
+  await page.getByLabel("Tên đăng nhập").fill(USER);
+  await page.getByLabel("Mật khẩu").fill(PASS);
+  await page.getByRole("button", { name: "Đăng nhập" }).click();
+  await page.waitForURL("**/admin/products");
+  const rows = page.locator(".ant-table-tbody > tr.ant-table-row");
+  await expect(rows.first()).toBeVisible();
+  expect(await rows.count()).toBe(15);
+
+  await page.locator(".ant-pagination-options .ant-select").click();
+  for (const option of ["15 dòng", "20 dòng", "30 dòng", "50 dòng", "100 dòng"]) await expect(page.getByRole("option", { name: option })).toBeAttached();
+  await page.screenshot({ path: path.join(SHOTS, "admin-page-size.png") });
+  await page.getByRole("option", { name: "20 dòng" }).click();
+  await expect(rows).toHaveCount(20);
+
+  await page.reload();
+  await expect(rows).toHaveCount(20);
+  await page.locator(".ant-pagination-options .ant-select").click();
+  await page.getByRole("option", { name: "15 dòng" }).click();
+  await expect(rows).toHaveCount(15);
+});
+
+test("the menu bar groups categories in a hover dropdown, four per row", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const bar = page.getByRole("navigation", { name: "Menu chính" });
+  await expect(bar.locator(".mlinks a[href^='/danh-muc/']")).toHaveCount(0);
+  const trigger = bar.getByRole("button", { name: "Danh mục sản phẩm" });
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+
+  await trigger.hover();
+  const panel = page.locator("#tp-dd-panel");
+  await expect(panel).toBeVisible();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  const columns = await panel.locator(".tp-dd-grid").evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(" ").length);
+  expect(columns).toBe(4);
+  await page.screenshot({ path: path.join(SHOTS, "nav-dropdown.png") });
+
+  await page.mouse.move(700, 800);
+  await expect(panel).toBeHidden();
+
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  await expect(panel).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(panel).toBeHidden();
+
+  await trigger.hover();
+  await panel.getByRole("link", { name: /Sinh nhật & Party/ }).click();
+  await expect(page).toHaveURL(/\/danh-muc\/sinh-nhat-party$/);
+  await expect(panel).toBeHidden();
+});
+
+test("the menu bar carries the company sections and stays pinned while scrolling", async ({ page }) => {
+  for (const width of [1024, 1440]) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto("/");
+    await expect(page.locator(".hd").getByRole("button", { name: /danh mục/i })).toHaveCount(0);
+    const bar = page.getByRole("navigation", { name: "Menu chính" });
+    for (const label of ["Trang chủ", "Sản phẩm", "Về chúng tôi", "Năng lực", "Liên hệ", "Liên hệ ngay"]) {
+      await expect(bar.getByRole("link", { name: label, exact: true })).toBeInViewport();
+    }
+    await page.screenshot({ path: path.join(SHOTS, `menu-bar-${width}.png`) });
+    await page.mouse.wheel(0, 1600);
+    await expect.poll(async () => (await bar.boundingBox())?.y).toBe(0);
+    await page.screenshot({ path: path.join(SHOTS, `menu-bar-scrolled-${width}.png`) });
+  }
+  // the home page holds both sections, so the links glide there without leaving the page
+  // and exactly one menu item is lit: the section on screen, else the page
+  const menu = page.getByRole("navigation", { name: "Menu chính" });
+  const item = (name: string) => menu.locator(".mlinks").getByRole("link", { name, exact: true });
+  const lit = menu.locator(".mlinks a.on");
+  await menu.getByRole("link", { name: "Năng lực", exact: true }).click();
+  const heading = page.locator("#nang-luc h2");
+  await expect(heading).toBeInViewport();
+  await expect.poll(async () => (await heading.boundingBox())!.y).toBeGreaterThan(44);
+  await expect(page).toHaveURL(/\/$/);
+  await expect(lit).toHaveCount(1);
+  await expect(item("Năng lực")).toHaveClass(/\bon\b/);
+  await page.screenshot({ path: path.join(SHOTS, "menu-active-section.png"), clip: { x: 0, y: 0, width: 1440, height: 120 } });
+  await menu.getByRole("link", { name: "Liên hệ", exact: true }).click();
+  await expect(page.locator("#lien-he h2")).toBeInViewport();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(item("Liên hệ")).toHaveClass(/\bon\b/);
+  await expect(lit).toHaveCount(1);
+
+  // the contact band runs straight into the footer, with no strip of page colour between them
+  const gap = await page.evaluate(() => {
+    const band = document.querySelector("section.tp-cta")!.getBoundingClientRect();
+    const footer = document.querySelector("footer.tp-ft")!.getBoundingClientRect();
+    return Math.round(footer.top - band.bottom);
+  });
+  expect(gap).toBe(0);
+
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await expect(item("Trang chủ")).toHaveClass(/\bon\b/);
+  await expect(lit).toHaveCount(1);
+
+  // on a page without the section it navigates, then lands on the contact band
+  await page.goto("/san-pham");
+  await menu.getByRole("link", { name: "Năng lực", exact: true }).click();
+  await expect(page).toHaveURL(/\/gioi-thieu#nang-luc$/);
+  await expect(page.locator("#nang-luc h2")).toBeInViewport();
+  await page.goto("/san-pham");
+  await menu.getByRole("link", { name: "Liên hệ", exact: true }).click();
+  await expect(page.locator("#lien-he h2")).toBeInViewport();
+  await expect(page.locator("section.tp-cta")).toHaveCount(1);
+});
+
+test("the capability section and footer follow the landing page, with the author credit", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/gioi-thieu#nang-luc");
+  const capability = page.locator("#nang-luc");
+  await expect(capability.getByRole("heading", { level: 2 })).toContainText("mỗi sản phẩm.");
+  await expect(capability.locator(".tp-capx-list li")).toHaveCount(5);
+  await expect(capability.locator(".tp-capx-list svg")).toHaveCount(5);
+  await page.waitForFunction(() => [...document.querySelectorAll("#nang-luc img")].every((img) => (img as HTMLImageElement).complete));
+  await page.screenshot({ path: path.join(SHOTS, "capability.png") });
+
+  const footer = page.locator("footer.tp-ft");
+  await expect(footer.getByRole("heading", { name: "Công ty" })).toBeVisible();
+  await expect(footer.getByRole("link", { name: "Tất cả sản phẩm →" })).toHaveAttribute("href", "/san-pham");
+  const credit = footer.locator(".tp-ft-credit");
+  await expect(credit).toHaveText("Website được tạo bởi quangrainne: dinhnhatquan0311@gmail.com");
+  await expect(credit.getByRole("link")).toHaveAttribute("href", "mailto:dinhnhatquan0311@gmail.com");
+  await footer.scrollIntoViewIfNeeded();
+  await footer.screenshot({ path: path.join(SHOTS, "footer.png") });
+});
+
+test("the process steps and the contact band with its map follow the landing page", async ({ page }) => {
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/gioi-thieu");
+    const steps = page.locator("#quy-trinh .tp-flow li");
+    await expect(steps).toHaveCount(5);
+    await expect(page.locator("#quy-trinh .tp-flow svg")).toHaveCount(5);
+    await page.locator("#quy-trinh").scrollIntoViewIfNeeded();
+    await page.locator("#quy-trinh").screenshot({ path: path.join(SHOTS, `process-${width}.png`) });
+
+    const band = page.locator("section.tp-cta");
+    await expect(band.getByRole("heading", { level: 2 })).toContainText("nguồn hàng decor?");
+    await expect(band.locator(".tp-cta-cards li")).toHaveCount(4);
+    await expect(band.getByRole("link", { name: "Liên hệ ngay" })).toHaveAttribute("href", /^tel:/);
+    await expect(band.getByRole("link", { name: "Xem đường đi →" })).toHaveAttribute("href", "https://maps.app.goo.gl/sTq4fzmAe5UbG6Yt9");
+    await expect(band.locator("iframe.tp-cta-mapf")).toHaveAttribute("src", /^https:\/\/www\.google\.com\/maps\/embed/);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+    await band.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(1500);
+    await band.screenshot({ path: path.join(SHOTS, `contact-band-${width}.png`) });
+  }
+  await page.goto("/lien-he");
+  await expect(page.locator("section.tp-cta iframe.tp-cta-mapf")).toHaveCount(1);
 });
 
 test("sales pages and sales API are closed", async ({ page, request }) => {

@@ -51,7 +51,13 @@ export function CopyButton({ text, label }: { text: string; label: string }) {
 }
 
 /** Bank, account, account name, optional amount and transfer content as text, with copy buttons for the two that get typed. */
-export function BankKv({ bank, amount }: { bank: TransferBank; amount?: number | null }) {
+export function BankKv({
+  bank,
+  amount,
+}: {
+  bank: TransferBank;
+  amount?: number | null;
+}) {
   return (
     <dl className="kv">
       {amount ? (
@@ -72,7 +78,10 @@ export function BankKv({ bank, amount }: { bank: TransferBank; amount?: number |
       <dt>Số tài khoản</dt>
       <dd className="mono cp-row">
         <span>{bank.accountNo}</span>
-        <CopyButton text={bank.accountNo.replace(/\s+/g, "")} label="số tài khoản" />
+        <CopyButton
+          text={bank.accountNo.replace(/\s+/g, "")}
+          label="số tài khoản"
+        />
       </dd>
       <dt>Chủ tài khoản</dt>
       <dd>{bank.accountName}</dd>
@@ -86,14 +95,25 @@ type QrState = { payload: string; svg: string | null; failed: boolean };
  * VietQR for a confirmed amount, always next to the same details as text so the customer can still pay
  * when the QR cannot be drawn.
  */
-export function VietQrSvg({ bank, amount }: { bank: TransferBank; amount: number }) {
+export function VietQrSvg({
+  bank,
+  amount,
+}: {
+  bank: TransferBank;
+  amount: number;
+}) {
   const [state, setState] = useState<QrState | null>(null);
   const { bin, accountNo, content } = bank;
 
   useEffect(() => {
     let cancelled = false;
     const finish = (svg: string | null) => {
-      if (!cancelled) setState({ payload: `${bin}|${accountNo}|${content}|${amount}`, svg, failed: svg === null });
+      if (!cancelled)
+        setState({
+          payload: `${bin}|${accountNo}|${content}|${amount}`,
+          svg,
+          failed: svg === null,
+        });
     };
     (async () => {
       try {
@@ -112,13 +132,21 @@ export function VietQrSvg({ bank, amount }: { bank: TransferBank; amount: number
     };
   }, [bin, accountNo, content, amount]);
 
-  const current = state?.payload === `${bin}|${accountNo}|${content}|${amount}` ? state : null;
+  const current =
+    state?.payload === `${bin}|${accountNo}|${content}|${amount}`
+      ? state
+      : null;
 
   return (
     <div className={`qr-in${current?.failed ? " no-qr" : ""}`}>
       {current?.failed ? null : current?.svg ? (
         // The SVG is produced locally by the qrcode library from a payload built out of validated fields.
-        <div className="qr-box" role="img" aria-label="Mã QR chuyển khoản" dangerouslySetInnerHTML={{ __html: current.svg }} />
+        <div
+          className="qr-box"
+          role="img"
+          aria-label="Mã QR chuyển khoản"
+          dangerouslySetInnerHTML={{ __html: current.svg }}
+        />
       ) : (
         <div className="qr-box wait" aria-hidden="true">
           <i className="i i-qr" style={{ width: 56, height: 56 }} />

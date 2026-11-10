@@ -95,11 +95,10 @@ export function newProduct(): AdminProduct {
   };
 }
 
-/** New catalogue item: the one SKU the data model needs, with a generated code and no price. */
+/** New catalogue item: the one SKU the data model needs, no price. The editor fills the code from the server (SPxxxxxx). */
 export function newCatalogueProduct(): AdminProduct {
   const blank = newProduct();
-  const code = `TP-${Date.now().toString(36).toUpperCase()}`;
-  return { ...blank, skus: [{ ...blank.skus[0], code, unitName: "Sản phẩm" }] };
+  return { ...blank, skus: [{ ...blank.skus[0], code: "", unitName: "Sản phẩm" }] };
 }
 
 function skuToApi(row: SkuFormRow): AdminSku {

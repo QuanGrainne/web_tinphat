@@ -1,6 +1,6 @@
 # DNA web MVP: status and handover (2026-10-31)
 
-> Historical. The storefront has since become the Tín Phát Decord catalogue, see [tinphat-catalogue.md](tinphat-catalogue.md).
+> Historical. The storefront has since become the Tín Phát Decor catalogue, see [tinphat-catalogue.md](tinphat-catalogue.md).
 
 A runnable slice of phases 2, 3, 5, 6, 7 and 8 of `plans/261029-1949-dna-web-phase1/plan.md`, built in one session and run entirely in Docker. Scope and ownership: `plans/261029-1949-dna-web-phase1/mvp-scope.md`. API shapes: `docs/api-contract-mvp.md`. Run and operate: `docs/deployment-guide.md`. Architecture: `docs/system-architecture.md`.
 

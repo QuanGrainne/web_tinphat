@@ -1,6 +1,6 @@
 # Deployment guide: Docker stack
 
-> The site now runs as the Tín Phát Decord catalogue. Read [tinphat-catalogue.md](tinphat-catalogue.md) first: seeding, smoke checks and the sales flow differ from what is described below.
+> The site now runs as the Tín Phát Decor catalogue. Read [tinphat-catalogue.md](tinphat-catalogue.md) first: seeding, smoke checks and the sales flow differ from what is described below.
 
 Local and demo stack for the DNA web MVP: storefront, admin, API, PostgreSQL and a mail catcher behind Caddy. Production hardening (VPS, Cloudflare, off-site backups, automatic revert) is not part of it, see [Known limits](#11-known-limits-and-what-is-cut).
 
@@ -54,7 +54,7 @@ Only Caddy (8000), Mailpit (8025) and the database (55432) are published, the la
 | Variable | Meaning | Dev value |
 |---|---|---|
 | `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Database name and login. The password is only read when the volume is created; to change it later run `ALTER USER` or `down -v` | `dna`, `dna`, `dna-dev-pass` |
-| `DNA_BOOTSTRAP_MANAGER_USERNAME`, `DNA_BOOTSTRAP_MANAGER_PASSWORD` | First MANAGER account, created only while the `app_user` table is empty; password at least 12 characters | `owner`, `Dna-Dev-2026-Owner!` |
+| `DNA_BOOTSTRAP_MANAGER_USERNAME`, `DNA_BOOTSTRAP_MANAGER_PASSWORD` | First MANAGER account, created only while the `app_user` table is empty; password at least 8 characters | `owner`, `Dna-Dev-2026-Owner!` |
 | `DNA_SITE_URL` | Base URL used in email links (API) and in canonical URLs, sitemap and robots (web) | `http://localhost:8000` |
 | `DNA_MAIL_FROM` | From address of outgoing email | `no-reply@dnahoangnguyen.vn` |
 | `DNA_ORDER_RATE_LIMIT`, `DNA_QUOTE_RATE_LIMIT`, `DNA_LOOKUP_RATE_LIMIT` | Order creates, quote creates and order lookups allowed per client IP and 10 minutes. API defaults are 5, 5 and 10; the dev `.env` raises them because every local visitor shares one address | `50`, `50`, `100` |

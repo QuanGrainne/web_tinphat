@@ -4,12 +4,14 @@ import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button, Dropdown, Result, Spin } from "antd";
-import { GlobalOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { GlobalOutlined, KeyOutlined, LogoutOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/admin/api-client";
 import { useSession } from "@/lib/admin/use-session";
 import type { Role } from "@/lib/api/types";
 import styles from "./admin-shell.module.css";
+import { ChangePasswordDialog } from "./change-password-dialog";
+import { RecoveryEmailDialog } from "./recovery-email-dialog";
 
 const ROLE_LABEL: Record<Role, string> = { MANAGER: "Quản lý", EDITOR: "Biên tập" };
 
@@ -28,6 +30,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { session, isPending, error, unauthenticated, refetch } = useSession();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [editingEmail, setEditingEmail] = useState(false);
 
   async function logout() {
     setLoggingOut(true);
@@ -80,9 +84,13 @@ export function AdminShell({ children }: { children: ReactNode }) {
                   items: [
                     { key: "who", label: `${session.displayName} (${ROLE_LABEL[session.role]})`, disabled: true },
                     { type: "divider" },
+                    { key: "password", icon: <KeyOutlined />, label: "Đổi mật khẩu" },
+                    { key: "recovery", icon: <MailOutlined />, label: "Email lấy lại mật khẩu" },
                     { key: "logout", icon: <LogoutOutlined />, label: "Đăng xuất", disabled: loggingOut },
                   ],
                   onClick: ({ key }) => {
+                    if (key === "password") setChangingPassword(true);
+                    if (key === "recovery") setEditingEmail(true);
                     if (key === "logout") void logout();
                   },
                 }}
@@ -120,6 +128,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className={styles.page}>{children}</main>
+      {changingPassword && <ChangePasswordDialog onClose={() => setChangingPassword(false)} />}
+      {editingEmail && <RecoveryEmailDialog onClose={() => setEditingEmail(false)} />}
     </div>
   );
 }

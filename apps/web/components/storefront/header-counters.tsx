@@ -32,7 +32,11 @@ export function HeaderCounters() {
           <small>Đơn của bạn</small>
         </span>
       </Link>
-      <Link className="act act-c" href="/gio-hang" aria-label={order > 0 ? `Giỏ hàng, ${order} sản phẩm` : "Giỏ hàng"}>
+      <Link
+        className="act act-c"
+        href="/gio-hang"
+        aria-label={order > 0 ? `Giỏ hàng, ${order} sản phẩm` : "Giỏ hàng"}
+      >
         <span className="act-ico">
           <i className="i i-cart" aria-hidden="true" />
           {order > 0 && <em>{order}</em>}

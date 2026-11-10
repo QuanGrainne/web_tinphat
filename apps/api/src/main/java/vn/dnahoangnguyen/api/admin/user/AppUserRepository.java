@@ -13,4 +13,7 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
      */
     @Query("select u from AppUser u where lower(u.username) = lower(:username)")
     Optional<AppUser> findByUsername(@Param("username") String username);
+
+    @Query("select u from AppUser u where lower(u.email) = lower(:email)")
+    Optional<AppUser> findByEmail(@Param("email") String email);
 }

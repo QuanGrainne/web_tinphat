@@ -159,16 +159,27 @@ class StorefrontQueryIT extends CatalogIntegrationTest {
     }
 
     @Test
-    void discontinuedProductKeepsItsPageButLeavesLists() throws Exception {
+    void aDiscontinuedProductStaysListedLastAndFlaggedWhileShownAndLeavesWhenHidden() throws Exception {
         long group = categoryService.create(new CategoryCreate("Ngừng bán", null)).id();
-        long id = create("Hàng cũ", null, group, sku("OLD1", "Gói", 1, true, 1_000L));
+        long id = create("A hàng cũ", null, group, sku("OLD1", "Gói", 1, true, 1_000L));
+        create("Z hàng mới", null, group, sku("NEW1", "Gói", 1, true, 2_000L));
         publishAll();
         productService.discontinue(id, MANAGER);
 
-        mvc.perform(get("/api/public/products/hang-cu")).andExpect(status().isOk())
+        mvc.perform(get("/api/public/products/a-hang-cu")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("DISCONTINUED"));
-        mvc.perform(get("/api/public/categories/ngung-ban")).andExpect(jsonPath("$.total").value(0));
-        mvc.perform(get("/api/public/search").param("q", "hang cu")).andExpect(jsonPath("$.total").value(0));
+        mvc.perform(get("/api/public/categories/ngung-ban"))
+                .andExpect(jsonPath("$.total").value(2))
+                .andExpect(jsonPath("$.items[0].name").value("Z hàng mới"))
+                .andExpect(jsonPath("$.items[0].discontinued").value(false))
+                .andExpect(jsonPath("$.items[1].name").value("A hàng cũ"))
+                .andExpect(jsonPath("$.items[1].discontinued").value(true));
+        mvc.perform(get("/api/public/search").param("q", "hang cu")).andExpect(jsonPath("$.total").value(1));
+        mvc.perform(get("/api/public/sitemap")).andExpect(jsonPath("$.products.length()").value(1));
+
+        productService.unpublish(id, MANAGER);
+        mvc.perform(get("/api/public/categories/ngung-ban")).andExpect(jsonPath("$.total").value(1));
+        mvc.perform(get("/api/public/products/a-hang-cu")).andExpect(status().isNotFound());
     }
 
     @Test

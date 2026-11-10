@@ -45,7 +45,8 @@ public final class StorefrontDtos {
             Long fromPrice,
             String fromUnitName,
             boolean hasMultipleUnits,
-            List<UnitChip> units) {
+            List<UnitChip> units,
+            boolean discontinued) {
     }
 
     public record PublicProduct(
@@ -70,7 +71,7 @@ public final class StorefrontDtos {
     public record NavChild(long id, String name, String slug, long productCount) {
     }
 
-    public record NavCategory(long id, String name, String slug, long productCount, List<NavChild> children) {
+    public record NavCategory(long id, String name, String slug, long productCount, String imageUrl, List<NavChild> children) {
     }
 
     public record BrandCount(String name, String slug, long productCount) {
