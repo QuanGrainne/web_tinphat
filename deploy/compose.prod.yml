@@ -1,0 +1,39 @@
+# Production overrides for the VPS, layered on compose.yml. Always start the stack through
+# scripts/prod.sh, which passes both files:
+#
+#   bash scripts/prod.sh up -d --build
+#
+# Differences from the local stack: HTTPS on 80/443 with the Cloudflare origin certificate
+# (caddy/Caddyfile.prod), no database port on the host, no Mailpit (mail goes out through SMTP_*),
+# memory limits per container, and the SePay webhook switched off (the site takes no orders).
+name: dna
+
+services:
+  db:
+    ports: !reset []
+    mem_limit: 768m
+
+  api:
+    # Mailpit is not started on the server
+    depends_on: !override
+      db:
+        condition: service_healthy
+    mem_limit: 1g
+    environment:
+      DNA_SEPAY_ENABLED: "false"
+
+  web:
+    mem_limit: 640m
+
+  caddy:
+    ports: !override
+      - "80:80"
+      - "443:443"
+    command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile.prod", "--adapter", "caddyfile"]
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:?set SITE_DOMAIN in deploy/.env, e.g. tinphatdecor.com}
+    mem_limit: 256m
+
+  mailpit:
+    # only started with --profile dev, which the server never uses
+    profiles: ["dev"]

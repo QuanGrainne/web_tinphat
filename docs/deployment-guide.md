@@ -224,3 +224,24 @@ Behaviours the review accepted for the MVP and left as they are: a replayed `sub
 | Flyway warns `outOfOrder mode is active` | Expected: migrations from different modules may arrive in any order here; production sets it to false |
 | API fails with `Migration checksum mismatch` | A migration file was edited after this database applied it. The dev database is disposable: `down -v`, then `up -d --build` |
 | `Not found: C:/Program Files/Git/...` | Git Bash path rewriting, prefix with `MSYS_NO_PATHCONV=1` |
+
+## 13. Production on a VPS (Cloudflare + HTTPS)
+
+Files: `deploy/compose.prod.yml` (overrides), `deploy/caddy/Caddyfile.prod` (domain, origin certificate, Cloudflare client IP), `deploy/caddy/routes.caddy` (routes shared with the local Caddyfile), `deploy/production.env.example`, `scripts/prod.sh` (runs Compose with both files and refuses `-v`). Tested locally under a separate project: HTTPS 200, HTTP and `www` redirect to `https://<domain>`, `/actuator` 404, HSTS, `DNA_SESSION` cookie `Secure; HttpOnly`, idle memory about 470 MB (api), 70 MB (web, db), 15 MB (caddy).
+
+1. **Server** (Ubuntu 24.04): a sudo user with SSH key login, password and root login off, `ufw` allowing OpenSSH, 80 and 443, 2 GB swap, timezone `Asia/Ho_Chi_Minh`, Docker Engine with the compose plugin and `/etc/docker/daemon.json` log limits (`max-size 10m`, `max-file 3`). If outbound NTP (UDP 123) is blocked, `htpdate` keeps the clock over HTTPS.
+2. **Code**: `git clone <repo> /opt/tinphat` (a private repository needs a read-only deploy key).
+3. **Cloudflare**: add the domain, set the registrar's nameservers to Cloudflare's, add `A` records for `@` and `www` to the server IP with the proxy on, SSL/TLS mode **Full (strict)**. SSL/TLS > Origin Server > Create certificate (RSA, the domain and `*.domain`, 15 years); save the certificate as `deploy/caddy/certs/origin.pem` and the key as `deploy/caddy/certs/origin.key` on the server (`chmod 600` the key; the folder is gitignored).
+4. **Settings**: `cp deploy/production.env.example deploy/.env` and fill it (database password from `openssl rand -hex 24`, Gmail app password, `SITE_DOMAIN`, `DNA_SITE_URL`).
+5. **Data** (optional, to keep what was built locally): on the local machine `bash scripts/backup.sh`, copy the two newest files from `data/backups/` to the server, then on the server:
+   ```bash
+   bash scripts/prod.sh up -d db
+   bash scripts/prod.sh exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists --no-owner' < dna-YYYYmmdd-HHMM.dump
+   bash scripts/prod.sh up -d api
+   bash scripts/prod.sh exec -T api sh -c 'tar -C /app/uploads -xzf -' < uploads-YYYYmmdd-HHMM.tar.gz
+   ```
+6. **Start**: `bash scripts/prod.sh up -d --build`, then `SMOKE_BASE_URL=https://<domain> bash scripts/smoke.sh`, log in to `/admin`, change the password, and try "Quên mật khẩu" to check the mail.
+7. **Backups**: nightly cron as in section 7 with `BACKUP_REMOTE` set, and one test restore.
+8. **Updates**: `cd /opt/tinphat && git pull && bash scripts/prod.sh up -d --build`.
+
+`trusted_proxies` in `Caddyfile.prod` lists the Cloudflare ranges from https://www.cloudflare.com/ips/; update it if Cloudflare adds ranges. Docker publishes 80/443 past `ufw`, so the origin also answers requests sent straight to its IP (with the origin certificate, which browsers do not trust); restricting 80/443 to Cloudflare needs rules in the `DOCKER-USER` chain or Authenticated Origin Pulls.

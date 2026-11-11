@@ -25,3 +25,6 @@ test-results/
 # lead/agent scratch markers
 .kernel-ready
 .scaffold-ready
+
+# Cloudflare origin certificate on the server (deploy/caddy/certs/origin.pem, origin.key)
+deploy/caddy/certs/

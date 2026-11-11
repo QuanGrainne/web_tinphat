@@ -1,0 +1,42 @@
+# Reverse proxy on the VPS, behind Cloudflare (DNS records proxied, SSL/TLS mode "Full (strict)").
+# Used by deploy/compose.prod.yml; the domain comes from SITE_DOMAIN in deploy/.env.
+#
+#   browser -> Cloudflare (HTTPS) -> this Caddy on :443 with the Cloudflare origin certificate
+#   /api/*  -> api:8080   /uploads/* -> uploads volume   everything else -> web:3000
+#
+# The origin certificate and key are created in Cloudflare (SSL/TLS > Origin Server) and saved on
+# the server as deploy/caddy/certs/origin.pem and origin.key (gitignored, never committed).
+{
+	# certificates come from the files below, not from Let's Encrypt
+	auto_https disable_certs
+	servers {
+		# Only Cloudflare may tell us the visitor's address. A request straight to the server IP is
+		# not from these ranges, so a forged CF-Connecting-IP header is ignored and the per-IP limits
+		# (admin login, forms) see the real caller. Current ranges: https://www.cloudflare.com/ips/
+		trusted_proxies static 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
+		client_ip_headers CF-Connecting-IP X-Forwarded-For
+	}
+}
+
+# The API reads the visitor address from CF-Connecting-IP; {client_ip} is Cloudflare's value when
+# the request came through Cloudflare and the TCP peer otherwise.
+(api_proxy) {
+	reverse_proxy api:8080 {
+		header_up CF-Connecting-IP {client_ip}
+	}
+}
+
+(origin_tls) {
+	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
+}
+
+www.{$SITE_DOMAIN} {
+	import origin_tls
+	redir https://{$SITE_DOMAIN}{uri} permanent
+}
+
+{$SITE_DOMAIN} {
+	import origin_tls
+	header Strict-Transport-Security "max-age=31536000"
+	import routes.caddy
+}
