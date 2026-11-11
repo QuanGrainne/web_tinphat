@@ -45,6 +45,8 @@ const settings: PublicSettings = {
   hotline: "0366 985 679",
   zalo: null,
   facebook: null,
+  whatsapp: null,
+  wechat: null,
   trustStrip: ["Giá đã gồm VAT", "Hotline 0366 985 679"],
 };
 
@@ -163,7 +165,7 @@ beforeEach(() => {
 });
 
 describe("home page", () => {
-  it("shows the banner, category tiles, one priced row per category and the company sections", async () => {
+  it("shows the banner, the side list, one priced row per category and the company sections", async () => {
     const home: HomeData = {
       categories: [
         {
@@ -188,7 +190,9 @@ describe("home page", () => {
       "/api/public/settings": settings,
     });
     const html = renderToStaticMarkup(await HomePage());
-    expect(html).toContain("cho mọi");
+    expect(html).toContain("Tinphat <em>Production</em> Company Limited");
+    expect(html).not.toContain("tp-tiles");
+    expect(html).toContain('aria-label="Danh mục sản phẩm"');
     expect(html).toContain("/_next/image?url=%2Fuploads%2Fimages%2Fa.jpg");
     expect(html).toContain("Xem thêm sản phẩm");
     expect(html).toContain("8.570");
@@ -209,6 +213,24 @@ describe("contact band", () => {
     expect(html).toContain("Hotline");
     expect(html).toContain("https://www.google.com/maps/embed");
     expect(html).toContain("Xem đường đi");
+    expect(html).not.toContain("WhatsApp");
+    expect(html).not.toContain("WeChat");
+  });
+
+  it("adds a WhatsApp chat link and a WeChat ID to copy when the admin set them", async () => {
+    const { ContactCta } =
+      await import("@/components/storefront/tinphat-sections");
+    const { SiteFooter } = await import("@/components/storefront/site-footer");
+    const withBoth = { ...settings, whatsapp: "0914 794 472", wechat: "tinphat_decor" };
+    for (const html of [
+      renderToStaticMarkup(<ContactCta settings={withBoth} />),
+      renderToStaticMarkup(<SiteFooter nav={null} settings={withBoth} />),
+    ]) {
+      expect(html).toContain('href="https://wa.me/84914794472"');
+      expect(html).toContain("+84 914 794 472");
+      expect(html).toContain("tinphat_decor");
+      expect(html).toContain("Sao chép");
+    }
   });
 });
 

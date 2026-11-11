@@ -9,7 +9,13 @@ import {
   updateContactSettings,
 } from "@/lib/admin/settings-api";
 import type { ContactSettings } from "@/lib/api/types";
-import { facebookHref, telHref, zaloHref } from "@/lib/order/phone";
+import {
+  facebookHref,
+  isWechatId,
+  telHref,
+  whatsappHref,
+  zaloHref,
+} from "@/lib/order/phone";
 import { errorMessage } from "@/components/admin/requests/error-message";
 import { useAdminSession } from "@/components/admin/requests/use-admin-session";
 import s from "./settings.module.css";
@@ -17,16 +23,15 @@ import s from "./settings.module.css";
 const PHONE = /^\+?[0-9 .\-()]+$/;
 const digitCount = (value: string) => value.replace(/\D/g, "").length;
 
-function phoneRule(label: string) {
+/** Up to 12 digits for Vietnamese numbers; WhatsApp takes foreign numbers too, up to 15. */
+function phoneRule(label: string, maxDigits = 12, example = "0914 794 472") {
   return {
     validator: (_: unknown, value: string | undefined) => {
       const v = (value ?? "").trim();
       if (!v) return Promise.resolve();
-      return PHONE.test(v) && digitCount(v) >= 9 && digitCount(v) <= 12
+      return PHONE.test(v) && digitCount(v) >= 9 && digitCount(v) <= maxDigits
         ? Promise.resolve()
-        : Promise.reject(
-            new Error(`${label} không hợp lệ. Ví dụ: 0914 794 472`),
-          );
+        : Promise.reject(new Error(`${label} không hợp lệ. Ví dụ: ${example}`));
     },
   };
 }
@@ -49,6 +54,7 @@ function ContactForm({ initial }: { initial: ContactSettings }) {
   const hotline = Form.useWatch("hotline", form) ?? initial.hotline;
   const zalo = Form.useWatch("zalo", form) ?? initial.zalo;
   const facebook = Form.useWatch("facebook", form) ?? initial.facebook;
+  const whatsapp = Form.useWatch("whatsapp", form) ?? initial.whatsapp;
 
   async function onFinish(values: ContactSettings) {
     setSaving(true);
@@ -57,6 +63,8 @@ function ContactForm({ initial }: { initial: ContactSettings }) {
         hotline: values.hotline.trim(),
         zalo: (values.zalo ?? "").trim(),
         facebook: (values.facebook ?? "").trim(),
+        whatsapp: (values.whatsapp ?? "").trim(),
+        wechat: (values.wechat ?? "").trim(),
         email: values.email.trim(),
         address: values.address.trim(),
       });
@@ -83,7 +91,7 @@ function ContactForm({ initial }: { initial: ContactSettings }) {
         <h2 className={s.cardTitle}>Điện thoại và mạng xã hội</h2>
         <p className={s.cardNote}>
           Hiện ở đầu trang, phần Liên hệ, chân trang và các nút nổi Gọi, Zalo,
-          Facebook.
+          Facebook, WhatsApp.
         </p>
         <Form.Item
           label="Số hotline"
@@ -164,6 +172,64 @@ function ContactForm({ initial }: { initial: ContactSettings }) {
             maxLength={300}
           />
         </Form.Item>
+        <Form.Item
+          label="WhatsApp"
+          name="whatsapp"
+          extra={
+            <span>
+              Nhập số điện thoại WhatsApp (số nước ngoài thì ghi cả mã nước, ví
+              dụ +86 ...), hoặc dán link dạng https://wa.me/... Để trống để ẩn
+              nút WhatsApp. <TryLink href={whatsappHref(whatsapp ?? "")} />
+            </span>
+          }
+          rules={[
+            {
+              validator: (_, value: string | undefined) => {
+                const v = (value ?? "").trim();
+                if (!v) return Promise.resolve();
+                if (/^https?:\/\//i.test(v)) {
+                  return whatsappHref(v)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(
+                          "Link WhatsApp phải có dạng https://wa.me/84914794472",
+                        ),
+                      );
+                }
+                return phoneRule("Số WhatsApp", 15, "+84 914 794 472").validator(
+                  _,
+                  v,
+                );
+              },
+            },
+          ]}
+        >
+          <Input
+            placeholder="+84 914 794 472 hoặc https://wa.me/..."
+            maxLength={200}
+          />
+        </Form.Item>
+        <Form.Item
+          label="WeChat"
+          name="wechat"
+          extra="Nhập WeChat ID (hoặc số điện thoại đăng ký WeChat). WeChat không có link mở chat từ trang web, nên web hiện ID kèm nút Sao chép để khách dán vào WeChat tìm. Để trống để ẩn."
+          rules={[
+            {
+              validator: (_, value: string | undefined) => {
+                const v = (value ?? "").trim();
+                return !v || isWechatId(v)
+                  ? Promise.resolve()
+                  : Promise.reject(
+                      new Error(
+                        "WeChat ID gồm 6–20 ký tự, bắt đầu bằng chữ cái, chỉ có chữ, số, _ hoặc -; hoặc nhập số điện thoại WeChat",
+                      ),
+                    );
+              },
+            },
+          ]}
+        >
+          <Input placeholder="tinphat_decor" maxLength={40} />
+        </Form.Item>
       </section>
 
       <section className={s.card} style={{ marginTop: 12 }}>
@@ -201,7 +267,7 @@ function ContactForm({ initial }: { initial: ContactSettings }) {
   );
 }
 
-/** /admin/contact: the storefront's hotline, Zalo, Facebook, email and address. Managers edit; editors are told why not. */
+/** /admin/contact: the storefront's hotline, Zalo, Facebook, WhatsApp, WeChat, email and address. Managers edit; editors are told why not. */
 export function ContactSettingsScreen() {
   const session = useAdminSession();
   const isManager = session.data?.role === "MANAGER";

@@ -24,6 +24,8 @@ public class SettingsService {
     public static final String KEY_HOTLINE = "site.hotline";
     public static final String KEY_ZALO = "site.zalo";
     public static final String KEY_FACEBOOK = "site.facebook";
+    public static final String KEY_WHATSAPP = "site.whatsapp";
+    public static final String KEY_WECHAT = "site.wechat";
 
     public static final double DEFAULT_MISMATCH_THRESHOLD_PCT = 2.0;
 
@@ -86,6 +88,18 @@ public class SettingsService {
     @Transactional(readOnly = true)
     public Optional<String> facebook() {
         return get(KEY_FACEBOOK, String.class).filter(s -> !s.isBlank());
+    }
+
+    /** WhatsApp phone number or wa.me link; empty when not configured. */
+    @Transactional(readOnly = true)
+    public Optional<String> whatsapp() {
+        return get(KEY_WHATSAPP, String.class).filter(s -> !s.isBlank());
+    }
+
+    /** WeChat ID or phone number; empty when not configured. */
+    @Transactional(readOnly = true)
+    public Optional<String> wechat() {
+        return get(KEY_WECHAT, String.class).filter(s -> !s.isBlank());
     }
 
     @Transactional(readOnly = true)

@@ -23,7 +23,8 @@ public class SettingsController {
     @GetMapping("/api/public/settings")
     public PublicSettings publicSettings() {
         return new PublicSettings(settings.company(), settings.hotline(), settings.zalo().orElse(null),
-                settings.facebook().orElse(null), settings.trustStrip());
+                settings.facebook().orElse(null), settings.whatsapp().orElse(null), settings.wechat().orElse(null),
+                settings.trustStrip());
     }
 
     @GetMapping("/api/admin/settings")

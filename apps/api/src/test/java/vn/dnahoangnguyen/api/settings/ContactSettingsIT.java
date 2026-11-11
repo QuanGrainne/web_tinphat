@@ -1,5 +1,6 @@
 package vn.dnahoangnguyen.api.settings;
 
+import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -23,7 +24,7 @@ import vn.dnahoangnguyen.api.support.AdminLogin;
 import vn.dnahoangnguyen.api.support.IntegrationTest;
 import vn.dnahoangnguyen.api.support.TestAuth;
 
-/** The admin edits the storefront's hotline, Zalo, Facebook, email and address; the public settings follow. */
+/** The admin edits the storefront's hotline, Zalo, Facebook, WhatsApp, WeChat, email and address; the public settings follow. */
 class ContactSettingsIT extends IntegrationTest {
 
     @Autowired
@@ -41,7 +42,7 @@ class ContactSettingsIT extends IntegrationTest {
     @BeforeEach
     void remember() {
         // other tests read the seeded contact values, so every test puts them back
-        saved = jdbc.queryForList("select key, value::text as value from app_setting where key in ('company','site.hotline','site.zalo','site.facebook')");
+        saved = jdbc.queryForList("select key, value::text as value from app_setting where key in ('company','site.hotline','site.zalo','site.facebook','site.whatsapp','site.wechat')");
         manager = TestAuth.createUser(users, encoder, "contact-" + System.nanoTime(), "a long enough password", Role.MANAGER);
     }
 
@@ -50,16 +51,21 @@ class ContactSettingsIT extends IntegrationTest {
         if (saved == null) {
             return;
         }
-        jdbc.update("delete from app_setting where key in ('company','site.hotline','site.zalo','site.facebook')");
+        jdbc.update("delete from app_setting where key in ('company','site.hotline','site.zalo','site.facebook','site.whatsapp','site.wechat')");
         for (Map<String, Object> row : saved) {
             jdbc.update("insert into app_setting (key, value, updated_by) values (?, ?::jsonb, 'test')", row.get("key"), row.get("value"));
         }
     }
 
     private ResultActions save(AppUser user, String hotline, String zalo, String facebook) throws Exception {
+        return save(user, hotline, zalo, facebook, "", "");
+    }
+
+    private ResultActions save(AppUser user, String hotline, String zalo, String facebook, String whatsapp, String wechat)
+            throws Exception {
         String body = """
-                {"hotline":"%s","zalo":"%s","facebook":"%s","email":"lienhe@tinphatdecor.com","address":"Cầu chợ Trâu, Hải Hưng, Ninh Bình"}
-                """.formatted(hotline, zalo, facebook);
+                {"hotline":"%s","zalo":"%s","facebook":"%s","whatsapp":"%s","wechat":"%s","email":"lienhe@tinphatdecor.com","address":"Cầu chợ Trâu, Hải Hưng, Ninh Bình"}
+                """.formatted(hotline, zalo, facebook, whatsapp, wechat);
         return mvc.perform(put("/api/admin/settings/contact").with(TestAuth.as(user)).with(TestAuth.xsrf(AdminLogin.XSRF))
                 .contentType(MediaType.APPLICATION_JSON).content(body));
     }
@@ -91,6 +97,43 @@ class ContactSettingsIT extends IntegrationTest {
 
         save(manager, "0914794472", "", "").andExpect(status().isOk());
         mvc.perform(get("/api/public/settings")).andExpect(jsonPath("$.zalo").doesNotExist());
+    }
+
+    @Test
+    void whatsAppAndWeChatAreSavedShownAndMayBeEmpty() throws Exception {
+        save(manager, "0914794472", "", "", "+84 914 794 472", "tinphat_decor").andExpect(status().isOk())
+                .andExpect(jsonPath("$.whatsapp").value("+84 914 794 472"))
+                .andExpect(jsonPath("$.wechat").value("tinphat_decor"));
+        mvc.perform(get("/api/public/settings"))
+                .andExpect(jsonPath("$.whatsapp").value("+84 914 794 472"))
+                .andExpect(jsonPath("$.wechat").value("tinphat_decor"));
+        mvc.perform(get("/api/admin/settings/contact").with(TestAuth.as(manager)))
+                .andExpect(jsonPath("$.whatsapp").value("+84 914 794 472"))
+                .andExpect(jsonPath("$.wechat").value("tinphat_decor"));
+
+        // a wa.me link, and a WeChat account found by its phone number
+        save(manager, "0914794472", "", "", "https://wa.me/84914794472", "0914 794 472").andExpect(status().isOk());
+        mvc.perform(get("/api/public/settings"))
+                .andExpect(jsonPath("$.whatsapp").value("https://wa.me/84914794472"))
+                .andExpect(jsonPath("$.wechat").value("0914 794 472"));
+
+        save(manager, "0914794472", "", "", "", "").andExpect(status().isOk());
+        mvc.perform(get("/api/public/settings"))
+                .andExpect(jsonPath("$.whatsapp").doesNotExist())
+                .andExpect(jsonPath("$.wechat").doesNotExist());
+    }
+
+    @Test
+    void wrongWhatsAppAndWeChatValuesAreRefusedWithAReason() throws Exception {
+        save(manager, "0914794472", "", "", "abc", "").andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value("Số WhatsApp không hợp lệ. Ví dụ: +84 914 794 472."));
+        save(manager, "0914794472", "", "", "https://wa.me.evil.example/84914794472", "").andExpect(status().isBadRequest());
+        save(manager, "0914794472", "", "", "http://wa.me/84914794472", "").andExpect(status().isBadRequest());
+        save(manager, "0914794472", "", "", "", "1abcdef").andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value(startsWith("WeChat ID gồm 6–20 ký tự")));
+        save(manager, "0914794472", "", "", "", "abc").andExpect(status().isBadRequest());
+        save(manager, "0914794472", "", "", "", "<script>").andExpect(status().isBadRequest());
+        mvc.perform(get("/api/public/settings")).andExpect(jsonPath("$.wechat").doesNotExist());
     }
 
     @Test

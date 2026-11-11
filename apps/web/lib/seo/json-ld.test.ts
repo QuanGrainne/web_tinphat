@@ -119,6 +119,8 @@ describe("organizationJsonLd", () => {
       hotline: "0366 985 679",
       zalo: null,
   facebook: null,
+  whatsapp: null,
+  wechat: null,
       trustStrip: [],
     };
     const data = organizationJsonLd(settings, "https://dna.example");

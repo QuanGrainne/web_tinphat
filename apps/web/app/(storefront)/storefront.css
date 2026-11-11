@@ -1,7 +1,7 @@
 /* Storefront base layout. Colours follow the Tín Phát Decor palette; brand sections live in tinphat.css. */
 :root{
-  --nav:#1C1917; --pri:#B4551F; --pri-d:#96441A; --text:#1C1917; --muted:#57534E; --line:#E7E2DA; --line-s:#EFE9E0;
-  --page:#F2EFE9; --sel:#F5E6DC; --bg:#FAF8F5; --danger:#DC2626; --ok:#16A34A; --ok-bg:#DCFCE7; --warn:#B45309; --warn-bg:#FEF3C7;
+  --nav:#1C1917; --pri:#D7141C; --pri-d:#B01016; --text:#1C1917; --muted:#57534E; --line:#E7E2DA; --line-s:#EFE9E0;
+  --page:#F2EFE9; --sel:#FDEBEC; --bg:#FAF8F5; --danger:#DC2626; --ok:#16A34A; --ok-bg:#DCFCE7; --warn:#B45309; --warn-bg:#FEF3C7;
   --dark:#1C1917; --r:4px;
 }
 *{box-sizing:border-box}
@@ -525,7 +525,7 @@ a.ph{text-decoration:none}
   .pg a,.pg span{min-width:40px;height:40px}
   .tiles.t6{grid-template-columns:repeat(var(--cols,6),minmax(0,1fr))}
   .tiles.t5{grid-template-columns:repeat(var(--cols,5),minmax(0,1fr))}
-  .fab.z{bottom:92px;background:var(--nav)}
+  .fab.z{background:var(--nav)}
   .toast{left:50%;right:auto;bottom:24px;width:max-content;max-width:min(520px,calc(100vw - 48px));transform:translateX(-50%)}
   .pg-t{font-size:24px}
 }

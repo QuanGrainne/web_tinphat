@@ -1,9 +1,13 @@
 import type { PublicSettings } from "@/lib/api/types";
-import { facebookHref, zaloHref } from "@/lib/order/phone";
-import { FacebookIcon } from "./brand-icons";
+import { facebookHref, whatsappHref, zaloHref } from "@/lib/order/phone";
+import { FacebookIcon, WhatsAppIcon } from "./brand-icons";
 import { telHref } from "./shell-data";
 
-/** Floating Facebook / Zalo / Gọi buttons in their brand colours. Desktop only (CSS); mobile has the dock. */
+/**
+ * Floating WhatsApp / Facebook / Zalo / Gọi buttons in their brand colours, stacked from the bottom so a button the
+ * admin left empty leaves no gap. Desktop only (CSS); mobile has the dock. WeChat has no link to a chat, so it is not
+ * here; the contact band and the footer show its ID to copy.
+ */
 export function ContactBubble({
   settings,
 }: {
@@ -12,11 +16,24 @@ export function ContactBubble({
   if (!settings) return null;
   const zalo = zaloHref(settings.zalo);
   const facebook = facebookHref(settings.facebook);
+  const whatsapp = whatsappHref(settings.whatsapp);
   return (
-    <>
+    <div className="fabs">
+      {whatsapp && (
+        <a
+          className="fab wa"
+          href={whatsapp}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat WhatsApp"
+        >
+          <WhatsAppIcon />
+          <small>WhatsApp</small>
+        </a>
+      )}
       {facebook && (
         <a
-          className={zalo ? "fab fb" : "fab fb solo"}
+          className="fab fb"
           href={facebook}
           target="_blank"
           rel="noopener noreferrer"
@@ -46,6 +63,6 @@ export function ContactBubble({
         <i className="i i-phone" aria-hidden="true" />
         <small>Gọi</small>
       </a>
-    </>
+    </div>
   );
 }

@@ -85,3 +85,54 @@ export function facebookHref(raw: string | null): string | null {
 export function facebookLabel(href: string): string {
   return href.replace(/^https?:\/\/(www\.|m\.|web\.)?/i, "").replace(/\/$/, "");
 }
+
+const WHATSAPP_HOSTS = new Set([
+  "wa.me",
+  "api.whatsapp.com",
+  "whatsapp.com",
+  "www.whatsapp.com",
+  "chat.whatsapp.com",
+]);
+
+/** A phone number as WhatsApp wants it: digits with the country code, a Vietnamese leading 0 becoming 84. */
+function internationalDigits(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  if (raw.trim().startsWith("+")) return digits;
+  return digits.startsWith("0") ? `84${digits.slice(1)}` : digits;
+}
+
+/**
+ * WhatsApp chat link. The admin stores either a phone number (wa.me link built from it with the country code) or a
+ * wa.me / whatsapp.com link (used as it is); null when empty or unusable.
+ */
+export function whatsappHref(raw: string | null): string | null {
+  const value = (raw ?? "").trim();
+  if (/^https?:\/\//i.test(value))
+    return linkOn(value, WHATSAPP_HOSTS)?.toString() ?? null;
+  const digits = internationalDigits(value);
+  return digits.length >= 9 ? `https://wa.me/${digits}` : null;
+}
+
+/** What to show for the WhatsApp value: "+84 914 794 472" for a Vietnamese number, the number or link as typed otherwise. */
+export function whatsappLabel(raw: string): string {
+  const value = raw.trim();
+  if (/^https?:\/\//i.test(value))
+    return value.replace(/^https?:\/\/(www\.)?/i, "").replace(/\/$/, "");
+  const n = normalizePhone(value);
+  if (/^0\d{9}$/.test(n))
+    return `+84 ${n.slice(1, 4)} ${n.slice(4, 7)} ${n.slice(7)}`;
+  return value;
+}
+
+/** WeChat's own rule for an ID: 6 to 20 characters, a letter first, then letters, digits, _ or -. */
+const WECHAT_ID = /^[A-Za-z][A-Za-z0-9_-]{5,19}$/;
+
+/** A WeChat ID, or the phone number the WeChat account was opened with (9 to 15 digits). */
+export function isWechatId(raw: string): boolean {
+  const value = raw.trim();
+  const digits = value.replace(/\D/g, "").length;
+  return (
+    WECHAT_ID.test(value) ||
+    (/^\+?[0-9 .\-()]+$/.test(value) && digits >= 9 && digits <= 15)
+  );
+}

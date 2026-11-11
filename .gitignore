@@ -31,3 +31,6 @@ deploy/caddy/certs/
 
 # handover notes with the server IP (kept off the public repo)
 BAN-GIAO.md
+
+# local knowledge graph (built from BAN-GIAO.md too, so it holds the server IP)
+graphify-out/

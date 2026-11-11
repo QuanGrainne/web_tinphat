@@ -1,4 +1,7 @@
 /** Fixed brand copy of Tín Phát Decor. Products and categories come from the admin, not from here. */
+import type { StaticImageData } from "next/image";
+import banner from "@/public/images/tinphat/banner.jpg";
+import company from "@/public/images/tinphat/mo-hinh-cong-ty.jpg";
 
 export const BRAND = {
   name: "TÍN PHÁT DECOR",
@@ -7,10 +10,18 @@ export const BRAND = {
     "TÍN PHÁT DECOR chuyên sản xuất và phân phối các sản phẩm trang trí theo mùa và quanh năm, phục vụ cửa hàng, đại lý và khách hàng nhập số lượng lớn.",
 };
 
+/**
+ * The build gives an imported picture a URL with a hash of its content, so a picture replaced under the same file
+ * name shows at once: resized copies are cached for a month by URL, so a fixed URL would keep the old picture.
+ * (Unit tests import a picture as a plain path string, hence the fallback.)
+ */
+const url = (image: StaticImageData | string) =>
+  typeof image === "string" ? image : image.src;
+
 export const IMAGES = {
-  hero: "/images/tinphat/banner.jpg",
-  warehouse: "/images/tinphat/kho-hang.jpg",
-  packing: "/images/tinphat/dong-hang.jpg",
+  hero: url(banner),
+  /** Aerial view of the whole factory, in the "Năng lực" section. */
+  company: url(company),
 };
 
 export const HIGHLIGHTS = [
@@ -36,15 +47,15 @@ export const SEASONS = [
   {
     name: "Tết Nguyên Đán",
     period: "Tháng 1 – 2",
-    accent: "#B5341C",
-    tint: "#FDECEA",
+    accent: "#D7141C",
+    tint: "#FDEBEC",
     text: "Câu đối, ông thần tài và các sản phẩm trang trí truyền thống ngày Tết.",
   },
   {
     name: "Tết Trung Thu",
     period: "Tháng 8 – 9",
-    accent: "#C8632A",
-    tint: "#FFF3E0",
+    accent: "#B45309",
+    tint: "#FEF3C7",
     text: "Lồng đèn, đèn kéo quân và các sản phẩm trang trí Rằm Trung Thu.",
   },
   {

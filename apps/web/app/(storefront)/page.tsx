@@ -11,7 +11,6 @@ import {
 import {
   AboutSection,
   CapabilitySection,
-  CategoryTiles,
   ProcessSection,
   SeasonsSection,
 } from "@/components/storefront/tinphat-sections";
@@ -36,7 +35,7 @@ export const metadata: Metadata = {
   },
 };
 
-/** Banner, category tiles, one product row per category beside the side list, then the company sections. */
+/** Banner, then one product row per category beside the side list that stays put while the rows scroll, then the company sections. */
 export default async function HomePage() {
   const [home, nav, settings] = await Promise.all([
     apiGet<HomeData>("/api/public/home"),
@@ -47,7 +46,6 @@ export default async function HomePage() {
     (section) => section.products.length > 0,
   );
   const contact = contactHref(settings);
-  const featured = sections.map((section) => section.products[0]).slice(0, 5);
 
   return (
     <main>
@@ -56,7 +54,7 @@ export default async function HomePage() {
         <div className="wrap">
           <span>Sản xuất &amp; Phân phối</span>
           <h1>
-            Decor <em>cho mọi</em> mùa.
+            Tinphat <em>Production</em> Company Limited
           </h1>
           <p>
             Sản phẩm trang trí theo mùa và quanh năm cho cửa hàng, đại lý và
@@ -83,15 +81,8 @@ export default async function HomePage() {
           ))}
         </ul>
 
-        {home.categories.length > 0 && (
-          <section className="tp-block">
-            <h2 className="tp-block-t">Danh mục sản phẩm</h2>
-            <CategoryTiles categories={home.categories} />
-          </section>
-        )}
-
         <div className="tp-shop tp-home">
-          <CatalogueSidebar nav={nav} settings={settings} featured={featured} />
+          <CatalogueSidebar nav={nav} settings={settings} />
           <div>
             {sections.map((section) => {
               const info = home.categories.find(

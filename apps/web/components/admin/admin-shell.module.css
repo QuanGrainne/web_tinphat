@@ -64,7 +64,7 @@
 }
 
 .bell:hover {
-  color: #B4551F;
+  color: #D7141C;
 }
 
 .user {
@@ -83,8 +83,8 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #F5E6DC;
-  color: #B4551F;
+  background: #FDEBEC;
+  color: #D7141C;
   display: grid;
   place-items: center;
 }
@@ -155,7 +155,7 @@
 
 .go:hover {
   color: #1C1917;
-  background: #F5E6DC;
+  background: #FDEBEC;
 }
 
 .page {

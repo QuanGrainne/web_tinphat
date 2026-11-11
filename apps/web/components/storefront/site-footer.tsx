@@ -6,11 +6,14 @@ import {
   facebookLabel,
   formatPhone,
   telHref,
+  whatsappHref,
+  whatsappLabel,
   zaloHref,
   zaloLabel,
 } from "@/lib/order/phone";
 import { BRAND } from "@/lib/tinphat/content";
-import { FacebookIcon, ZaloMark } from "./brand-icons";
+import { FacebookIcon, WhatsAppIcon, ZaloMark } from "./brand-icons";
+import { CopyText } from "./copy-text";
 import { SectionLink } from "./section-link";
 
 const COMPANY_LINKS: { href: string; label: string; section?: string }[] = [
@@ -36,6 +39,9 @@ export function SiteFooter({
   const zalo = settings?.zalo ?? null;
   const zaloLink = zaloHref(zalo);
   const facebook = facebookHref(settings?.facebook ?? null);
+  const whatsapp = settings?.whatsapp ?? null;
+  const whatsappLink = whatsappHref(whatsapp);
+  const wechat = settings?.wechat ?? null;
   return (
     <footer className="tp-ft">
       <div className="wrap tp-ft-grid">
@@ -53,7 +59,7 @@ export function SiteFooter({
             Sản xuất và phân phối các sản phẩm trang trí theo mùa và quanh năm —
             phục vụ cửa hàng, đại lý và khách hàng nhập số lượng lớn.
           </p>
-          {(zaloLink || facebook) && (
+          {(zaloLink || facebook || whatsappLink) && (
             <div className="tp-ft-social">
               {facebook && (
                 <a
@@ -75,6 +81,17 @@ export function SiteFooter({
                   aria-label="Zalo"
                 >
                   <ZaloMark />
+                </a>
+              )}
+              {whatsappLink && (
+                <a
+                  className="tp-soc tp-soc-wa"
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="WhatsApp"
+                >
+                  <WhatsAppIcon />
                 </a>
               )}
             </div>
@@ -153,6 +170,28 @@ export function SiteFooter({
                   <a href={facebook} target="_blank" rel="noopener noreferrer">
                     {facebookLabel(facebook)}
                   </a>
+                </dd>
+              </div>
+            )}
+            {whatsapp && whatsappLink && (
+              <div>
+                <dt>WhatsApp</dt>
+                <dd>
+                  <a
+                    href={whatsappLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {whatsappLabel(whatsapp)}
+                  </a>
+                </dd>
+              </div>
+            )}
+            {wechat && (
+              <div>
+                <dt>WeChat</dt>
+                <dd>
+                  <CopyText value={wechat} label="WeChat ID" />
                 </dd>
               </div>
             )}

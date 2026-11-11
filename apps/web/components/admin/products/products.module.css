@@ -54,8 +54,8 @@
 .fbLink {
   font-weight: 400;
   font-size: 13px;
-  background: #F5E6DC;
-  color: #B4551F;
+  background: #FDEBEC;
+  color: #D7141C;
   padding: 3px 8px;
   border: 0;
   border-radius: 4px;
@@ -86,8 +86,8 @@
 }
 
 .pillOn {
-  background: #B4551F;
-  border-color: #B4551F;
+  background: #D7141C;
+  border-color: #D7141C;
   color: #fff;
 }
 
@@ -219,7 +219,7 @@
   border: 0;
   padding: 0;
   font-size: 12px;
-  color: #B4551F;
+  color: #D7141C;
   cursor: pointer;
 }
 

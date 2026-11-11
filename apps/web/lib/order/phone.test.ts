@@ -4,8 +4,11 @@ import {
   facebookLabel,
   formatPhone,
   isValidPhone,
+  isWechatId,
   normalizePhone,
   telHref,
+  whatsappHref,
+  whatsappLabel,
   zaloHref,
   zaloLabel,
 } from "./phone";
@@ -64,5 +67,29 @@ describe("phone", () => {
     expect(facebookLabel("https://www.facebook.com/tinphatdecor/")).toBe(
       "facebook.com/tinphatdecor",
     );
+  });
+
+  it("builds a WhatsApp link with the country code, or keeps a wa.me link", () => {
+    expect(whatsappHref("0914 794 472")).toBe("https://wa.me/84914794472");
+    expect(whatsappHref("+84 914 794 472")).toBe("https://wa.me/84914794472");
+    expect(whatsappHref("+86 138 0013 8000")).toBe("https://wa.me/8613800138000");
+    expect(whatsappHref("https://wa.me/84914794472")).toBe("https://wa.me/84914794472");
+    expect(whatsappHref("https://wa.me.evil.example/1")).toBeNull();
+    expect(whatsappHref("http://wa.me/84914794472")).toBeNull();
+    expect(whatsappHref("")).toBeNull();
+    expect(whatsappHref(null)).toBeNull();
+    expect(whatsappLabel("0914794472")).toBe("+84 914 794 472");
+    expect(whatsappLabel("+86 138 0013 8000")).toBe("+86 138 0013 8000");
+    expect(whatsappLabel("https://wa.me/84914794472")).toBe("wa.me/84914794472");
+  });
+
+  it("accepts a WeChat ID or phone number and nothing else", () => {
+    expect(isWechatId("tinphat_decor")).toBe(true);
+    expect(isWechatId("Tp-2026")).toBe(true);
+    expect(isWechatId("0914 794 472")).toBe(true);
+    expect(isWechatId("+86 138 0013 8000")).toBe(true);
+    expect(isWechatId("1abcdef")).toBe(false);
+    expect(isWechatId("abc")).toBe(false);
+    expect(isWechatId("<script>")).toBe(false);
   });
 });

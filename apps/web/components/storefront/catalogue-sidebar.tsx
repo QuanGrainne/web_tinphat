@@ -1,59 +1,80 @@
 import Link from "next/link";
-import type { Nav, ProductCard, PublicSettings } from "@/lib/api/types";
-import { formatVnd } from "@/lib/format/money";
+import type { Nav, PublicSettings } from "@/lib/api/types";
 import { formatPhone, telHref, zaloHref } from "@/lib/order/phone";
-import { IMAGES } from "@/lib/tinphat/content";
 import { CatalogImage } from "@/components/catalog-image";
 
-/** Left column of the catalogue. On phones only the category list stays, as a sideways-scrolling row. */
+/**
+ * Left column of the catalogue: the category list with the quote hotline at its foot, kept in view while the page
+ * scrolls. On phones only the category list stays, as a sideways-scrolling row.
+ */
 export function CatalogueSidebar({
   nav,
   activeSlug,
   settings,
-  featured = [],
 }: {
   nav: Nav | null;
   activeSlug?: string | null;
   settings?: PublicSettings | null;
-  /** Short product list under the categories (home page). */
-  featured?: ProductCard[];
 }) {
   const phone = settings ? settings.hotline || settings.company.phone : null;
   const zalo = settings ? zaloHref(settings.zalo) : null;
   const total =
     nav?.categories.reduce((sum, category) => sum + category.productCount, 0) ??
     0;
+  /** `thumb` is the category picture, "grid" for the all-products row, undefined for sub-categories. */
   const link = (
     href: string,
     name: string,
     count: number,
     on: boolean,
-    sub = false,
+    thumb?: string | null | "grid",
   ) => (
     <li key={href}>
       <Link
         href={href}
         prefetch={false}
-        className={`${on ? "on" : ""}${sub ? " sub" : ""}`.trim() || undefined}
+        className={`${on ? "on" : ""}${thumb === undefined ? " sub" : ""}`.trim() || undefined}
         aria-current={on ? "page" : undefined}
       >
+        {thumb === "grid" ? (
+          <span className="tp-side-th" aria-hidden="true">
+            <i className="i i-grid" />
+          </span>
+        ) : thumb ? (
+          <CatalogImage
+            className="tp-side-th"
+            src={thumb}
+            width={36}
+            height={36}
+            sizes="36px"
+          />
+        ) : thumb === null ? (
+          <span className="tp-side-th" aria-hidden="true">
+            <i className="i i-box" />
+          </span>
+        ) : null}
         <span>{name}</span>
         <small>{count}</small>
+        <i className="i i-right tp-side-go" aria-hidden="true" />
       </Link>
     </li>
   );
   return (
     <aside className="tp-side" aria-label="Danh mục sản phẩm">
-      <section className="tp-side-b">
-        <h2>Danh mục sản phẩm</h2>
+      <section className="tp-side-b tp-side-cat">
+        <h2>
+          <i className="i i-menu" aria-hidden="true" />
+          Danh mục sản phẩm
+        </h2>
         <ul>
-          {link("/san-pham", "Tất cả sản phẩm", total, activeSlug === null)}
+          {link("/san-pham", "Tất cả sản phẩm", total, activeSlug === null, "grid")}
           {nav?.categories.flatMap((category) => [
             link(
               `/danh-muc/${category.slug}`,
               category.name,
               category.productCount,
               category.slug === activeSlug,
+              category.imageUrl,
             ),
             ...category.children.map((child) =>
               link(
@@ -61,54 +82,14 @@ export function CatalogueSidebar({
                 child.name,
                 child.productCount,
                 child.slug === activeSlug,
-                true,
               ),
             ),
           ])}
         </ul>
-      </section>
-
-      {featured.length > 0 && (
-        <section className="tp-side-b tp-side-more">
-          <h2>Sản phẩm tiêu biểu</h2>
-          <div className="tp-side-list">
-            {featured.map((product) => (
-              <Link
-                key={product.id}
-                href={`/san-pham/${product.slug}`}
-                prefetch={false}
-              >
-                {product.imageUrl ? (
-                  <CatalogImage
-                    src={product.imageUrl}
-                    width={56}
-                    height={56}
-                    sizes="56px"
-                  />
-                ) : (
-                  <span className="ph">
-                    <i className="i i-image" aria-hidden="true" />
-                  </span>
-                )}
-                <span>
-                  {product.name}
-                  <b>
-                    {product.fromPrice !== null
-                      ? formatVnd(product.fromPrice)
-                      : "Liên hệ"}
-                  </b>
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {phone && (
-        <section className="tp-side-b tp-side-more">
-          <h2>Hỗ trợ báo giá</h2>
-          <div className="tp-side-c">
-            <p>Cần báo giá số lượng lớn?</p>
+        {/* quote help sits at the foot of the same box, so it stays in view with the list and nothing slides over it */}
+        {phone && (
+          <div className="tp-side-call">
+            <small>Liên Hệ</small>
             <a className="btn btn-pri" href={telHref(phone)}>
               <i className="i i-phone" aria-hidden="true" />
               {formatPhone(phone)}
@@ -120,23 +101,12 @@ export function CatalogueSidebar({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Nhắn Zalo
+                Zalo
               </a>
             )}
           </div>
-        </section>
-      )}
-
-      {featured.length > 0 && (
-        <CatalogImage
-          className="tp-side-i tp-side-more"
-          src={IMAGES.warehouse}
-          alt="Nhà xưởng TÍN PHÁT DECOR"
-          width={600}
-          height={400}
-          sizes="250px"
-        />
-      )}
+        )}
+      </section>
     </aside>
   );
 }

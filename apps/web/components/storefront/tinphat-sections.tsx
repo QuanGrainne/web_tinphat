@@ -6,6 +6,8 @@ import {
   facebookLabel,
   formatPhone,
   telHref,
+  whatsappHref,
+  whatsappLabel,
   zaloHref,
   zaloLabel,
 } from "@/lib/order/phone";
@@ -18,38 +20,9 @@ import {
   PROCESS_STEPS,
   SEASONS,
 } from "@/lib/tinphat/content";
-import { FacebookIcon, ZaloMark } from "./brand-icons";
+import { FacebookIcon, WeChatIcon, WhatsAppIcon, ZaloMark } from "./brand-icons";
+import { CopyText } from "./copy-text";
 import { CatalogImage } from "@/components/catalog-image";
-
-export interface CategoryTile {
-  name: string;
-  slug: string;
-  imageUrl: string | null;
-}
-
-/** Large category images near the top of the home page, name over the picture. */
-export function CategoryTiles({ categories }: { categories: CategoryTile[] }) {
-  return (
-    <div className="tp-tiles">
-      {categories.map((category) => (
-        <Link
-          key={category.slug}
-          href={`/danh-muc/${category.slug}`}
-          prefetch={false}
-        >
-          {category.imageUrl ? (
-            <CatalogImage
-              src={category.imageUrl}
-              fill
-              sizes="(min-width: 960px) 420px, 50vw"
-            />
-          ) : null}
-          <b>{category.name}</b>
-        </Link>
-      ))}
-    </div>
-  );
-}
 
 export function SectionHead({
   label,
@@ -186,19 +159,11 @@ export function CapabilitySection() {
           <div className="tp-capx-imgs">
             <CatalogImage
               className="tp-capx-main"
-              src={IMAGES.warehouse}
-              alt={`Nhà xưởng và kho hàng ${BRAND.name}`}
-              width={1200}
-              height={800}
+              src={IMAGES.company}
+              alt={`Toàn cảnh nhà xưởng ${BRAND.name}`}
+              width={2560}
+              height={1440}
               sizes="(min-width: 960px) 50vw, 100vw"
-            />
-            <CatalogImage
-              className="tp-capx-sub"
-              src={IMAGES.packing}
-              alt={`Khu đóng hàng ${BRAND.name}`}
-              width={1200}
-              height={800}
-              sizes="50vw"
             />
           </div>
           <ul className="tp-capx-list">
@@ -313,6 +278,9 @@ export function ContactCta({ settings }: { settings: PublicSettings | null }) {
   const zalo = settings?.zalo ?? null;
   const zaloLink = zaloHref(zalo);
   const facebook = facebookHref(settings?.facebook ?? null);
+  const whatsapp = settings?.whatsapp ?? null;
+  const whatsappLink = whatsappHref(whatsapp);
+  const wechat = settings?.wechat ?? null;
   return (
     <section className="tp-cta" id="lien-he">
       <div className="wrap tp-cta-top">
@@ -375,6 +343,30 @@ export function ContactCta({ settings }: { settings: PublicSettings | null }) {
                 <a href={facebook} target="_blank" rel="noopener noreferrer">
                   {facebookLabel(facebook)}
                 </a>
+              </div>
+            </li>
+          )}
+          {whatsapp && whatsappLink && (
+            <li className="tp-c-wa">
+              <span className="tp-cta-ico">
+                <WhatsAppIcon />
+              </span>
+              <div>
+                <small>WhatsApp</small>
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                  {whatsappLabel(whatsapp)}
+                </a>
+              </div>
+            </li>
+          )}
+          {wechat && (
+            <li className="tp-c-wechat">
+              <span className="tp-cta-ico">
+                <WeChatIcon />
+              </span>
+              <div>
+                <small>WeChat ID</small>
+                <CopyText value={wechat} label="WeChat ID" />
               </div>
             </li>
           )}
