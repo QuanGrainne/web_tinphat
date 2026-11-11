@@ -106,6 +106,8 @@ docker compose -f deploy/compose.yml exec -T db sh -c 'pg_restore -U "$POSTGRES_
 docker compose -f deploy/compose.yml up -d
 ```
 
+Pictures that no product, gallery or category uses any more (a photo replaced in the admin leaves the old file) are listed by `bash scripts/prune-uploads.sh` and deleted with `--apply`, from the site, the backup mirror and, with `BACKUP_REMOTE` set, the off-site copy. Files younger than `MIN_AGE_MINUTES` (60) are skipped, so an upload not saved yet is safe; the script refuses when the database lists no picture in use.
+
 Restore the pictures (adds the mirror back into the `uploads` volume; files with the same name are replaced). From the off-site copy, first fetch it: `rclone copy gdrive:tinphat-backups/uploads data/backups/uploads`.
 
 ```bash
