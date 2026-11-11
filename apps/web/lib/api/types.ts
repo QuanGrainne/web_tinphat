@@ -13,7 +13,9 @@ export type Role = "EDITOR" | "MANAGER";
 export interface AdminSession { username: string; displayName: string; role: Role }
 export interface CompanyInfo { name: string; taxCode: string; address: string; warehouse: string; phone: string; email: string }
 export interface BankInfo { bankName: string; bin: string; accountNo: string; accountName: string }
-export interface PublicSettings { company: CompanyInfo; hotline: string; zalo: string | null; trustStrip: string[] }
+export interface PublicSettings { company: CompanyInfo; hotline: string; zalo: string | null; facebook: string | null; trustStrip: string[] }
+/** Contact details the admin edits (/admin/contact); zalo is a number or a zalo.me link, zalo and facebook may be "". */
+export interface ContactSettings { hotline: string; zalo: string; facebook: string; email: string; address: string }
 export interface AdminSettings {
   company: CompanyInfo; bank: BankInfo; notifyOwnerEmail: string;
   pricingMismatchThresholdPct: number; discountTiers: { threshold: number; pct: number }[];

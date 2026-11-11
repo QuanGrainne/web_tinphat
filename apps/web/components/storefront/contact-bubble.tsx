@@ -1,20 +1,35 @@
 import type { PublicSettings } from "@/lib/api/types";
+import { facebookHref, zaloHref } from "@/lib/order/phone";
+import { FacebookIcon } from "./brand-icons";
 import { telHref } from "./shell-data";
 
-/** Floating Gọi / Zalo buttons. Desktop only (CSS); mobile has the hotline icon in the header. */
+/** Floating Facebook / Zalo / Gọi buttons in their brand colours. Desktop only (CSS); mobile has the dock. */
 export function ContactBubble({
   settings,
 }: {
   settings: PublicSettings | null;
 }) {
   if (!settings) return null;
-  const zalo = settings.zalo?.replace(/\s+/g, "");
+  const zalo = zaloHref(settings.zalo);
+  const facebook = facebookHref(settings.facebook);
   return (
     <>
+      {facebook && (
+        <a
+          className={zalo ? "fab fb" : "fab fb solo"}
+          href={facebook}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Facebook"
+        >
+          <FacebookIcon />
+          <small>Facebook</small>
+        </a>
+      )}
       {zalo && (
         <a
           className="fab z"
-          href={`https://zalo.me/${encodeURIComponent(zalo)}`}
+          href={zalo}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Chat Zalo"

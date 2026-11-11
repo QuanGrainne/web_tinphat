@@ -23,6 +23,7 @@ public class SettingsService {
     public static final String KEY_TRUST_STRIP = "site.trustStrip";
     public static final String KEY_HOTLINE = "site.hotline";
     public static final String KEY_ZALO = "site.zalo";
+    public static final String KEY_FACEBOOK = "site.facebook";
 
     public static final double DEFAULT_MISMATCH_THRESHOLD_PCT = 2.0;
 
@@ -79,6 +80,12 @@ public class SettingsService {
     @Transactional(readOnly = true)
     public Optional<String> zalo() {
         return get(KEY_ZALO, String.class).filter(s -> !s.isBlank());
+    }
+
+    /** Link to the Facebook page; empty when not configured. */
+    @Transactional(readOnly = true)
+    public Optional<String> facebook() {
+        return get(KEY_FACEBOOK, String.class).filter(s -> !s.isBlank());
     }
 
     @Transactional(readOnly = true)

@@ -1,3 +1,4 @@
+import { zaloHref } from "@/lib/order/phone";
 import { apiGet } from "@/lib/api/server-fetch";
 import type { Nav, Page, ProductCard, PublicSettings } from "@/lib/api/types";
 
@@ -34,7 +35,7 @@ export function telHref(phone: string): string {
 
 /** Where "Liên hệ ngay" goes: Zalo when set, else the hotline, else the contact page. */
 export function contactHref(settings: PublicSettings | null): string {
-  const zalo = settings?.zalo?.replace(/\D/g, "");
-  if (zalo) return `https://zalo.me/${zalo}`;
+  const zalo = zaloHref(settings?.zalo ?? null);
+  if (zalo) return zalo;
   return settings?.hotline ? telHref(settings.hotline) : "/lien-he";
 }

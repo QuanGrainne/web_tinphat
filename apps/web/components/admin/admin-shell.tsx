@@ -28,6 +28,7 @@ const ROLE_LABEL: Record<Role, string> = {
 const MENU = [
   { href: "/admin/products", label: "Sản phẩm" },
   { href: "/admin/categories", label: "Danh mục" },
+  { href: "/admin/contact", label: "Liên hệ" },
 ];
 
 function cls(...names: (string | false)[]): string {

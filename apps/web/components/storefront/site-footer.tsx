@@ -1,8 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Nav, PublicSettings } from "@/lib/api/types";
-import { formatPhone, telHref, zaloHref } from "@/lib/order/phone";
+import {
+  facebookHref,
+  facebookLabel,
+  formatPhone,
+  telHref,
+  zaloHref,
+  zaloLabel,
+} from "@/lib/order/phone";
 import { BRAND } from "@/lib/tinphat/content";
+import { FacebookIcon, ZaloMark } from "./brand-icons";
 import { SectionLink } from "./section-link";
 
 const COMPANY_LINKS: { href: string; label: string; section?: string }[] = [
@@ -26,6 +34,8 @@ export function SiteFooter({
   const categories = (nav?.categories ?? []).slice(0, MAX_CATEGORIES);
   const hotline = settings?.hotline ?? company?.phone ?? null;
   const zalo = settings?.zalo ?? null;
+  const zaloLink = zaloHref(zalo);
+  const facebook = facebookHref(settings?.facebook ?? null);
   return (
     <footer className="tp-ft">
       <div className="wrap tp-ft-grid">
@@ -43,6 +53,32 @@ export function SiteFooter({
             Sản xuất và phân phối các sản phẩm trang trí theo mùa và quanh năm —
             phục vụ cửa hàng, đại lý và khách hàng nhập số lượng lớn.
           </p>
+          {(zaloLink || facebook) && (
+            <div className="tp-ft-social">
+              {facebook && (
+                <a
+                  className="tp-soc tp-soc-fb"
+                  href={facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                >
+                  <FacebookIcon />
+                </a>
+              )}
+              {zaloLink && (
+                <a
+                  className="tp-soc tp-soc-zalo"
+                  href={zaloLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Zalo"
+                >
+                  <ZaloMark />
+                </a>
+              )}
+            </div>
+          )}
           {company && (
             <p className="tp-ft-co">
               {company.name}
@@ -100,16 +136,22 @@ export function SiteFooter({
                 </dd>
               </div>
             )}
-            {zalo && (
+            {zalo && zaloLink && (
               <div>
                 <dt>Zalo</dt>
                 <dd>
-                  <a
-                    href={zaloHref(zalo) ?? undefined}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {formatPhone(zalo)}
+                  <a href={zaloLink} target="_blank" rel="noopener noreferrer">
+                    {zaloLabel(zalo)}
+                  </a>
+                </dd>
+              </div>
+            )}
+            {facebook && (
+              <div>
+                <dt>Facebook</dt>
+                <dd>
+                  <a href={facebook} target="_blank" rel="noopener noreferrer">
+                    {facebookLabel(facebook)}
                   </a>
                 </dd>
               </div>

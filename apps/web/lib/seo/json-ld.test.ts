@@ -118,6 +118,7 @@ describe("organizationJsonLd", () => {
       company: { name: "CÔNG TY TNHH DNA HOÀNG NGUYÊN", taxCode: "5400533724", address: "Phú Thọ", warehouse: "Kho", phone: "0366 985 679", email: "a@b.vn" },
       hotline: "0366 985 679",
       zalo: null,
+  facebook: null,
       trustStrip: [],
     };
     const data = organizationJsonLd(settings, "https://dna.example");

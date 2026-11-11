@@ -284,6 +284,56 @@ test.describe("admin edits reach the public pages at once", () => {
     await expect(viewer).toHaveCount(0);
   });
 
+  test("the admin edits the hotline, Zalo and Facebook, and the website shows them in their brand colours", async ({ page }) => {
+    const putContact = (body: unknown) =>
+      page.evaluate(async (payload) => {
+        const token = decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? "");
+        const response = await fetch("/api/admin/settings/contact", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "X-XSRF-TOKEN": token },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) throw new Error(`contact save failed: ${response.status}`);
+      }, body);
+    await page.goto("/admin/contact");
+    const original = await page.evaluate(async () => (await fetch("/api/admin/settings/contact")).json());
+    try {
+      const form = page.locator("form");
+      await expect(form.getByLabel("Số hotline")).toHaveValue(original.hotline);
+      await form.getByLabel("Link Facebook").fill("facebook.com/khong-co-https");
+      await page.getByRole("button", { name: "Lưu thông tin liên hệ" }).click();
+      await expect(page.getByText("Link Facebook phải có dạng https://www.facebook.com/ten-trang")).toBeVisible();
+
+      await form.getByLabel("Link Facebook").fill("https://www.facebook.com/tinphatdecor-e2e");
+      await form.getByLabel("Zalo").fill("https://zalo.me/g/tinphat-e2e");
+      await expect(form.getByRole("link", { name: "Mở thử ↗" }).nth(2)).toHaveAttribute("href", "https://www.facebook.com/tinphatdecor-e2e");
+      await page.screenshot({ path: path.join(SHOTS, "admin-contact.png"), fullPage: true });
+      await page.getByRole("button", { name: "Lưu thông tin liên hệ" }).click();
+      await expect(page.getByText("Đã lưu. Trang web hiển thị thông tin mới ngay.")).toBeVisible();
+
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto("/");
+      const band = page.locator("section.tp-cta");
+      await expect(band.locator(".tp-c-fb a")).toHaveAttribute("href", "https://www.facebook.com/tinphatdecor-e2e");
+      await expect(band.locator(".tp-c-zalo a")).toHaveAttribute("href", "https://zalo.me/g/tinphat-e2e");
+      await expect(band.locator(".tp-c-zalo a")).toHaveText("zalo.me/g/tinphat-e2e");
+      const tile = (cls: string) => band.locator(`.${cls} .tp-cta-ico`).evaluate((el) => getComputedStyle(el).backgroundColor);
+      expect(await tile("tp-c-zalo")).toBe("rgb(0, 104, 255)");
+      expect(await tile("tp-c-fb")).toBe("rgb(24, 119, 242)");
+      expect(await tile("tp-c-phone")).toBe("rgb(22, 163, 74)");
+      await expect(page.locator("a.fab.fb")).toHaveAttribute("href", "https://www.facebook.com/tinphatdecor-e2e");
+      await expect(page.locator("footer .tp-soc-fb")).toBeVisible();
+      await band.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(600);
+      await band.locator(".tp-cta-cards").screenshot({ path: path.join(SHOTS, "contact-cards.png") });
+      await page.locator("footer .tp-ft-grid").screenshot({ path: path.join(SHOTS, "footer-social.png") });
+    } finally {
+      await putContact(original);
+    }
+    await page.goto("/");
+    await expect(page.locator("section.tp-cta .tp-c-fb")).toHaveCount(original.facebook ? 1 : 0);
+  });
+
   test("every picture is kept on this server, so no KiotViet link warning shows", async ({ page }) => {
     await page.goto("/admin/products");
     await expect(page.getByRole("table")).toBeVisible();

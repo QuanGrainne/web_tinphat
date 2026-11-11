@@ -44,6 +44,7 @@ const settings: PublicSettings = {
   },
   hotline: "0366 985 679",
   zalo: null,
+  facebook: null,
   trustStrip: ["Giá đã gồm VAT", "Hotline 0366 985 679"],
 };
 

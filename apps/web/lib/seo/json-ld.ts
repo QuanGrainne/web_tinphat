@@ -1,3 +1,4 @@
+import { facebookHref } from "@/lib/order/phone";
 import type { Crumb, PublicProduct, PublicSettings } from "@/lib/api/types";
 
 export type JsonLd = Record<string, unknown>;
@@ -35,7 +36,9 @@ export function productJsonLd(product: PublicProduct, baseUrl: string): JsonLd {
       price: sku.effectivePrice,
       priceCurrency: "VND",
       url,
-      ...(sku.promoActive && sku.promoTo ? { priceValidUntil: sku.promoTo } : {}),
+      ...(sku.promoActive && sku.promoTo
+        ? { priceValidUntil: sku.promoTo }
+        : {}),
     }));
   const description = product.seoDescription ?? product.specLine ?? undefined;
   return {
@@ -46,7 +49,9 @@ export function productJsonLd(product: PublicProduct, baseUrl: string): JsonLd {
     url,
     ...(product.imageUrl ? { image: absolute(baseUrl, product.imageUrl) } : {}),
     ...(description ? { description } : {}),
-    ...(product.brand ? { brand: { "@type": "Brand", name: product.brand.name } } : {}),
+    ...(product.brand
+      ? { brand: { "@type": "Brand", name: product.brand.name } }
+      : {}),
     ...(offers.length > 0 ? { offers } : {}),
   };
 }
@@ -64,8 +69,12 @@ export function breadcrumbJsonLd(trail: Crumb[], baseUrl: string): JsonLd {
   };
 }
 
-export function organizationJsonLd(settings: PublicSettings, baseUrl: string): JsonLd {
+export function organizationJsonLd(
+  settings: PublicSettings,
+  baseUrl: string,
+): JsonLd {
   const { company, hotline } = settings;
+  const facebook = facebookHref(settings.facebook ?? null);
   return {
     "@context": SCHEMA,
     "@type": "Organization",
@@ -74,6 +83,11 @@ export function organizationJsonLd(settings: PublicSettings, baseUrl: string): J
     telephone: hotline,
     email: company.email,
     ...(company.taxCode ? { taxID: company.taxCode } : {}),
-    address: { "@type": "PostalAddress", streetAddress: company.address, addressCountry: "VN" },
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: company.address,
+      addressCountry: "VN",
+    },
+    ...(facebook ? { sameAs: [facebook] } : {}),
   };
 }

@@ -12,16 +12,18 @@ public class SettingsController {
 
     private final SettingsService settings;
     private final BankSettingsService bankSettings;
+    private final ContactSettingsService contactSettings;
 
-    public SettingsController(SettingsService settings, BankSettingsService bankSettings) {
+    public SettingsController(SettingsService settings, BankSettingsService bankSettings, ContactSettingsService contactSettings) {
         this.settings = settings;
         this.bankSettings = bankSettings;
+        this.contactSettings = contactSettings;
     }
 
     @GetMapping("/api/public/settings")
     public PublicSettings publicSettings() {
         return new PublicSettings(settings.company(), settings.hotline(), settings.zalo().orElse(null),
-                settings.trustStrip());
+                settings.facebook().orElse(null), settings.trustStrip());
     }
 
     @GetMapping("/api/admin/settings")
@@ -29,6 +31,18 @@ public class SettingsController {
     public AdminSettings adminSettings() {
         return new AdminSettings(settings.company(), settings.bank(), settings.ownerEmail(),
                 settings.mismatchThresholdPct(), settings.discountTiers());
+    }
+
+    @GetMapping("/api/admin/settings/contact")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ContactSettings contact() {
+        return contactSettings.current();
+    }
+
+    @PutMapping("/api/admin/settings/contact")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ContactSettings updateContact(@Valid @RequestBody ContactSettings body) {
+        return contactSettings.update(body);
     }
 
     @PutMapping("/api/admin/settings/bank")

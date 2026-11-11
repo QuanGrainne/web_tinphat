@@ -572,3 +572,40 @@ a,button,.btn{touch-action:manipulation}
   .tp-points{grid-template-columns:1fr 1fr;gap:14px}
 }
 @media (prefers-reduced-motion:reduce){.tp-seasons article,.tp-points li{transition:none}.tp-seasons article:hover,.tp-points li:hover{transform:none}}
+
+/* ---- contact colours: Zalo blue, Facebook blue, call green, Gmail red, map in the brand orange ---- */
+.tp-zalo-mark{font-weight:800;font-size:11px;letter-spacing:-.02em;line-height:1;color:#fff}
+.tp-cta-cards li .tp-cta-ico{color:#fff;transition:transform var(--dur) var(--ease-out)}
+.tp-cta-cards li .tp-cta-ico svg{width:18px;height:18px}
+.tp-c-phone .tp-cta-ico{background:#16A34A}
+.tp-c-zalo .tp-cta-ico{background:#0068FF}
+.tp-c-fb .tp-cta-ico{background:#1877F2}
+.tp-c-fb .tp-cta-ico svg{width:22px;height:22px}
+.tp-c-mail .tp-cta-ico{background:#EA4335}
+.tp-c-map .tp-cta-ico{background:var(--pri)}
+.tp-c-phone:hover{border-color:rgba(22,163,74,.55)}
+.tp-c-zalo:hover{border-color:rgba(0,104,255,.6)}
+.tp-c-fb:hover{border-color:rgba(24,119,242,.6)}
+.tp-c-mail:hover{border-color:rgba(234,67,53,.55)}
+.tp-cta-cards li:hover .tp-cta-ico{transform:scale(1.08)}
+.tp-c-zalo a:hover{color:#5AA2FF}
+.tp-c-fb a:hover{color:#6EA8F7}
+
+/* footer social buttons */
+.tp-ft-social{display:flex;gap:10px}
+.tp-soc{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;color:#fff;transition:transform var(--dur) var(--ease-out),filter var(--dur-fast)}
+.tp-soc svg{width:22px;height:22px}
+.tp-soc:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.tp-soc-fb{background:#1877F2}
+.tp-soc-zalo{background:#0068FF}
+.tp-soc-zalo .tp-zalo-mark{font-size:10.5px}
+
+/* floating Facebook button above Zalo */
+@media (min-width:960px){
+  .fab.fb{bottom:160px;background:#1877F2;box-shadow:0 8px 20px -6px rgba(24,119,242,.55);animation-delay:.4s}
+  .fab.fb.solo{bottom:92px}
+  .fab.fb:hover{background:#0F63D6;box-shadow:0 14px 28px -8px rgba(24,119,242,.6)}
+  .fab.fb svg{width:22px;height:22px}
+  .fab.fb small{font-size:8.5px}
+}
+@media (prefers-reduced-motion:reduce){.tp-cta-cards li .tp-cta-ico,.tp-soc{transition:none}}

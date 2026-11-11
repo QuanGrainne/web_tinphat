@@ -1,7 +1,14 @@
 import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 import type { PublicSettings } from "@/lib/api/types";
-import { formatPhone, telHref, zaloHref } from "@/lib/order/phone";
+import {
+  facebookHref,
+  facebookLabel,
+  formatPhone,
+  telHref,
+  zaloHref,
+  zaloLabel,
+} from "@/lib/order/phone";
 import {
   BRAND,
   CAPABILITIES,
@@ -11,6 +18,7 @@ import {
   PROCESS_STEPS,
   SEASONS,
 } from "@/lib/tinphat/content";
+import { FacebookIcon, ZaloMark } from "./brand-icons";
 import { CatalogImage } from "@/components/catalog-image";
 
 export interface CategoryTile {
@@ -298,12 +306,13 @@ export function ProcessSection() {
   );
 }
 
-/** Dark closing band: the invitation, four contact cards, then the map with a directions link. */
+/** Dark closing band: the invitation, the contact cards (each in its own colour), then the map with a directions link. */
 export function ContactCta({ settings }: { settings: PublicSettings | null }) {
   const company = settings?.company ?? null;
   const phone = settings ? settings.hotline || settings.company.phone : null;
   const zalo = settings?.zalo ?? null;
   const zaloLink = zaloHref(zalo);
+  const facebook = facebookHref(settings?.facebook ?? null);
   return (
     <section className="tp-cta" id="lien-he">
       <div className="wrap tp-cta-top">
@@ -331,7 +340,7 @@ export function ContactCta({ settings }: { settings: PublicSettings | null }) {
         </div>
         <ul className="tp-cta-cards">
           {phone && (
-            <li>
+            <li className="tp-c-phone">
               <span className="tp-cta-ico">
                 <LineIcon>
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -344,22 +353,33 @@ export function ContactCta({ settings }: { settings: PublicSettings | null }) {
             </li>
           )}
           {zalo && zaloLink && (
-            <li>
+            <li className="tp-c-zalo">
               <span className="tp-cta-ico">
-                <LineIcon>
-                  <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-                </LineIcon>
+                <ZaloMark />
               </span>
               <div>
                 <small>Zalo</small>
                 <a href={zaloLink} target="_blank" rel="noopener noreferrer">
-                  {formatPhone(zalo)}
+                  {zaloLabel(zalo)}
+                </a>
+              </div>
+            </li>
+          )}
+          {facebook && (
+            <li className="tp-c-fb">
+              <span className="tp-cta-ico">
+                <FacebookIcon />
+              </span>
+              <div>
+                <small>Facebook</small>
+                <a href={facebook} target="_blank" rel="noopener noreferrer">
+                  {facebookLabel(facebook)}
                 </a>
               </div>
             </li>
           )}
           {company?.email && (
-            <li>
+            <li className="tp-c-mail">
               <span className="tp-cta-ico">
                 <LineIcon>
                   <rect width="20" height="16" x="2" y="4" rx="2" />
@@ -373,7 +393,7 @@ export function ContactCta({ settings }: { settings: PublicSettings | null }) {
             </li>
           )}
           {company?.address && (
-            <li>
+            <li className="tp-c-map">
               <span className="tp-cta-ico">
                 <LineIcon>
                   <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />

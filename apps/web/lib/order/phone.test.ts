@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { formatPhone, isValidPhone, normalizePhone, telHref, zaloHref } from "./phone";
+import {
+  facebookHref,
+  facebookLabel,
+  formatPhone,
+  isValidPhone,
+  normalizePhone,
+  telHref,
+  zaloHref,
+  zaloLabel,
+} from "./phone";
 
 describe("phone", () => {
   it("normalises +84 and 84 prefixes and separators to a leading 0", () => {
@@ -24,8 +33,36 @@ describe("phone", () => {
     expect(formatPhone("1900 1234")).toBe("1900 1234");
     expect(telHref("0366 985 679")).toBe("tel:0366985679");
     expect(zaloHref("0366 985 679")).toBe("https://zalo.me/0366985679");
-    expect(zaloHref("https://zalo.me/0366985679")).toBe("https://zalo.me/0366985679");
+    expect(zaloHref("https://zalo.me/0366985679")).toBe(
+      "https://zalo.me/0366985679",
+    );
     expect(zaloHref(null)).toBeNull();
     expect(zaloHref("")).toBeNull();
+  });
+
+  it("keeps a zalo.me group link and refuses links elsewhere", () => {
+    expect(zaloHref("https://zalo.me/g/tinphat")).toBe(
+      "https://zalo.me/g/tinphat",
+    );
+    expect(zaloHref("https://evil.example/zalo.me")).toBeNull();
+    expect(zaloHref("http://zalo.me/0366985679")).toBeNull();
+    expect(zaloLabel("https://zalo.me/g/tinphat")).toBe("zalo.me/g/tinphat");
+    expect(zaloLabel("0366985679")).toBe("0366 985 679");
+  });
+
+  it("accepts only https Facebook links", () => {
+    expect(facebookHref("https://www.facebook.com/tinphatdecor")).toBe(
+      "https://www.facebook.com/tinphatdecor",
+    );
+    expect(facebookHref("https://fb.me/tinphatdecor")).toBe(
+      "https://fb.me/tinphatdecor",
+    );
+    expect(facebookHref("javascript:alert(1)")).toBeNull();
+    expect(facebookHref("https://facebook.com.evil.example/x")).toBeNull();
+    expect(facebookHref("https://www.facebook.com/")).toBeNull();
+    expect(facebookHref(null)).toBeNull();
+    expect(facebookLabel("https://www.facebook.com/tinphatdecor/")).toBe(
+      "facebook.com/tinphatdecor",
+    );
   });
 });
