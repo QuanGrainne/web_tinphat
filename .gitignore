@@ -28,3 +28,6 @@ test-results/
 
 # Cloudflare origin certificate on the server (deploy/caddy/certs/origin.pem, origin.key)
 deploy/caddy/certs/
+
+# handover notes with the server IP (kept off the public repo)
+BAN-GIAO.md
