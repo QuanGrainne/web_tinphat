@@ -49,8 +49,8 @@ export default function AdminLoginPage() {
   return (
     <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#F3F4F6", padding: 24 }}>
       <Card style={{ width: 380, borderRadius: 8 }} styles={{ body: { padding: 32 } }}>
-        <div style={{ marginBottom: 24 }}>
-          <Image src="/images/tinphat/logo.png" alt="TÍN PHÁT" width={88} height={64} priority style={{ display: "block" }} />
+        <div style={{ marginBottom: 24, textAlign: "center" }}>
+          <Image src="/images/tinphat/logo.png" alt="TÍN PHÁT" width={88} height={64} priority style={{ display: "block", margin: "0 auto" }} />
           <div style={{ color: "#6B7280", fontSize: 12, marginTop: 8 }}>Quản trị catalogue</div>
           <h1 style={{ margin: "20px 0 0", fontSize: 20, fontWeight: 700 }}>Đăng nhập</h1>
         </div>
