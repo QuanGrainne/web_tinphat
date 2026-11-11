@@ -83,7 +83,7 @@ The API loads the catalogue from `apps/api/src/main/resources/seed/catalogue-202
 
 ## 7. Backup and restore
 
-Backup writes two files into `data/backups/` (gitignored): `dna-YYYYmmdd-HHMM.dump` (custom-format `pg_dump`) and `uploads-YYYYmmdd-HHMM.tar.gz` (every product and category picture in the `uploads` volume). Files older than `KEEP_DAYS` (default 14) are deleted. With `BACKUP_REMOTE` set to an [rclone](https://rclone.org) destination, both files are also copied off the server and remote copies older than `KEEP_DAYS` are deleted; the run fails if that copy fails.
+Backup writes into `data/backups/` (gitignored): a `dna-YYYYmmdd-HHMM.dump` (custom-format `pg_dump`, about 0.1 MB) per run, kept `KEEP_DAYS` days (default 14), and `uploads/`, a mirror of every product and category picture. Pictures never change under the same name, so the mirror only gains new files and a picture deleted on the site stays in it; the backup is about as large as the pictures, not 14 times that. With `BACKUP_REMOTE` set to an [rclone](https://rclone.org) destination, the dump goes to `<remote>/db` (pruned after `KEEP_DAYS`) and the pictures to `<remote>/uploads`, where `rclone copy` uploads only the new ones; the run fails if that copy fails.
 
 ```bash
 bash scripts/backup.sh
@@ -106,10 +106,10 @@ docker compose -f deploy/compose.yml exec -T db sh -c 'pg_restore -U "$POSTGRES_
 docker compose -f deploy/compose.yml up -d
 ```
 
-Restore the pictures (adds the files from the archive back into the `uploads` volume; files with the same name are replaced):
+Restore the pictures (adds the mirror back into the `uploads` volume; files with the same name are replaced). From the off-site copy, first fetch it: `rclone copy gdrive:tinphat-backups/uploads data/backups/uploads`.
 
 ```bash
-docker compose -f deploy/compose.yml exec -T api sh -c 'tar -C /app/uploads -xzf -' < data/backups/uploads-20261031-1414.tar.gz
+tar -C data/backups/uploads -cf - . | docker compose -f deploy/compose.yml exec -T api sh -c 'tar -C /app/uploads -xf -'
 ```
 
 Verify with `bash scripts/smoke.sh`.
@@ -238,7 +238,7 @@ Files: `deploy/compose.prod.yml` (overrides), `deploy/caddy/Caddyfile.prod` (dom
    bash scripts/prod.sh up -d db
    bash scripts/prod.sh exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists --no-owner' < dna-YYYYmmdd-HHMM.dump
    bash scripts/prod.sh up -d api
-   bash scripts/prod.sh exec -T api sh -c 'tar -C /app/uploads -xzf -' < uploads-YYYYmmdd-HHMM.tar.gz
+   tar -C uploads -cf - . | bash scripts/prod.sh exec -T api sh -c 'tar -C /app/uploads -xf -'   # the uploads/ mirror folder
    ```
 6. **Start**: `bash scripts/prod.sh up -d --build`, then `SMOKE_BASE_URL=https://<domain> bash scripts/smoke.sh`, log in to `/admin`, change the password, and try "Quên mật khẩu" to check the mail.
 7. **Backups**: nightly cron as in section 7 with `BACKUP_REMOTE` set, and one test restore.
