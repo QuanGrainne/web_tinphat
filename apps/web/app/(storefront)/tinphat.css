@@ -183,7 +183,7 @@ main:has(>.tp-proc:last-child)+.tp-cta,main:has(>.tp-proc+script:last-child)+.tp
   .tp-side-go{display:inline-block;width:14px;height:14px;color:var(--muted)}
   .tp-side li a:hover .tp-side-go,.tp-side li a.on .tp-side-go{color:var(--pri)}
   .tp-side-call{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 8px;padding:10px 12px 12px;background:var(--sel);border-top:1px solid var(--line-s)}
-  .tp-side-call small{grid-column:1/-1;color:var(--text);font-weight:600;font-size:13px}
+  .tp-side-call small{grid-column:1/-1;color:var(--text);font-weight:600;font-size:13px;text-align:center}
   .tp-side-call .btn{height:38px;padding:0 12px;font-size:14px}
   .tp-side-call .btn-out{background:#fff}
 }
