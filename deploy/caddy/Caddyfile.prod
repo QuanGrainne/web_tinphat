@@ -30,6 +30,19 @@
 	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
 }
 
+# Inside Docker the web container reads the original pictures from http://caddy/uploads/... to make
+# the resized copies (next.config.ts rewrite). Only the uploads folder is served under that name; the
+# files are public anyway.
+http://caddy {
+	handle /uploads/* {
+		root * /srv
+		file_server
+	}
+	handle {
+		respond "Not Found" 404
+	}
+}
+
 www.{$SITE_DOMAIN} {
 	import origin_tls
 	redir https://{$SITE_DOMAIN}{uri} permanent
