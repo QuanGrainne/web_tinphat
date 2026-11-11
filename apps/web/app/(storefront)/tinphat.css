@@ -1,8 +1,6 @@
 /* Tín Phát Decor: warm editorial layer over storefront.css. Palette and type follow landingpage_TinPhatDecord. */
 body{background:var(--bg)}
 .hd,.card{background:#fff}
-.logo b{font-family:var(--font-display),Georgia,serif;font-weight:700;letter-spacing:.02em}
-.logo span{font-size:12px;font-weight:600;letter-spacing:.18em;color:var(--pri)}
 .card{border-radius:8px}
 .btn{border-radius:6px}
 .util .tp-util{margin-right:auto;color:#D6D3D1}
@@ -371,10 +369,8 @@ a,button,.btn{touch-action:manipulation}
 .tp-ft{margin-top:28px;background:var(--dark);color:#fff;font-size:14px}
 .tp-ft-grid{display:grid;gap:36px;padding-top:48px;padding-bottom:40px}
 .tp-ft-brand{display:flex;flex-direction:column;gap:14px}
-.tp-ft-logo{display:inline-flex;align-items:center;gap:10px;color:#fff}
-.tp-ft-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:6px;background:var(--pri);font-family:var(--font-display),Georgia,serif;font-weight:700;font-size:18px}
-.tp-ft-logo b{display:block;font-weight:700;font-size:13px;letter-spacing:.08em;line-height:1.15}
-.tp-ft-logo small{display:block;font-family:var(--font-display),Georgia,serif;font-size:11px;letter-spacing:.16em;color:#E9B48F}
+.tp-ft-logo{display:inline-flex;align-self:flex-start;padding:10px 14px;background:#fff;border-radius:12px}
+.tp-ft-logo img{display:block;width:auto;height:56px}
 .tp-ft-tag{margin-top:4px;font-family:var(--font-display),Georgia,serif;font-style:italic;font-weight:500;font-size:20px;color:rgba(255,255,255,.9)}
 .tp-ft-desc{max-width:300px;color:rgba(255,255,255,.5);font-size:13.5px;line-height:1.7}
 .tp-ft-co{color:rgba(255,255,255,.4);font-size:12.5px;line-height:1.6}

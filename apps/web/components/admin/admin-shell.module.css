@@ -25,7 +25,7 @@
 
 .brand {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
   color: #1f2937;
   text-decoration: none;
@@ -169,4 +169,11 @@
   display: grid;
   place-items: center;
   background: #f7f5f1;
+}
+
+.brandMark {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  align-self: center;
 }

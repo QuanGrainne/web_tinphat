@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Nav, PublicSettings } from "@/lib/api/types";
 import { formatPhone, telHref, zaloHref } from "@/lib/order/phone";
@@ -30,13 +31,12 @@ export function SiteFooter({
       <div className="wrap tp-ft-grid">
         <div className="tp-ft-brand">
           <Link className="tp-ft-logo" href="/" aria-label={BRAND.name}>
-            <span className="tp-ft-mark" aria-hidden="true">
-              T
-            </span>
-            <span>
-              <b>TÍN PHÁT</b>
-              <small>DECOR</small>
-            </span>
+            <Image
+              src="/images/tinphat/logo.png"
+              alt="TÍN PHÁT"
+              width={88}
+              height={64}
+            />
           </Link>
           <p className="tp-ft-tag">{BRAND.tagline}</p>
           <p className="tp-ft-desc">

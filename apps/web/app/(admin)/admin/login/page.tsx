@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Alert, Button, Card, Form, Input } from "antd";
@@ -49,8 +50,8 @@ export default function AdminLoginPage() {
     <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#F3F4F6", padding: 24 }}>
       <Card style={{ width: 380, borderRadius: 8 }} styles={{ body: { padding: 32 } }}>
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: "0.02em", lineHeight: 1 }}>TÍN PHÁT</div>
-          <div style={{ color: "#6B7280", fontSize: 12, marginTop: 4 }}>Quản trị catalogue</div>
+          <Image src="/images/tinphat/logo.png" alt="TÍN PHÁT" width={88} height={64} priority style={{ display: "block" }} />
+          <div style={{ color: "#6B7280", fontSize: 12, marginTop: 8 }}>Quản trị catalogue</div>
           <h1 style={{ margin: "20px 0 0", fontSize: 20, fontWeight: 700 }}>Đăng nhập</h1>
         </div>
         {failure && <Alert type="error" showIcon title={failure} style={{ marginBottom: 16 }} />}

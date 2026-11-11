@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Nav, PublicSettings } from "@/lib/api/types";
 import { CategoryDropdown } from "./category-dropdown";
@@ -46,9 +47,18 @@ export function SiteHeader({
               <i className="i i-phone" aria-hidden="true" />
             </a>
           )}
-          <Link className="logo" href="/" aria-label="TÍN PHÁT DECOR">
-            <b>TÍN PHÁT</b>
-            <span>DECOR</span>
+          <Link
+            className="logo"
+            href="/"
+            aria-label="TÍN PHÁT DECOR - Trang chủ"
+          >
+            <Image
+              src="/images/tinphat/logo.png"
+              alt="TÍN PHÁT"
+              width={88}
+              height={64}
+              priority
+            />
           </Link>
           <SearchBox />
           <nav className="hd-act" aria-label="Liên hệ">

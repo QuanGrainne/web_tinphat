@@ -63,9 +63,8 @@ img{max-width:100%}
 /* header: mobile = [ - logo cart ] + search row */
 .hd{background:#fff;border-bottom:1px solid var(--line-s)}
 .hd-in{display:grid;grid-template-columns:44px 1fr 44px;grid-template-areas:"tel logo act" "srch srch srch";gap:8px;padding-top:8px;padding-bottom:12px;align-items:center}
-.logo{grid-area:logo;justify-self:center;display:flex;align-items:baseline;gap:6px;white-space:nowrap}
-.logo b{font-weight:800;font-size:24px;line-height:1;color:var(--nav);letter-spacing:.01em}
-.logo span{font-weight:600;font-size:15px;line-height:1;color:var(--text)}
+.logo{grid-area:logo;justify-self:center;display:flex;align-items:center}
+.logo img{display:block;width:auto;height:44px}
 .catbtn{display:none}
 .srch{grid-area:srch;display:flex;height:44px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#fff}
 .srch input{flex:1;min-width:0;border:0;padding:0 12px;font-size:16px;outline:0;background:transparent}
@@ -345,7 +344,7 @@ textarea.in{height:76px;padding:10px 12px;resize:vertical}
   .util{display:block}
   .hd-in{grid-template-columns:auto auto minmax(200px,440px) 1fr;grid-template-areas:"logo cat srch act";gap:20px;padding-top:14px;padding-bottom:14px}
   .logo{justify-self:start}
-  .logo b{font-size:28px} .logo span{font-size:18px}
+  .logo img{height:58px}
   .catbtn{grid-area:cat;display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 14px;border:1px solid var(--line);border-radius:var(--r);background:#fff;font-weight:600;font-size:13px;line-height:normal;text-transform:uppercase;cursor:pointer}
   .catbtn:hover{background:var(--sel)}
   .srch{height:42px}

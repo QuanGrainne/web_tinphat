@@ -1,10 +1,17 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button, Dropdown, Result, Spin } from "antd";
-import { GlobalOutlined, KeyOutlined, LogoutOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  GlobalOutlined,
+  KeyOutlined,
+  LogoutOutlined,
+  MailOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/admin/api-client";
 import { useSession } from "@/lib/admin/use-session";
@@ -13,7 +20,10 @@ import styles from "./admin-shell.module.css";
 import { ChangePasswordDialog } from "./change-password-dialog";
 import { RecoveryEmailDialog } from "./recovery-email-dialog";
 
-const ROLE_LABEL: Record<Role, string> = { MANAGER: "Quản lý", EDITOR: "Biên tập" };
+const ROLE_LABEL: Record<Role, string> = {
+  MANAGER: "Quản lý",
+  EDITOR: "Biên tập",
+};
 
 const MENU = [
   { href: "/admin/products", label: "Sản phẩm" },
@@ -61,7 +71,11 @@ export function AdminShell({ children }: { children: ReactNode }) {
           status="warning"
           title="Không tải được phiên đăng nhập"
           subTitle={error?.message ?? "Vui lòng thử lại."}
-          extra={<Button type="primary" onClick={() => void refetch()}>Thử lại</Button>}
+          extra={
+            <Button type="primary" onClick={() => void refetch()}>
+              Thử lại
+            </Button>
+          }
         />
       </div>
     );
@@ -73,6 +87,14 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <div className={styles.ubar}>
           <div className={styles.ubarInner}>
             <Link href="/admin/products" className={styles.brand}>
+              <Image
+                className={styles.brandMark}
+                src="/images/tinphat/logo-mark.png"
+                alt=""
+                width={32}
+                height={32}
+                priority
+              />
               <b>TÍN PHÁT</b>
               <span>Quản trị catalogue</span>
             </Link>
@@ -82,11 +104,28 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 placement="bottomRight"
                 menu={{
                   items: [
-                    { key: "who", label: `${session.displayName} (${ROLE_LABEL[session.role]})`, disabled: true },
+                    {
+                      key: "who",
+                      label: `${session.displayName} (${ROLE_LABEL[session.role]})`,
+                      disabled: true,
+                    },
                     { type: "divider" },
-                    { key: "password", icon: <KeyOutlined />, label: "Đổi mật khẩu" },
-                    { key: "recovery", icon: <MailOutlined />, label: "Email lấy lại mật khẩu" },
-                    { key: "logout", icon: <LogoutOutlined />, label: "Đăng xuất", disabled: loggingOut },
+                    {
+                      key: "password",
+                      icon: <KeyOutlined />,
+                      label: "Đổi mật khẩu",
+                    },
+                    {
+                      key: "recovery",
+                      icon: <MailOutlined />,
+                      label: "Email lấy lại mật khẩu",
+                    },
+                    {
+                      key: "logout",
+                      icon: <LogoutOutlined />,
+                      label: "Đăng xuất",
+                      disabled: loggingOut,
+                    },
                   ],
                   onClick: ({ key }) => {
                     if (key === "password") setChangingPassword(true);
@@ -95,13 +134,19 @@ export function AdminShell({ children }: { children: ReactNode }) {
                   },
                 }}
               >
-                <button type="button" className={styles.user} aria-label="Tài khoản">
+                <button
+                  type="button"
+                  className={styles.user}
+                  aria-label="Tài khoản"
+                >
                   <span className={styles.avatar}>
                     <UserOutlined />
                   </span>
                   <span className={styles.userText}>
                     <span>{session.displayName}</span>
-                    <span className={styles.userRole}>{ROLE_LABEL[session.role]}</span>
+                    <span className={styles.userRole}>
+                      {ROLE_LABEL[session.role]}
+                    </span>
                   </span>
                 </button>
               </Dropdown>
@@ -112,9 +157,16 @@ export function AdminShell({ children }: { children: ReactNode }) {
           <div className={styles.mbarInner}>
             <nav className={styles.nav} aria-label="Menu chính">
               {MENU.map((item) => {
-                const on = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                const on =
+                  pathname === item.href ||
+                  pathname.startsWith(`${item.href}/`);
                 return (
-                  <Link key={item.href} href={item.href} className={cls(styles.navItem, on && styles.navItemOn)} aria-current={on ? "page" : undefined}>
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cls(styles.navItem, on && styles.navItemOn)}
+                    aria-current={on ? "page" : undefined}
+                  >
                     {item.label}
                   </Link>
                 );
@@ -128,8 +180,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className={styles.page}>{children}</main>
-      {changingPassword && <ChangePasswordDialog onClose={() => setChangingPassword(false)} />}
-      {editingEmail && <RecoveryEmailDialog onClose={() => setEditingEmail(false)} />}
+      {changingPassword && (
+        <ChangePasswordDialog onClose={() => setChangingPassword(false)} />
+      )}
+      {editingEmail && (
+        <RecoveryEmailDialog onClose={() => setEditingEmail(false)} />
+      )}
     </div>
   );
 }
