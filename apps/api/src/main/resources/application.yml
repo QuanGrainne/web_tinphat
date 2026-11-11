@@ -55,6 +55,9 @@ dna:
   client-ip-header: CF-Connecting-IP
   site-url: ${DNA_SITE_URL:http://localhost:8000}
   uploads-dir: ${DNA_UPLOADS_DIR:uploads}
+  # hosts whose pictures an Excel import copies into uploads (subdomains included, comma separated)
+  image-import:
+    allowed-hosts: ${DNA_IMAGE_IMPORT_ALLOWED_HOSTS:kiotviet.vn}
   seed:
     catalogue:
       enabled: ${DNA_SEED_CATALOGUE_ENABLED:false}

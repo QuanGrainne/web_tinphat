@@ -284,6 +284,18 @@ test.describe("admin edits reach the public pages at once", () => {
     await expect(viewer).toHaveCount(0);
   });
 
+  test("every picture is kept on this server, so no KiotViet link warning shows", async ({ page }) => {
+    await page.goto("/admin/products");
+    await expect(page.getByRole("table")).toBeVisible();
+    const remote = await page.evaluate(async () => (await fetch("/api/admin/images/remote")).json());
+    expect(remote).toEqual({ count: 0 });
+    await expect(page.getByText(/đang lấy trực tiếp từ KiotViet/)).toHaveCount(0);
+    // the storefront serves those pictures from /uploads, not from the KiotViet CDN
+    await page.goto("/san-pham");
+    const sources = await page.locator("img").evaluateAll((imgs) => imgs.map((img) => (img as HTMLImageElement).currentSrc || img.getAttribute("src") || ""));
+    expect(sources.some((src) => src.includes("kiotviet"))).toBe(false);
+  });
+
   test("the product popup has a delete button, and the category filter has Tất cả", async ({ page }) => {
     const name = `Xoá trong popup ${Date.now().toString(36)}`;
     await page.goto("/admin/products");

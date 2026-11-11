@@ -2,19 +2,38 @@
 
 import { useEffect, useState } from "react";
 import { Alert, App, Button, Input, Tooltip } from "antd";
-import { DeleteOutlined, DownloadOutlined, PlusOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
-import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { ApiProblem } from "@/lib/admin/api-client";
 import { catalogueApi, type ProductListQuery } from "@/lib/admin/catalogue-api";
 import { catalogueKeys } from "@/lib/admin/catalogue-queries";
 import { useSession } from "@/lib/admin/use-session";
 import { ImportDialog } from "./import-dialog";
+import { RemoteImagesNotice } from "./remote-images-notice";
 import { ProductEditorModal } from "./product-editor-modal";
-import { ProductFilterColumn, type ProductFilters } from "./product-filter-column";
+import {
+  ProductFilterColumn,
+  type ProductFilters,
+} from "./product-filter-column";
 import { DEFAULT_PAGE_SIZE, PAGE_SIZES, ProductTable } from "./product-table";
 import styles from "./products.module.css";
 
-const INITIAL_FILTERS: ProductFilters = { categoryId: undefined, brandId: undefined, published: "all", needsAttention: false };
+const INITIAL_FILTERS: ProductFilters = {
+  categoryId: undefined,
+  brandId: undefined,
+  published: "all",
+  needsAttention: false,
+};
 
 function useDebounced<T>(value: T, delayMs: number): T {
   const [debounced, setDebounced] = useState(value);
@@ -31,7 +50,9 @@ const PAGE_SIZE_KEY = "dna.admin.products.pageSize";
 function readPageSize(): number {
   try {
     const saved = Number(window.localStorage.getItem(PAGE_SIZE_KEY));
-    return (PAGE_SIZES as readonly number[]).includes(saved) ? saved : DEFAULT_PAGE_SIZE;
+    return (PAGE_SIZES as readonly number[]).includes(saved)
+      ? saved
+      : DEFAULT_PAGE_SIZE;
   } catch {
     return DEFAULT_PAGE_SIZE;
   }
@@ -57,7 +78,8 @@ export function ProductsPage() {
     q: q || undefined,
     categoryId: filters.categoryId,
     brandId: filters.brandId,
-    published: filters.published === "all" ? undefined : filters.published === "yes",
+    published:
+      filters.published === "all" ? undefined : filters.published === "yes",
     needsAttention: filters.needsAttention ? true : undefined,
     page,
     size: pageSize,
@@ -79,7 +101,9 @@ export function ProductsPage() {
     try {
       await catalogueApi.exportProducts(selected);
     } catch (error) {
-      message.error(error instanceof ApiProblem ? error.message : "Không xuất được file.");
+      message.error(
+        error instanceof ApiProblem ? error.message : "Không xuất được file.",
+      );
     } finally {
       setExporting(false);
     }
@@ -88,19 +112,29 @@ export function ProductsPage() {
   function deleteSelected() {
     modal.confirm({
       title: `Xóa ${selected.length} sản phẩm đã chọn?`,
-      content: "Sản phẩm sẽ bị xóa hẳn khỏi admin và website, không khôi phục được. Nếu chỉ muốn tạm ẩn, hãy bỏ chọn Hiển thị trên web.",
+      content:
+        "Sản phẩm sẽ bị xóa hẳn khỏi admin và website, không khôi phục được. Nếu chỉ muốn tạm ẩn, hãy bỏ chọn Hiển thị trên web.",
       okText: `Xóa ${selected.length} sản phẩm`,
       cancelText: "Bỏ qua",
       okButtonProps: { danger: true },
       onOk: async () => {
         try {
           const result = await catalogueApi.deleteProducts(selected);
-          if (result.deleted > 0) message.success(`Đã xóa ${result.deleted} sản phẩm`);
-          if (result.blocked.length > 0) message.warning(`${result.blocked.length} sản phẩm không xóa được: ${result.blocked[0].message}`, 8);
+          if (result.deleted > 0)
+            message.success(`Đã xóa ${result.deleted} sản phẩm`);
+          if (result.blocked.length > 0)
+            message.warning(
+              `${result.blocked.length} sản phẩm không xóa được: ${result.blocked[0].message}`,
+              8,
+            );
           setSelected(result.blocked.map((item) => item.id));
           refreshAfterChange();
         } catch (error) {
-          message.error(error instanceof ApiProblem ? error.message : "Không xóa được sản phẩm.");
+          message.error(
+            error instanceof ApiProblem
+              ? error.message
+              : "Không xóa được sản phẩm.",
+          );
         }
       },
     });
@@ -136,13 +170,27 @@ export function ProductsPage() {
           >
             Xuất Excel
           </Button>
-          <Tooltip title={isManager ? undefined : "Chỉ quản lý được import sản phẩm"}>
-            <Button icon={<UploadOutlined />} disabled={!isManager} onClick={() => setImporting(true)}>
+          <Tooltip
+            title={isManager ? undefined : "Chỉ quản lý được import sản phẩm"}
+          >
+            <Button
+              icon={<UploadOutlined />}
+              disabled={!isManager}
+              onClick={() => setImporting(true)}
+            >
               Import Excel
             </Button>
           </Tooltip>
-          <Tooltip title={isManager ? undefined : "Chỉ quản lý được tạo sản phẩm mới"}>
-            <Button icon={<PlusOutlined />} color="primary" variant="outlined" disabled={!isManager} onClick={() => setEditing(null)}>
+          <Tooltip
+            title={isManager ? undefined : "Chỉ quản lý được tạo sản phẩm mới"}
+          >
+            <Button
+              icon={<PlusOutlined />}
+              color="primary"
+              variant="outlined"
+              disabled={!isManager}
+              onClick={() => setEditing(null)}
+            >
               Tạo mới
             </Button>
           </Tooltip>
@@ -152,12 +200,17 @@ export function ProductsPage() {
       <div className={styles.layout}>
         <ProductFilterColumn filters={filters} onChange={changeFilters} />
         <section>
+          <RemoteImagesNotice isManager={isManager} />
           {list.isError && (
             <Alert
               type="error"
               showIcon
               style={{ marginBottom: 12 }}
-              title={list.error instanceof Error ? list.error.message : "Không tải được danh sách hàng hóa."}
+              title={
+                list.error instanceof Error
+                  ? list.error.message
+                  : "Không tải được danh sách hàng hóa."
+              }
               action={
                 <Button size="small" onClick={() => void list.refetch()}>
                   Thử lại
@@ -190,17 +243,43 @@ export function ProductsPage() {
             onSelect={setSelected}
             actions={
               selected.length > 0 && (
-                <span style={{ display: "inline-flex", gap: 8, alignItems: "center", marginLeft: 16 }}>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    gap: 8,
+                    alignItems: "center",
+                    marginLeft: 16,
+                  }}
+                >
                   Đã chọn {selected.length}
-                  <Button size="small" icon={<DownloadOutlined />} loading={exporting} onClick={() => void exportSelected()}>
+                  <Button
+                    size="small"
+                    icon={<DownloadOutlined />}
+                    loading={exporting}
+                    onClick={() => void exportSelected()}
+                  >
                     Xuất đã chọn
                   </Button>
-                  <Tooltip title={isManager ? undefined : "Chỉ quản lý được xóa sản phẩm"}>
-                    <Button size="small" danger icon={<DeleteOutlined />} disabled={!isManager} onClick={deleteSelected}>
+                  <Tooltip
+                    title={
+                      isManager ? undefined : "Chỉ quản lý được xóa sản phẩm"
+                    }
+                  >
+                    <Button
+                      size="small"
+                      danger
+                      icon={<DeleteOutlined />}
+                      disabled={!isManager}
+                      onClick={deleteSelected}
+                    >
                       Xóa
                     </Button>
                   </Tooltip>
-                  <Button size="small" type="text" onClick={() => setSelected([])}>
+                  <Button
+                    size="small"
+                    type="text"
+                    onClick={() => setSelected([])}
+                  >
                     Bỏ chọn
                   </Button>
                 </span>
@@ -211,9 +290,18 @@ export function ProductsPage() {
       </div>
 
       {editing !== undefined && (
-        <ProductEditorModal productId={editing} onClose={() => setEditing(undefined)} onChanged={refreshAfterChange} />
+        <ProductEditorModal
+          productId={editing}
+          onClose={() => setEditing(undefined)}
+          onChanged={refreshAfterChange}
+        />
       )}
-      {importing && <ImportDialog onClose={() => setImporting(false)} onImported={refreshAfterChange} />}
+      {importing && (
+        <ImportDialog
+          onClose={() => setImporting(false)}
+          onImported={refreshAfterChange}
+        />
+      )}
     </>
   );
 }

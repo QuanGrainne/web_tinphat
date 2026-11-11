@@ -56,6 +56,38 @@ public class ImageUploadService {
         }
     }
 
+    /** Saves a picture already held in memory (a copy fetched from another server); same checks as an upload. */
+    public String storeBytes(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            throw invalid("Ảnh trống.");
+        }
+        if (bytes.length > MAX_BYTES) {
+            throw invalid("Ảnh tối đa 5 MB.");
+        }
+        String extension = extensionOf(Arrays.copyOf(bytes, Math.min(bytes.length, HEADER_BYTES)));
+        if (extension == null) {
+            throw invalid("Chỉ nhận ảnh JPG, PNG hoặc WebP.");
+        }
+        try {
+            Path directory = root.resolve("images");
+            Files.createDirectories(directory);
+            String name = UUID.randomUUID().toString().replace("-", "") + "." + extension;
+            Files.write(directory.resolve(name), bytes);
+            return "/uploads/images/" + name;
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not store the image", e);
+        }
+    }
+
+    /** Whether a public path such as {@code /uploads/images/3f2a.jpg} points at a file that is still on disk. */
+    public boolean exists(String publicPath) {
+        if (publicPath == null || !publicPath.startsWith("/uploads/")) {
+            return false;
+        }
+        Path file = root.resolve(publicPath.substring("/uploads/".length())).normalize();
+        return file.startsWith(root) && Files.isRegularFile(file);
+    }
+
     /** File extension for the image signature at the start of the file; null for anything else. */
     static String extensionOf(byte[] header) {
         if (matches(header, 0, 0xFF, 0xD8, 0xFF)) {

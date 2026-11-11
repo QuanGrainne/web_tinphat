@@ -15,6 +15,7 @@ import vn.dnahoangnguyen.api.catalog.category.Category;
 import vn.dnahoangnguyen.api.catalog.category.CategoryRepository;
 import vn.dnahoangnguyen.api.catalog.category.CategoryService;
 import vn.dnahoangnguyen.api.catalog.excel.ProductExcelReader.ExcelRow;
+import vn.dnahoangnguyen.api.catalog.media.RemoteImageService;
 import vn.dnahoangnguyen.api.catalog.product.ChangeActor;
 import vn.dnahoangnguyen.api.catalog.product.ChangeSource;
 import vn.dnahoangnguyen.api.catalog.product.ProductAdminService;
@@ -46,7 +47,8 @@ public class ProductImportService {
     public record RowProblem(int row, String code, String message) {
     }
 
-    public record ImportResult(int created, int updated, int skipped, List<RowProblem> errors) {
+    /** imagesSaved: pictures copied onto this server; imagesLinked: pictures that could not be fetched and stay links. */
+    public record ImportResult(int created, int updated, int skipped, List<RowProblem> errors, int imagesSaved, int imagesLinked) {
     }
 
     private record PlannedRow(ExcelRow source, RowAction action, String message, Long productId) {
@@ -59,14 +61,16 @@ public class ProductImportService {
     private final SkuRepository skus;
     private final CategoryService categoryService;
     private final CategoryRepository categories;
+    private final RemoteImageService remoteImages;
 
     public ProductImportService(ProductService products, ProductAdminService reader, SkuRepository skus,
-                                CategoryService categoryService, CategoryRepository categories) {
+                                CategoryService categoryService, CategoryRepository categories, RemoteImageService remoteImages) {
         this.products = products;
         this.reader = reader;
         this.skus = skus;
         this.categoryService = categoryService;
         this.categories = categories;
+        this.remoteImages = remoteImages;
     }
 
     public ImportPreview preview(MultipartFile file, Long categoryId) {
@@ -88,6 +92,7 @@ public class ProductImportService {
         int updated = 0;
         int skipped = 0;
         List<RowProblem> errors = new ArrayList<>();
+        int[] images = new int[2]; // saved, still linked
         Map<List<String>, Long> categoryIds = new HashMap<>();
         for (PlannedRow planned : plan(read(file), target)) {
             ExcelRow row = planned.source();
@@ -101,15 +106,16 @@ public class ProductImportService {
             }
             try {
                 long category = target != null ? target.getId() : categoryIds.computeIfAbsent(row.categoryPath(), this::resolveCategory);
+                List<String> pictures = ownCopies(row.imageUrls(), images);
                 if (planned.action() == RowAction.CREATE) {
-                    long id = products.saveAggregate(null, newProduct(row, category), actor, ChangeSource.MANUAL);
+                    long id = products.saveAggregate(null, newProduct(row, category, pictures), actor, ChangeSource.MANUAL);
                     if (publish && row.active()) {
                         products.publish(id, actor);
                     }
                     created++;
                 } else {
                     AdminProduct stored = reader.get(planned.productId());
-                    products.saveAggregate(stored.id(), updatedProduct(stored, row, category), actor, ChangeSource.MANUAL);
+                    products.saveAggregate(stored.id(), updatedProduct(stored, row, category, pictures), actor, ChangeSource.MANUAL);
                     if (publish && row.active() && !stored.published()) {
                         products.publish(stored.id(), actor);
                     }
@@ -119,7 +125,30 @@ public class ProductImportService {
                 errors.add(new RowProblem(row.rowNumber(), row.code(), e.getMessage()));
             }
         }
-        return new ImportResult(created, updated, skipped, errors);
+        return new ImportResult(created, updated, skipped, errors, images[0], images[1]);
+    }
+
+    /**
+     * The row pictures with each KiotViet link replaced by this server's copy, so a photo deleted in KiotViet stays on the
+     * web. A picture that cannot be fetched keeps its link and is counted, so the admin can retry from the product list.
+     */
+    private List<String> ownCopies(List<String> urls, int[] counts) {
+        List<String> result = new ArrayList<>(urls.size());
+        for (String url : urls) {
+            if (!RemoteImageService.isRemote(url)) {
+                result.add(url);
+                continue;
+            }
+            var local = remoteImages.localize(url);
+            if (local.isPresent()) {
+                counts[0]++;
+                result.add(local.get());
+            } else {
+                counts[1]++;
+                result.add(url);
+            }
+        }
+        return result;
     }
 
     private List<ExcelRow> read(MultipartFile file) {
@@ -171,32 +200,32 @@ public class ProductImportService {
         return path.size() == 1 ? root.getId() : categoryService.findOrCreate(path.get(1), root.getId()).getId();
     }
 
-    private static AdminProduct newProduct(ExcelRow row, long category) {
+    private static AdminProduct newProduct(ExcelRow row, long category, List<String> pictures) {
         AdminSku sku = new AdminSku(null, null, row.code(), null, row.unit(), 1, true, row.price(), true, false, null, null, null,
                 true, null, null, null);
-        return new AdminProduct(null, null, row.name(), null, null, category, blankToNull(row.description()), row.unit(), cover(row),
-                null, null, null, null, null, List.of(sku), null, null, gallery(row));
+        return new AdminProduct(null, null, row.name(), null, null, category, blankToNull(row.description()), row.unit(), cover(pictures),
+                null, null, null, null, null, List.of(sku), null, null, gallery(pictures));
     }
 
     /** A row without a price, image or description keeps what the web already has; KiotViet often leaves them empty. */
-    private static AdminProduct updatedProduct(AdminProduct s, ExcelRow row, long category) {
+    private static AdminProduct updatedProduct(AdminProduct s, ExcelRow row, long category, List<String> pictures) {
         String key = SkuCodeKey.of(row.code());
         List<AdminSku> rows = s.skus().stream().map(k -> !SkuCodeKey.of(k.code()).equals(key) || row.price() == null ? k
                 : new AdminSku(k.id(), k.version(), k.code(), k.name(), k.unitName(), k.conversion(), k.isBase(), row.price(), k.priceVisible(),
                         k.needsConfirmation(), k.promoPrice(), k.promoFrom(), k.promoTo(), k.visible(), k.source(), null, null)).toList();
-        boolean hasImages = !row.imageUrls().isEmpty();
+        boolean hasImages = !pictures.isEmpty();
         return new AdminProduct(s.id(), s.version(), row.name(), s.slug(), s.brandId(), category,
-                row.description().isEmpty() ? s.descriptionMd() : row.description(), s.specLine(), hasImages ? cover(row) : s.imageUrl(),
+                row.description().isEmpty() ? s.descriptionMd() : row.description(), s.specLine(), hasImages ? cover(pictures) : s.imageUrl(),
                 s.seoTitle(), s.seoDescription(), s.internalNote(), s.published(), s.status(), rows, null, null,
-                hasImages ? gallery(row) : null);
+                hasImages ? gallery(pictures) : null);
     }
 
-    private static String cover(ExcelRow row) {
-        return row.imageUrls().isEmpty() ? null : row.imageUrls().get(0);
+    private static String cover(List<String> pictures) {
+        return pictures.isEmpty() ? null : pictures.get(0);
     }
 
-    private static List<String> gallery(ExcelRow row) {
-        return row.imageUrls().isEmpty() ? List.of() : row.imageUrls().subList(1, row.imageUrls().size());
+    private static List<String> gallery(List<String> pictures) {
+        return pictures.isEmpty() ? List.of() : pictures.subList(1, pictures.size());
     }
 
     private static String blankToNull(String value) {

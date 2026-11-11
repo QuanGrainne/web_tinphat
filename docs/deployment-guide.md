@@ -83,11 +83,20 @@ The API loads the catalogue from `apps/api/src/main/resources/seed/catalogue-202
 
 ## 7. Backup and restore
 
-Backup (custom-format `pg_dump` into `data/backups/dna-YYYYmmdd-HHMM.dump`, gitignored; old files are not pruned):
+Backup writes two files into `data/backups/` (gitignored): `dna-YYYYmmdd-HHMM.dump` (custom-format `pg_dump`) and `uploads-YYYYmmdd-HHMM.tar.gz` (every product and category picture in the `uploads` volume). Files older than `KEEP_DAYS` (default 14) are deleted. With `BACKUP_REMOTE` set to an [rclone](https://rclone.org) destination, both files are also copied off the server and remote copies older than `KEEP_DAYS` are deleted; the run fails if that copy fails.
 
 ```bash
 bash scripts/backup.sh
+KEEP_DAYS=30 BACKUP_REMOTE=r2:tinphat-backups bash scripts/backup.sh   # with an off-site copy
 ```
+
+On the VPS, run it every night from cron (`crontab -e`; adjust the path and the remote):
+
+```cron
+0 2 * * * cd /opt/tinphat && BACKUP_REMOTE=r2:tinphat-backups bash scripts/backup.sh >> /var/log/tinphat-backup.log 2>&1
+```
+
+A backup that only lives on the VPS is lost with the VPS: set `BACKUP_REMOTE` (Cloudflare R2, Google Drive, another server; configure it once with `rclone config`). Never run `docker compose down -v` on the server: `-v` deletes the database and the pictures.
 
 Restore (replaces everything in the database with the dump: rows created after the dump are lost, export them first if they matter; use the name of your dump file):
 
@@ -97,7 +106,13 @@ docker compose -f deploy/compose.yml exec -T db sh -c 'pg_restore -U "$POSTGRES_
 docker compose -f deploy/compose.yml up -d
 ```
 
-Verify with `bash scripts/smoke.sh`. Uploaded files live in the `uploads` volume and are not part of the dump (uploads are not in this MVP).
+Restore the pictures (adds the files from the archive back into the `uploads` volume; files with the same name are replaced):
+
+```bash
+docker compose -f deploy/compose.yml exec -T api sh -c 'tar -C /app/uploads -xzf -' < data/backups/uploads-20261031-1414.tar.gz
+```
+
+Verify with `bash scripts/smoke.sh`.
 
 ## 8. Account runbook (SQL)
 

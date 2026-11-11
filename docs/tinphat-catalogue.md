@@ -22,7 +22,7 @@ If Windows refuses port 55432 (`netsh interface ipv4 show excludedportrange prot
 | Change category order | "Thứ tự" in the category dialog |
 | Hide a category or product | "Hiển thị trên web" |
 
-The first product image is the cover shown on cards; the others appear on the product page (`product_image` table). Storefront pages read the API on every request, so admin edits show on the next page load. Images are JPG, PNG or WebP up to 5 MB. `POST /api/admin/uploads/images` checks the file's own bytes, stores it under a generated name in the `uploads` volume and Caddy serves it from `/uploads/`. Back up that volume together with the database: `scripts/backup.sh` covers only the database.
+The first product image is the cover shown on cards; the others appear on the product page (`product_image` table). Storefront pages read the API on every request, so admin edits show on the next page load. Images are JPG, PNG or WebP up to 5 MB. `POST /api/admin/uploads/images` checks the file's own bytes, stores it under a generated name in the `uploads` volume and Caddy serves it from `/uploads/`. `scripts/backup.sh` backs up that volume together with the database (see the deployment guide, section 7).
 
 Fixed brand copy (hero, about, capability, process) is in `apps/web/lib/tinphat/content.ts`. Company name, address, hotline and Zalo are in the `app_setting` table (migration `V50__tinphat_catalogue.sql`).
 
@@ -34,7 +34,7 @@ Fixed brand copy (hero, about, capability, process) is in `apps/web/lib/tinphat/
 - The dialog imports into a chosen category, or uses "Nhóm hàng" from the file and creates it (two levels at most).
 - A code that already exists updates that product. A price of 0 means no price and never clears a price set on the web. Empty images and descriptions also keep what is stored.
 - Rows with "Mã ĐVT Cơ bản" (secondary units) are skipped.
-- Images stay as links to the KiotViet CDN and are not copied here. If KiotViet removes a photo it disappears from the site.
+- Images are copied from the KiotViet CDN into the `uploads` volume during the import, so a photo deleted in KiotViet stays on the site. Only HTTPS addresses on `kiotviet.vn` and its subdomains are fetched (`DNA_IMAGE_IMPORT_ALLOWED_HOSTS`, comma separated, changes the list); redirects are not followed and a file must be a JPG, PNG or WebP of at most 5 MB. The table `imported_image` remembers each source address, so importing the same file again reuses the copy. A picture that cannot be fetched keeps its link and is counted in the import result; `/admin/products` then shows how many links remain and a manager's "Tải về máy chủ" button copies them (`GET /api/admin/images/remote`, `POST /api/admin/images/localize`).
 
 The export writes the same column names for the whole catalogue, or for the category selected in the list filter.
 
